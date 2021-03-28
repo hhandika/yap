@@ -1,52 +1,49 @@
 use std::fs;
-use std::str;
-use std::io::{self, Result, BufWriter, Write};
+use std::io::{self, BufWriter, Result, Write};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
+use std::str;
 
-#[cfg(target_family="unix")]
+#[cfg(target_family = "unix")]
 use std::os::unix;
 
 use spinners::{Spinner, Spinners};
 
-use crate::parser::RawSeq;
-use crate::utils;
+use crate::qc::parser::RawSeq;
+use crate::qc::utils;
 
 pub fn check_fastp() {
-    let out = Command::new("fastp")
-        .arg("--version")
-        .output();
-        
-        match out {
-            Ok(out) =>  println!("[OK]\t{}\n", str::from_utf8(&out.stderr).unwrap().trim()),
-            Err(_) => println!("[NOT FOUND]\tfastp"),
-        }
+    let out = Command::new("fastp").arg("--version").output();
 
+    match out {
+        Ok(out) => println!("[OK]\t{}\n", str::from_utf8(&out.stderr).unwrap().trim()),
+        Err(_) => println!("[NOT FOUND]\tfastp"),
+    }
 }
 
 pub fn clean_reads(reads: &[RawSeq], params: &Option<String>) {
     let dir = Path::new("clean_reads");
     check_dir_exists(&dir);
-    reads.iter()
-        .for_each(|read| {
-            let mut run = Runner::new(&dir, read, params);
+    reads.iter().for_each(|read| {
+        let mut run = Runner::new(&dir, read, params);
 
-            if read.adapter_i7.as_ref().is_some() { // Check if i7 contains sequence
-                run.dual_idx = true;
-            }
+        if read.adapter_i7.as_ref().is_some() {
+            // Check if i7 contains sequence
+            run.dual_idx = true;
+        }
 
-            run.process_reads();
-        });
+        run.process_reads();
+    });
 
     println!();
-} 
+}
 
 fn check_dir_exists(dir: &Path) {
     if dir.exists() {
         panic!("{:?} DIR EXISTS. PLEASE RENAME OR REMOVE IT", dir);
-    } else { // if not create one
-        fs::create_dir_all(dir)
-            .expect("CAN'T CREATE CLEAN READ DIR");
+    } else {
+        // if not create one
+        fs::create_dir_all(dir).expect("CAN'T CREATE CLEAN READ DIR");
     }
 }
 
@@ -60,11 +57,7 @@ struct Runner<'a> {
 }
 
 impl<'a> Runner<'a> {
-    fn new(
-        dir: &Path, 
-        input: &'a RawSeq, 
-        params: &'a Option<String>
-    ) -> Self {
+    fn new(dir: &Path, input: &'a RawSeq, params: &'a Option<String>) -> Self {
         Self {
             clean_dir: dir.join(&input.dir),
             dual_idx: false,
@@ -76,14 +69,12 @@ impl<'a> Runner<'a> {
     }
 
     fn process_reads(&mut self) {
-        utils::print_header(&self.reads.id); 
-        self.get_out_fnames(); 
+        utils::print_header(&self.reads.id);
+        self.get_out_fnames();
         self.display_settings().unwrap();
         let spin = self.set_spinner();
         let out = self.call_fastp();
-        
         let mut reports = FastpReports::new(&self.clean_dir);
-        
         reports.check_fastp_status(&out);
         reports.write_stdout(&out);
         self.try_creating_symlink();
@@ -102,7 +93,6 @@ impl<'a> Runner<'a> {
     fn get_out_fnames(&mut self) {
         let outdir = self.clean_dir.join("trimmed_reads");
         fs::create_dir_all(&outdir).unwrap();
-        
         let out1 = self.reads.read_1.file_name().unwrap();
         let out2 = self.reads.read_2.file_name().unwrap();
 
@@ -135,14 +125,25 @@ impl<'a> Runner<'a> {
         writeln!(buff, "Input R2\t: {}", &self.reads.read_2.to_string_lossy())?;
         writeln!(buff, "Output R1\t: {}", &self.out_r1.to_string_lossy())?;
         writeln!(buff, "Output R2\t: {}", &self.out_r2.to_string_lossy())?;
-        
         if self.reads.auto_idx {
             writeln!(buff, "Adapters\t: AUTO-DETECT")?;
         } else if !self.dual_idx {
-            writeln!(buff, "Adapters\t: {}", self.reads.adapter_i5.as_ref().unwrap())?;
+            writeln!(
+                buff,
+                "Adapters\t: {}",
+                self.reads.adapter_i5.as_ref().unwrap()
+            )?;
         } else {
-            writeln!(buff, "Adapter i5\t: {}", self.reads.adapter_i5.as_ref().unwrap())?;
-            writeln!(buff, "Adapters i7\t: {}", self.reads.adapter_i7.as_ref().unwrap())?;
+            writeln!(
+                buff,
+                "Adapter i5\t: {}",
+                self.reads.adapter_i5.as_ref().unwrap()
+            )?;
+            writeln!(
+                buff,
+                "Adapters i7\t: {}",
+                self.reads.adapter_i7.as_ref().unwrap()
+            )?;
         }
 
         writeln!(buff)?;
@@ -152,7 +153,6 @@ impl<'a> Runner<'a> {
 
     fn set_spinner(&mut self) -> Spinner {
         let msg = "Fastp is processing...\t".to_string();
-        
         Spinner::new(Spinners::Moon, msg)
     }
 
@@ -173,7 +173,6 @@ impl<'a> Runner<'a> {
         if self.params.is_some() {
             self.set_opt_params(&mut out);
         }
-        
         out.output().unwrap()
     }
 
@@ -208,34 +207,32 @@ impl<'a> Runner<'a> {
     }
 
     fn try_creating_symlink(&self) {
-        if cfg!(target_family="unix") {
-            #[cfg(target_family="unix")]
+        if cfg!(target_family = "unix") {
+            #[cfg(target_family = "unix")]
             self.create_symlink().unwrap();
         } else {
-            println!("Skip creating symlink in dir {} for {} and {}. \
-                Operating system is not supported.", 
-                &self.clean_dir.to_string_lossy(), 
-                &self.reads.read_1.to_string_lossy(), 
-                &self.reads.read_2.to_string_lossy());
+            println!(
+                "Skip creating symlink in dir {} for {} and {}. \
+                Operating system is not supported.",
+                &self.clean_dir.to_string_lossy(),
+                &self.reads.read_1.to_string_lossy(),
+                &self.reads.read_2.to_string_lossy()
+            );
         }
     }
-    
-    #[cfg(target_family="unix")]
+
+    #[cfg(target_family = "unix")]
     fn create_symlink(&self) -> Result<()> {
         let symdir = self.clean_dir.join("raw_read_symlinks");
         fs::create_dir_all(&symdir)?;
-        
         let abs_r1 = self.reads.read_1.canonicalize().unwrap();
         let abs_r2 = self.reads.read_2.canonicalize().unwrap();
         let path_r1 = symdir.join(self.reads.read_1.file_name().unwrap());
         let path_r2 = symdir.join(self.reads.read_2.file_name().unwrap());
-    
         unix::fs::symlink(abs_r1, path_r1)?;
         unix::fs::symlink(abs_r2, path_r2)?;
-    
         Ok(())
     }
-    
 }
 
 struct FastpReports {
@@ -261,7 +258,7 @@ impl FastpReports {
         }
     }
 
-    // Less likely this will be called 
+    // Less likely this will be called
     // because potential input errors that cause fastp
     // to failed is mitigated before passing the input
     // to it.
@@ -274,14 +271,13 @@ impl FastpReports {
             self.fastp_is_failed(out);
         }
     }
-    
     fn fastp_is_failed(&self, out: &Output) {
         io::stdout().write_all(&out.stdout).unwrap();
         io::stdout().write_all(&out.stderr).unwrap();
         panic!("FASTP FAILED TO RUN");
     }
 
-    // We remove the clutter of fastp stdout in the console. 
+    // We remove the clutter of fastp stdout in the console.
     // Instead, we save it as a log file.
     fn write_stdout(&self, out: &Output) {
         let fname = fs::File::create(&self.log).unwrap();
@@ -292,13 +288,11 @@ impl FastpReports {
         buff.write_all(&out.stderr).unwrap();
     }
 
-    fn reorganize_reports(&mut self) -> Result<()>{
+    fn reorganize_reports(&mut self) -> Result<()> {
         fs::create_dir_all(&self.dir)?;
-    
         self.html_out = self.dir.join(&self.html);
         self.json_out = self.dir.join(&self.json);
         self.log_out = self.dir.join(&self.log);
-        
         // Move json, html, and log reports
         fs::rename(&self.html, &self.html_out)?;
         fs::rename(&self.json, &self.json_out)?;
@@ -307,7 +301,7 @@ impl FastpReports {
         Ok(())
     }
 
-    fn display_report_paths(&self) -> Result<()>{
+    fn display_report_paths(&self) -> Result<()> {
         let stdout = io::stdout();
         let mut handle = io::BufWriter::new(stdout);
 
@@ -319,5 +313,5 @@ impl FastpReports {
         writeln!(handle)?;
 
         Ok(())
-    }   
+    }
 }

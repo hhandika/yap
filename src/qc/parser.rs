@@ -1,14 +1,14 @@
-use std::path::PathBuf;
 use std::fs::File;
-use std::io::BufReader;
 use std::io::prelude::*;
+use std::io::BufReader;
+use std::path::PathBuf;
 
 use glob::{glob_with, MatchOptions};
 
-use crate::tag;
+use crate::qc::tag;
 
 pub struct RawSeq {
-    pub id: String, 
+    pub id: String,
     pub dir: PathBuf,
     pub read_1: PathBuf,
     pub read_2: PathBuf,
@@ -53,7 +53,7 @@ impl RawSeq {
             self.read_1
                 .file_name()
                 .expect("MISSING FILES")
-                .to_string_lossy()
+                .to_string_lossy(),
         );
 
         let ids = split_strings(&fnames, false);
@@ -62,15 +62,14 @@ impl RawSeq {
     }
 
     fn get_reads(&mut self, reads: &[PathBuf]) {
-        reads.iter()
-            .for_each(|reads| {
-                match reads.to_string_lossy().to_uppercase() {
-                    s if s.contains("READ1") => self.read_1 = PathBuf::from(reads),
-                    s if s.contains("_R1") => self.read_1 = PathBuf::from(reads),
-                    s if s.contains("READ2") => self.read_2 = PathBuf::from(reads),
-                    s if s.contains("_R2") => self.read_2 = PathBuf::from(reads),
-                    _ => (),
-                }
+        reads
+            .iter()
+            .for_each(|reads| match reads.to_string_lossy().to_uppercase() {
+                s if s.contains("READ1") => self.read_1 = PathBuf::from(reads),
+                s if s.contains("_R1") => self.read_1 = PathBuf::from(reads),
+                s if s.contains("READ2") => self.read_2 = PathBuf::from(reads),
+                s if s.contains("_R2") => self.read_2 = PathBuf::from(reads),
+                _ => (),
             });
 
         self.check_missing_reads();
@@ -79,13 +78,13 @@ impl RawSeq {
     fn check_missing_reads(&self) {
         let missing_r1 = self.read_1.to_string_lossy().is_empty();
         let missing_r2 = self.read_2.to_string_lossy().is_empty();
-        if  missing_r1 || missing_r2 {
-            panic!("CANNOT FIND BOTH READS FOR {}. \
+        if missing_r1 || missing_r2 {
+            panic!(
+                "CANNOT FIND BOTH READS FOR {}. \
                 Read 1: {:?} \
-                Read 2: {:?}", 
-                self.id, 
-                self.read_1,
-                self.read_2);
+                Read 2: {:?}",
+                self.id, self.read_1, self.read_2
+            );
         }
     }
 
@@ -132,7 +131,6 @@ impl RawSeq {
     // fn get_costum_commands(&mut self, command: &str) {
 
     // }
-
 }
 
 pub fn parse_csv(input: &PathBuf, is_id: bool, is_rename: bool) -> Vec<RawSeq> {
@@ -153,7 +151,6 @@ pub fn parse_csv(input: &PathBuf, is_id: bool, is_rename: bool) -> Vec<RawSeq> {
             check_reads(&reads, &id);
             seq.get_id(&id);
             seq.get_reads(&reads);
-            
             if is_rename {
                 get_adapter_rename(&mut seq, &lines);
             } else {
@@ -172,8 +169,11 @@ pub fn parse_csv(input: &PathBuf, is_id: bool, is_rename: bool) -> Vec<RawSeq> {
 
 fn check_reads(reads: &[PathBuf], id: &str) {
     match reads.len() {
-        0 => panic!("CANNOT FIND FILE {}. \
-                USE THE --id FLAG IF YOU USE THE FILE ID.", id),
+        0 => panic!(
+            "CANNOT FIND FILE {}. \
+                USE THE --id FLAG IF YOU USE THE FILE ID.",
+            id
+        ),
         2 => (),
         _ => panic!("REQUIRED TWO READS FOR {}. FOUND: {:?}", id, reads),
     }
@@ -186,9 +186,12 @@ fn get_adapters(seq: &mut RawSeq, adapters: &[String]) {
         3 => get_adapter_dual(seq, &adapters[1], &adapters[2]),
         4 => get_insert_single(seq, &adapters[1], &adapters[2], &adapters[3]),
         5 => get_insert_dual(seq, &adapters[1], &adapters[2], &adapters[3], &adapters[4]),
-        _ => panic!("Unexpected cvs columns. It should be \
+        _ => panic!(
+            "Unexpected cvs columns. It should be \
             2 columns for single index and 3 column for \
-            dual index. The app received {} columns", adapters.len()),
+            dual index. The app received {} columns",
+            adapters.len()
+        ),
     }
 }
 
@@ -203,24 +206,22 @@ fn get_adapter_rename(seq: &mut RawSeq, adapters: &[String]) {
         3 => {
             seq.get_output_name(&adapters[1]);
             get_adapter_single(seq, &adapters[2]);
-        },
+        }
 
         4 => {
             seq.get_output_name(&adapters[1]);
             get_adapter_dual(seq, &adapters[2], &adapters[3]);
         }
-        
         5 => {
             seq.get_output_name(&adapters[1]);
             get_insert_single(seq, &adapters[2], &adapters[3], &adapters[4]);
         }
-        
         6 => {
             seq.get_output_name(&adapters[1]);
             get_insert_dual(seq, &adapters[2], &adapters[3], &adapters[4], &adapters[5]);
         }
-        
-        _ => panic!("TOO MANY COLUMN. SIX MAX FOR RENAMING")
+
+        _ => panic!("TOO MANY COLUMN. SIX MAX FOR RENAMING"),
     }
 }
 
@@ -230,13 +231,14 @@ fn get_adapter_single(seq: &mut RawSeq, adapters: &str) {
         panic!("INSERT MISSING!");
     } else {
         seq.get_adapter_single(&i5);
-    }  
+    }
 }
 
 fn get_adapter_dual(seq: &mut RawSeq, i5: &str, i7: &str) {
     let adapter_i5 = i5.to_uppercase();
-    if is_insert_missing(&adapter_i5) { // i7 is a tag
-        let adapter_i5 = tag::insert_tag(i5, i7); 
+    if is_insert_missing(&adapter_i5) {
+        // i7 is a tag
+        let adapter_i5 = tag::insert_tag(i5, i7);
         seq.get_adapter_single(&adapter_i5);
     } else {
         let adapter_i7 = i7.to_uppercase();
@@ -247,24 +249,17 @@ fn get_adapter_dual(seq: &mut RawSeq, i5: &str, i7: &str) {
 fn get_insert_single(seq: &mut RawSeq, i5: &str, i7: &str, insert: &str) {
     let adapter_i7 = i7.to_uppercase();
     if is_insert_missing(i5) {
-        let adapter_i5 = tag::insert_tag(i5, insert);  
+        let adapter_i5 = tag::insert_tag(i5, insert);
         seq.get_adapter_dual(&adapter_i5, &adapter_i7);
     } else {
         panic!("INVALID COLUMNS FOR {}!", seq.id);
     }
 }
 
-fn get_insert_dual(
-    seq: &mut RawSeq, 
-    i5: &str, 
-    i7: &str, 
-    in_i5: &str,
-    in_i7: &str
-){
+fn get_insert_dual(seq: &mut RawSeq, i5: &str, i7: &str, in_i5: &str, in_i7: &str) {
     let i5 = tag::insert_tag(i5, in_i5);
     let i7 = tag::insert_tag(i7, in_i7);
     seq.get_adapter_dual(&i5, &i7);
-
 }
 
 fn is_insert_missing(adapter: &str) -> bool {
@@ -276,16 +271,12 @@ fn split_strings(lines: &str, csv: bool) -> Vec<String> {
     if !csv {
         sep = '_';
     }
-    let seqs = lines.split(sep)
-        .map(|e| e.trim().to_string())
-        .collect();
-    
+    let seqs = lines.split(sep).map(|e| e.trim().to_string()).collect();
     seqs
 }
 
 fn glob_raw_reads(path: &PathBuf, id: &str, is_id: bool) -> Vec<PathBuf> {
     let patterns = get_patterns(path, id, is_id);
-    
     let opts = MatchOptions {
         case_sensitive: true,
         ..Default::default()
@@ -308,7 +299,6 @@ fn get_patterns(path: &PathBuf, id: &str, is_id: bool) -> String {
     String::from(parent.join(pat_id).to_string_lossy())
 }
 
-
 #[cfg(test)]
 mod test {
     use super::*;
@@ -323,7 +313,9 @@ mod test {
     }
 
     #[test]
-    #[should_panic(expected = "CANNOT FIND FILE ABC1234. USE THE --id FLAG IF YOU USE THE FILE ID.")]
+    #[should_panic(
+        expected = "CANNOT FIND FILE ABC1234. USE THE --id FLAG IF YOU USE THE FILE ID."
+    )]
     fn check_reads_panic_msg_test() {
         let id = "ABC1234";
         let reads = Vec::new();
@@ -361,7 +353,6 @@ mod test {
 
         assert_eq!(2, files.len());
     }
-    
     #[test]
     fn parse_csv_test() {
         let input = PathBuf::from("test_files/test.csv");
@@ -369,14 +360,13 @@ mod test {
         let seq = parse_csv(&input, true, false);
 
         assert_eq!(1, seq.len());
-        
-        seq.iter()
-            .for_each(|s| {
-                let dir = input.parent().unwrap();
-                assert_eq!(dir.join("test_1_cde_R1.fastq"), s.read_1);
-                assert_eq!(dir.join("test_1_cde_R2.fastq"), s.read_2);
-                assert_eq!("AGTCT", s.adapter_i5.as_ref().unwrap());
-            });
+
+        seq.iter().for_each(|s| {
+            let dir = input.parent().unwrap();
+            assert_eq!(dir.join("test_1_cde_R1.fastq"), s.read_1);
+            assert_eq!(dir.join("test_1_cde_R2.fastq"), s.read_2);
+            assert_eq!("AGTCT", s.adapter_i5.as_ref().unwrap());
+        });
     }
 
     #[test]
@@ -384,14 +374,13 @@ mod test {
         let input = PathBuf::from("test_files/test2.csv");
 
         let seq = parse_csv(&input, true, false);
-    
-        seq.iter()
-            .for_each(|s| {
-                let dir = input.parent().unwrap();
-                assert_eq!(dir.join("some_animals_XYZ12345_R1.fastq.gz"), s.read_1);
-                assert_eq!(dir.join("some_animals_XYZ12345_R2.fastq.gz"), s.read_2);
-                assert_eq!("ATGTCTCTCTATATATACT", s.adapter_i5.as_ref().unwrap());
-            });
+
+        seq.iter().for_each(|s| {
+            let dir = input.parent().unwrap();
+            assert_eq!(dir.join("some_animals_XYZ12345_R1.fastq.gz"), s.read_1);
+            assert_eq!(dir.join("some_animals_XYZ12345_R2.fastq.gz"), s.read_2);
+            assert_eq!("ATGTCTCTCTATATATACT", s.adapter_i5.as_ref().unwrap());
+        });
     }
 
     #[test]
@@ -401,14 +390,13 @@ mod test {
         let seq = parse_csv(&input, true, false);
         let i5 = "ATGTCTCTCTATATATACT";
         let i7 = String::from("ATGTCTCTCTATATATGCT");
-        seq.iter()
-            .for_each(|s| {
-                let dir = input.parent().unwrap();
-                assert_eq!(dir.join("some_animals_XYZ12345_R1.fastq.gz"), s.read_1);
-                assert_eq!(dir.join("some_animals_XYZ12345_R2.fastq.gz"), s.read_2);
-                assert_eq!(i5, s.adapter_i5.as_ref().unwrap());
-                assert_eq!(true, s.adapter_i7.is_some());
-                assert_eq!(i7, String::from(s.adapter_i7.as_ref().unwrap()))
+        seq.iter().for_each(|s| {
+            let dir = input.parent().unwrap();
+            assert_eq!(dir.join("some_animals_XYZ12345_R1.fastq.gz"), s.read_1);
+            assert_eq!(dir.join("some_animals_XYZ12345_R2.fastq.gz"), s.read_2);
+            assert_eq!(i5, s.adapter_i5.as_ref().unwrap());
+            assert_eq!(true, s.adapter_i7.is_some());
+            assert_eq!(i7, String::from(s.adapter_i7.as_ref().unwrap()))
         });
     }
 
@@ -440,7 +428,6 @@ mod test {
         get_adapters(&mut seq, &adapters);
 
         assert_eq!("ATGTGTGTGATATC", seq.adapter_i5.as_ref().unwrap());
-
     }
 
     #[test]
@@ -458,7 +445,10 @@ mod test {
         get_adapters(&mut seq, &adapters);
 
         assert_eq!("ATGTGTGTGATAATATC", seq.adapter_i5.as_ref().unwrap());
-        assert_eq!("ATTTGTGTTTCGGCCC", String::from(seq.adapter_i7.as_ref().unwrap()));
+        assert_eq!(
+            "ATTTGTGTTTCGGCCC",
+            String::from(seq.adapter_i7.as_ref().unwrap())
+        );
     }
 
     #[test]
@@ -477,13 +467,12 @@ mod test {
 
         let reads = parse_csv(&input, is_id, is_rename);
 
-        reads.iter()
-            .for_each(|r| {
-                let res = PathBuf::from("Rattus_rattus_XYZ12345");
-                let id = String::from("some_animals_XYZ12345");
-                assert_eq!(id, r.id);
-                assert_eq!(res, r.dir);
-                assert_eq!(true, r.auto_idx);
-            });
+        reads.iter().for_each(|r| {
+            let res = PathBuf::from("Rattus_rattus_XYZ12345");
+            let id = String::from("some_animals_XYZ12345");
+            assert_eq!(id, r.id);
+            assert_eq!(res, r.dir);
+            assert_eq!(true, r.auto_idx);
+        });
     }
 }
