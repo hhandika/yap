@@ -1,8 +1,6 @@
 use std::fs;
 use std::io::{self, BufWriter, Result, Write};
 use std::path::{Path, PathBuf};
-use std::process::{Command, Output};
-use std::str;
 
 #[cfg(target_family = "unix")]
 use std::os::unix;
@@ -10,16 +8,7 @@ use std::os::unix;
 use spinners::{Spinner, Spinners};
 
 use crate::qc::parser::RawSeq;
-use crate::qc::utils;
-
-pub fn check_fastp() {
-    let out = Command::new("fastp").arg("--version").output();
-
-    match out {
-        Ok(out) => println!("[OK]\t{}\n", str::from_utf8(&out.stderr).unwrap().trim()),
-        Err(_) => println!("[NOT FOUND]\tfastp"),
-    }
-}
+use crate::utils;
 
 pub fn clean_reads(reads: &[RawSeq], params: &Option<String>) {
     let dir = Path::new("clean_reads");

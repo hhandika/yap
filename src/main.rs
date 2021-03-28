@@ -1,6 +1,14 @@
-mod qc;
-mod utils;
+// mod qc;
+mod checker;
+// mod cli;
+// mod utils;
+
+use std::time::Instant;
 
 fn main() {
-    println!("Hello, world!");
+    let time = Instant::now();
+    checker::check_dependencies().unwrap();
+    let duration = time.elapsed();
+
+    println!("Execution time: {:?}", duration);
 }
