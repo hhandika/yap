@@ -2,8 +2,8 @@ use std::path::PathBuf;
 
 use clap::{App, AppSettings, Arg, ArgMatches};
 
-use crate::cleaner;
-use crate::io;
+use crate::assembly::cleaner;
+use crate::assembly::io;
 
 pub fn get_cli(version: &str) {
     let args = App::new("Yet-Another-Pipeline")
@@ -11,11 +11,7 @@ pub fn get_cli(version: &str) {
         .about("A pipeline for processing sequence capture data.")
         .author("Heru Handika <hhandi1@lsu.edu>")
         .setting(AppSettings::SubcommandRequiredElseHelp)
-        .subcommand(
-            App::new("check")
-                .about("Checks if SPAdes is installed")
-            )
-        
+        .subcommand(App::new("check").about("Checks if SPAdes is installed"))
         .subcommand(
             App::new("auto")
                 .about("Auto find clean reads and assembly them")
@@ -26,9 +22,8 @@ pub fn get_cli(version: &str) {
                         .help("Inputs a directory for auto search")
                         .takes_value(true)
                         .value_name("CLEAN-READ DIR")
-                        .required(true)
+                        .required(true),
                 )
-
                 .arg(
                     Arg::with_name("specify")
                         .short("s")
@@ -36,43 +31,38 @@ pub fn get_cli(version: &str) {
                         .help("Specifies clean read directory names")
                         .takes_value(true)
                         .default_value("trimmed")
-                        .value_name("DIR NAME")
+                        .value_name("DIR NAME"),
                 )
-
                 .arg(
                     Arg::with_name("output")
                         .short("o")
                         .long("output")
                         .help("Specifies output folders")
                         .takes_value(true)
-                        .value_name("OUTPUT DIR")   
+                        .value_name("OUTPUT DIR"),
                 )
-
                 .arg(
                     Arg::with_name("dry-run")
                         .long("dry")
                         .help("Checks if the program can find the correct files")
-                        .takes_value(false)
+                        .takes_value(false),
                 )
-
                 .arg(
                     Arg::with_name("threads")
                         .short("t")
                         .long("threads")
                         .help("Sets number of threads")
                         .takes_value(true)
-                        .value_name("THREAD-NUM")
+                        .value_name("THREAD-NUM"),
                 )
-
                 .arg(
                     Arg::with_name("opts")
                         .long("opts")
                         .help("Sets optional SPAdes params")
                         .takes_value(true)
-                        .value_name("OPTIONAL PARAMS")
-                )
-            )
-
+                        .value_name("OPTIONAL PARAMS"),
+                ),
+        )
         .subcommand(
             App::new("assembly")
                 .about("Runs SPAdes using a config file")
@@ -82,58 +72,49 @@ pub fn get_cli(version: &str) {
                         .long("input")
                         .help("Inputs a config file")
                         .takes_value(true)
-                        .value_name("INPUT")
+                        .value_name("INPUT"),
                 )
-                
                 .arg(
                     Arg::with_name("dry-run")
                         .long("dry")
                         .help("Checks if the program detect the correct files")
-                        .takes_value(false)
+                        .takes_value(false),
                 )
-
                 .arg(
                     Arg::with_name("threads")
                         .short("t")
                         .long("threads")
                         .help("Sets number of threads")
                         .takes_value(true)
-                        .value_name("THREAD-NUM")
+                        .value_name("THREAD-NUM"),
                 )
-
                 .arg(
                     Arg::with_name("output")
                         .short("o")
                         .long("output")
                         .help("Specifies output folders")
                         .takes_value(true)
-                        .value_name("OUTPUT DIR")   
+                        .value_name("OUTPUT DIR"),
                 )
-
                 .arg(
                     Arg::with_name("opts")
                         .long("opts")
                         .help("Sets optional SPAdes params")
                         .takes_value(true)
-                        .value_name("OPTIONAL PARAMS")
-                )
-
+                        .value_name("OPTIONAL PARAMS"),
+                ),
         )
-
         .subcommand(
-            App::new("clean")
-                .about("Cleans unused SPAdes files.")
-                .arg(
-                    Arg::with_name("dir")
-                        .short("d")
-                        .long("dir")
-                        .help("Inputs a directory for cleaning")
-                        .takes_value(true)
-                        .value_name("DIR")
-                        .required(true)
-                )
-            )
-        
+            App::new("clean").about("Cleans unused SPAdes files.").arg(
+                Arg::with_name("dir")
+                    .short("d")
+                    .long("dir")
+                    .help("Inputs a directory for cleaning")
+                    .takes_value(true)
+                    .value_name("DIR")
+                    .required(true),
+            ),
+        )
         .get_matches();
 
     match args.subcommand() {
@@ -184,7 +165,7 @@ fn get_thread_num(matches: &ArgMatches) -> Option<usize> {
         let num = matches.value_of("threads");
         match num {
             Some(n) => threads = Some(n.parse::<usize>().unwrap()),
-            None => panic!("INVALID THREAD NUMBERS!"), 
+            None => panic!("INVALID THREAD NUMBERS!"),
         }
     }
 

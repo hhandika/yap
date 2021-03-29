@@ -1,6 +1,7 @@
 // mod qc;
+mod assembly;
 mod checker;
-// mod cli;
+mod cli;
 // mod utils;
 
 use std::time::Instant;
