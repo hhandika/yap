@@ -3,11 +3,10 @@ use std::io::{self, Result, Write};
 use std::os::unix;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
-use std::str;
 
 use spinners::{Spinner, Spinners};
 
-use crate::finder::SeqReads;
+use crate::assembly::finder::SeqReads;
 use crate::utils;
 
 pub fn assemble_reads(
@@ -160,7 +159,7 @@ impl<'a> Runner<'a> {
             let path = contigs_path.canonicalize().unwrap();
             let symlink = self.symlink_dir.join(contig_sym);
             unix::fs::symlink(&path, &symlink).unwrap();
-            utils::print_done().unwrap();
+            self.print_done().unwrap();
             self.print_contig_path(&contigs_path, &symlink).unwrap();
         } else {
             eprintln!(
@@ -168,6 +167,13 @@ impl<'a> Runner<'a> {
                 SPAdes HAS FAILED. PLEASE CHECK SPAdes OUTPUT ABOVE FOR DETAILS.\n"
             );
         }
+    }
+
+    fn print_done(&self) -> Result<()> {
+        let stdout = io::stdout();
+        let mut handle = stdout.lock();
+        writeln!(handle, "\x1b[0;32mDONE!\x1b[0m")?;
+        Ok(())
     }
 
     fn print_contig_path(&self, path: &Path, symlink: &Path) -> Result<()> {

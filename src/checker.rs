@@ -2,10 +2,12 @@ use std::io::{self, Result, Write};
 use std::process::Command;
 use std::str;
 
+use crate::utils;
+
 pub fn check_dependencies() -> Result<()> {
     let stdout = io::stdout();
     let mut handle = io::BufWriter::new(stdout);
-
+    utils::get_system_info().unwrap();
     writeln!(handle, "Dependencies:")?;
     check_fastp(&mut handle)?;
     check_spades(&mut handle)?;

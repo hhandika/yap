@@ -1,8 +1,6 @@
 use std::fs::File;
-use std::io::BufReader;
 use std::io::prelude::*;
-
-use crate::utils;
+use std::io::BufReader;
 
 pub fn parse_seqdir(input: &str) -> Vec<SeqDirs> {
     let file = File::open(input).unwrap();
@@ -20,16 +18,17 @@ pub fn parse_seqdir(input: &str) -> Vec<SeqDirs> {
             } else if line.contains(':') {
                 sample.parse_ini(&line);
             } else {
-                panic!("INVALID INPUT FORMAT. \
-                    LOOKING FOR ',' or ':' FOUND {}", line);
+                panic!(
+                    "INVALID INPUT FORMAT. \
+                    LOOKING FOR ',' or ':' FOUND {}",
+                    line
+                );
             }
-            
             seqdir.push(sample);
         });
 
     seqdir
 }
-
 
 pub struct SeqDirs {
     pub id: String,
@@ -46,14 +45,14 @@ impl SeqDirs {
 
     fn parse_csv(&mut self, line: &str) {
         let sep = ',';
-        let lines = utils::split_strings(line, sep);
+        let lines = self.split_strings(line, sep);
         self.check_results(&lines);
         self.parse_samples(&lines);
     }
 
     fn parse_ini(&mut self, line: &str) {
         let sep = ':';
-        let lines = utils::split_strings(line, sep);
+        let lines = self.split_strings(line, sep);
         self.check_results(&lines);
         self.parse_samples(&lines);
     }
@@ -65,9 +64,16 @@ impl SeqDirs {
 
     fn check_results(&self, lines: &[String]) {
         if lines.len() != 2 {
-            panic!("INVALID INPUT. EXPECTING ID AND DIRECTORY PATH, \
-                FOUND: {:?}", lines)
+            panic!(
+                "INVALID INPUT. EXPECTING ID AND DIRECTORY PATH, \
+                FOUND: {:?}",
+                lines
+            )
         }
+    }
+
+    fn split_strings(&self, line: &str, sep: char) -> Vec<String> {
+        line.split(sep).map(|e| e.trim().to_string()).collect()
     }
 }
 
@@ -88,7 +94,7 @@ mod test {
         let line = "some_animals,folder/target/";
         let mut samples = SeqDirs::new();
 
-        samples.parse_csv(&line);
+        samples.parse_csv(line);
         assert_eq!("some_animals", samples.id);
         assert_eq!("folder/target/", samples.dir);
     }
@@ -98,7 +104,7 @@ mod test {
         let line = " some_animals,folder/target/ ";
         let mut samples = SeqDirs::new();
 
-        samples.parse_csv(&line);
+        samples.parse_csv(line);
         assert_eq!("some_animals", samples.id);
         assert_eq!("folder/target/", samples.dir);
     }
@@ -108,7 +114,7 @@ mod test {
         let line = "some_animals:folder/target/";
         let mut samples = SeqDirs::new();
 
-        samples.parse_ini(&line);
+        samples.parse_ini(line);
         assert_eq!("some_animals", samples.id);
         assert_eq!("folder/target/", samples.dir);
     }
@@ -119,6 +125,6 @@ mod test {
         let line = "some_animals:folder/target/:random";
         let mut samples = SeqDirs::new();
 
-        samples.parse_ini(&line);
+        samples.parse_ini(line);
     }
 }

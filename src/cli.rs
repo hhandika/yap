@@ -4,6 +4,7 @@ use clap::{App, AppSettings, Arg, ArgMatches};
 
 use crate::assembly::cleaner;
 use crate::assembly::io;
+use crate::checker;
 
 pub fn get_cli(version: &str) {
     let args = App::new("Yet-Another-Pipeline")
@@ -120,7 +121,7 @@ pub fn get_cli(version: &str) {
     match args.subcommand() {
         ("auto", Some(clean_matches)) => run_spades_auto(clean_matches, version),
         ("assembly", Some(assembly_matches)) => run_spades(assembly_matches, version),
-        ("check", Some(_)) => io::check_dependencies(),
+        ("check", Some(_)) => checker::check_dependencies().unwrap(),
         ("clean", Some(clean_matches)) => clean_spades_files(clean_matches),
         _ => (),
     };
