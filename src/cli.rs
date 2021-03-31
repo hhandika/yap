@@ -7,12 +7,12 @@ use crate::assembly::io;
 use crate::checker;
 
 pub fn get_cli(version: &str) {
-    let args = App::new("Yet-Another-Pipeline")
+    let args = App::new("YAP")
         .version(version)
         .about("A pipeline for processing sequence capture data.")
         .author("Heru Handika <hhandi1@lsu.edu>")
         .setting(AppSettings::SubcommandRequiredElseHelp)
-        .subcommand(App::new("check").about("Checks if SPAdes is installed"))
+        .subcommand(App::new("check").about("Checks dependencies"))
         .subcommand(
             App::new("auto")
                 .about("Auto find clean reads and assembly them")
