@@ -1,7 +1,7 @@
-// mod qc;
 mod assembly;
 mod checker;
 mod cli;
+mod qc;
 mod utils;
 
 use clap::crate_version;

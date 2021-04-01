@@ -102,7 +102,7 @@ mod test {
 
     #[test]
     fn glob_test() {
-        let input = "test_files/";
+        let input = "test_files/assembly";
 
         let seq = SeqReads::new(&input);
 
@@ -112,7 +112,7 @@ mod test {
 
     #[test]
     fn find_cleaned_fastq_test() {
-        let input = "test_files/";
+        let input = "test_files/assembly";
         let dirname = "trimmed";
 
         let res = auto_find_cleaned_fastq(&input, &dirname);
@@ -122,7 +122,7 @@ mod test {
 
     #[test]
     fn find_cleaned_fastq_reads_test() {
-        let input = "test_files/";
+        let input = "test_files/assembly";
         let dirname = "trimmed";
 
         let res = auto_find_cleaned_fastq(&input, &dirname);
@@ -133,7 +133,7 @@ mod test {
         res.iter().for_each(|e| {
             assert_eq!(r1, e.read_1);
             assert_eq!(r2, e.read_2);
-            assert_eq!(String::from("trimmed_test"), e.id);
+            assert_eq!(String::from("assembly"), e.id);
         })
     }
 

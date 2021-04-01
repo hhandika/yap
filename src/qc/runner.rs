@@ -1,6 +1,7 @@
 use std::fs;
 use std::io::{self, BufWriter, Result, Write};
 use std::path::{Path, PathBuf};
+use std::process::{Command, Output};
 
 #[cfg(target_family = "unix")]
 use std::os::unix;

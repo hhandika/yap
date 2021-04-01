@@ -83,7 +83,7 @@ mod test {
 
     #[test]
     fn input_ini_test() {
-        let input = "test_files/spade_runner.ini";
+        let input = "test_files/assembly/spade_runner.ini";
         let samples = parse_seqdir(&input);
 
         assert_eq!(2, samples.len());

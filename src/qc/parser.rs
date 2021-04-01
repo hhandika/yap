@@ -335,7 +335,7 @@ mod test {
 
     #[test]
     fn glob_raw_reads_test() {
-        let input = PathBuf::from("test_files/data.test");
+        let input = PathBuf::from("test_files/qc/data.test");
         let pattern = "cde";
 
         let files = glob_raw_reads(&input, &pattern, true);
@@ -345,7 +345,7 @@ mod test {
 
     #[test]
     fn glob_id_at_start_test() {
-        let input = PathBuf::from("test_files/data.test");
+        let input = PathBuf::from("test_files/qc/data.test");
         let pattern = "test_1";
         let is_id = false;
 
@@ -355,7 +355,7 @@ mod test {
     }
     #[test]
     fn parse_csv_test() {
-        let input = PathBuf::from("test_files/test.csv");
+        let input = PathBuf::from("test_files/qc/parse_csv_test.csv");
 
         let seq = parse_csv(&input, true, false);
 
@@ -371,7 +371,7 @@ mod test {
 
     #[test]
     fn parse_csv_pattern_test() {
-        let input = PathBuf::from("test_files/test2.csv");
+        let input = PathBuf::from("test_files/qc/parse_csv_pattern_test.csv");
 
         let seq = parse_csv(&input, true, false);
 
@@ -385,7 +385,7 @@ mod test {
 
     #[test]
     fn parse_csv_dual_indexes_test() {
-        let input = PathBuf::from("test_files/dual_index_test.csv");
+        let input = PathBuf::from("test_files/qc/dual_index_test.csv");
 
         let seq = parse_csv(&input, true, false);
         let i5 = "ATGTCTCTCTATATATACT";
@@ -461,7 +461,7 @@ mod test {
 
     #[test]
     fn target_dir_name_test() {
-        let input = PathBuf::from("test_files/test_rename.csv");
+        let input = PathBuf::from("test_files/qc/test_rename.csv");
         let is_rename = true;
         let is_id = false;
 
