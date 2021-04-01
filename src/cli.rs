@@ -126,7 +126,7 @@ fn get_args(version: &str) -> ArgMatches {
 pub fn parse_cli(version: &str) {
     let args = get_args(version);
     match args.subcommand() {
-        ("assembly", Some(assemble_matches)) => match_assembly_cli(assemble_matches, version),
+        ("assembly", Some(assembly_matches)) => match_assembly_cli(assembly_matches, version),
         ("check", Some(_)) => checker::check_dependencies().unwrap(),
         _ => unreachable!(),
     };
@@ -161,7 +161,7 @@ impl<'a> Spades<'a> {
             io::auto_dryrun(path, &dirname)
         } else {
             println!("Starting spade-runner v{}...\n", self.version);
-            io::auto_process_input(path, &dirname, &threads, &dir, &args);
+            io::auto_process_input(path, dirname, &threads, &dir, &args);
         }
     }
 
