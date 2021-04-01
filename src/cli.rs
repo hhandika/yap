@@ -16,7 +16,7 @@ fn get_args(version: &str) -> ArgMatches {
         .subcommand(App::new("check").about("Checks dependencies"))
         .subcommand(
             App::new("qc")
-                .about("Trim adapter and clean low quality reads using fastp")
+                .about("Trims adapters and clean low quality reads using fastp")
                 .arg(
                     Arg::with_name("input")
                         .short("i")
