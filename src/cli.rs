@@ -165,7 +165,7 @@ pub fn parse_cli(version: &str) {
     let args = get_args(version);
     match args.subcommand() {
         ("assembly", Some(assembly_matches)) => match_assembly_cli(assembly_matches, version),
-        ("clean", Some(clean_matches)) => run_fastp_clean(clean_matches, version),
+        ("qc", Some(clean_matches)) => run_fastp_clean(clean_matches, version),
         ("check", Some(_)) => checker::check_dependencies().unwrap(),
         _ => unreachable!(),
     };
