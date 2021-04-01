@@ -11,8 +11,8 @@ A pipeline for processing high-throughput sequencing data.
 OS support:
 
 1. MacOS
-2. Windows-WSL
-3. Linux
+2. Linux
+3. Windows-WSL
 
 ## State of Code
 
