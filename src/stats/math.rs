@@ -17,35 +17,29 @@ pub fn median(vec: &[u32]) -> f64 {
     let midpoint = n / 2;
 
     let med;
-    if n % 2 == 0  {
-        med = (sorted_vec [midpoint - 1]  + sorted_vec[midpoint])  as f64 / 2.0
+    if n % 2 == 0 {
+        med = (sorted_vec[midpoint - 1] + sorted_vec[midpoint]) as f64 / 2.0
     } else {
         med = sorted_vec[midpoint] as f64
     }
-    
-    med 
+
+    med
 }
 
 #[inline(always)]
 fn sum_of_square(vec: &[f64]) -> f64 {
-    let d: f64 = vec.iter()
-                    .map(|val| val.powf(2.0))
-                    .sum();
-    
+    let d: f64 = vec.iter().map(|val| val.powf(2.0)).sum();
     d
 }
 
 #[inline(always)]
 fn dev_mean(vec: &[u32], mean: &f64) -> Vec<f64> {
-    vec.iter()
-        .map(|&val| val as f64 - *mean)
-        .collect()
+    vec.iter().map(|&val| val as f64 - *mean).collect()
 }
 
 fn variance(vec: &[u32], mean: &f64) -> f64 {
     let d_mean = dev_mean(vec, mean);
-    let n = vec.len() as f64 - 1.0 ;
-    
+    let n = vec.len() as f64 - 1.0;
     sum_of_square(&d_mean) / n
 }
 
@@ -53,7 +47,6 @@ pub fn stdev(vec: &[u32], mean: &f64) -> f64 {
     let var = variance(vec, mean);
     var.sqrt()
 }
-
 
 fn sort_vec_desc(vec: &[u32]) -> Vec<u32> {
     let mut sorted_vec = vec.to_vec();
@@ -65,12 +58,10 @@ fn sort_vec_desc(vec: &[u32]) -> Vec<u32> {
 fn cumsum(vec: &[u32]) -> Vec<u32> {
     let mut csum = Vec::new();
     let mut sum = 0;
-    vec.iter()
-        .for_each(|v|{
-            sum += v;
-            csum.push(sum);
-        });
-    
+    vec.iter().for_each(|v| {
+        sum += v;
+        csum.push(sum);
+    });
     csum
 }
 
@@ -78,9 +69,6 @@ pub struct NStats {
     sorted_contigs: Vec<u32>,
     csum_contigs: Vec<u32>,
     sum_contigs: u32,
-    n50_len: u32,
-    n75_len: u32,
-    n90_len: u32,
     pub n50: u32,
     pub n75: u32,
     pub n90: u32,
@@ -92,51 +80,44 @@ impl NStats {
             sorted_contigs: sort_vec_desc(contigs),
             csum_contigs: Vec::new(),
             sum_contigs: contigs.iter().sum::<u32>(),
-            n50_len: 0,
-            n75_len: 0,
-            n90_len: 0,
             n50: 0,
             n75: 0,
             n90: 0,
         };
 
-        nstats.csum_contigs = cumsum(&nstats.sorted_contigs); 
+        nstats.csum_contigs = cumsum(&nstats.sorted_contigs);
 
         nstats
     }
 
     pub fn get_n50(&mut self) {
-        self.n50_len = self.n_len(0.5);
-        let idx = self.get_n_idx(self.n50_len);
+        let n50_len = self.n_len(0.5);
+        let idx = self.get_n_idx(n50_len);
         self.n50 = self.sorted_contigs[idx];
     }
 
     pub fn get_n75(&mut self) {
-        self.n75_len = self.n_len(0.75);
-        let idx = self.get_n_idx(self.n75_len);
+        let n75_len = self.n_len(0.75);
+        let idx = self.get_n_idx(n75_len);
         self.n75 = self.sorted_contigs[idx];
     }
 
     pub fn get_n90(&mut self) {
-        self.n90_len = self.n_len(0.9);
-        let idx = self.get_n_idx(self.n90_len);
+        let n90_len = self.n_len(0.9);
+        let idx = self.get_n_idx(n90_len);
         self.n90 = self.sorted_contigs[idx];
     }
 
     fn get_n_idx(&mut self, n: u32) -> usize {
-        self.csum_contigs.iter()
-            .position(|i| *i >= n)
-            .unwrap()
+        self.csum_contigs.iter().position(|i| *i >= n).unwrap()
     }
 
     fn n_len(&mut self, i: f64) -> u32 {
-        let n = self.sum_contigs as f64 * i;   
+        let n = self.sum_contigs as f64 * i;
 
         n as u32
     }
-
 }
-
 
 #[cfg(test)]
 mod test {
@@ -150,12 +131,10 @@ mod test {
         assert_eq!(4.0, median(&odd));
         assert_eq!(5.5, median(&even));
     }
-    
     #[test]
     fn var_test() {
         let data: Vec<u32> = vec![1, 4, 3, 5, 6, 6, 8, 10];
         let mean = 5.375;
-        
         let exp = 7.982143;
         let res = variance(&data, &mean);
         assert_approx_eq!(exp, res, 6f64);
@@ -188,7 +167,7 @@ mod test {
 
     #[test]
     fn n50_stats_test() {
-        let contigs = vec![2,3,4,5,6,7,8,9,10];
+        let contigs = vec![2, 3, 4, 5, 6, 7, 8, 9, 10];
         let mut seq = NStats::new(&contigs);
         seq.get_n50();
         seq.get_n90();

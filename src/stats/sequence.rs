@@ -26,21 +26,19 @@ impl SeqReads {
     }
 
     fn count_reads(&mut self, reads: &[u8]) {
-        reads.iter().for_each(|base|
-                match base {
-                    b'G' | b'g' | b'C' | b'c' => self.gc_count += 1,
-                    b'N' | b'n'               => self.n_count += 1,
-                    _ => (), 
-                });                   
+        reads.iter().for_each(|base| match base {
+            b'G' | b'g' | b'C' | b'c' => self.gc_count += 1,
+            b'N' | b'n' => self.n_count += 1,
+            _ => (),
+        });
     }
-    
 }
 
 pub struct FastqStats {
     pub path: String,
     pub seqname: String,
     pub read_count: u32,
-    pub total_bp: u64, 
+    pub total_bp: u64,
     pub min_reads: u32,
     pub max_reads: u32,
     pub mean_reads: f64,
@@ -58,11 +56,12 @@ pub struct FastqStats {
 }
 
 impl FastqStats {
-    pub fn count_all_reads(fname: &PathBuf, 
-                            reads: &u32,
-                            vec: &[SeqReads], 
-                            qscores: &[QScore]
-        ) -> Self {
+    pub fn count_all_reads(
+        fname: &PathBuf,
+        reads: &u32,
+        vec: &[SeqReads],
+        qscores: &[QScore],
+    ) -> Self {
         let seq_len = vec.iter().map(|v| v.seq_len).collect::<Vec<u32>>();
 
         let mut seq = Self {
@@ -83,8 +82,8 @@ impl FastqStats {
             gc_content: 0.0,
             n_content: 0.0,
             mean_qscores: 0.0,
-            low_bases_ratio: 0.0
-        }; 
+            low_bases_ratio: 0.0,
+        };
 
         seq.gc_content();
         seq.n_content();
@@ -95,7 +94,6 @@ impl FastqStats {
 
         seq
     }
-    
     fn gc_content(&mut self) {
         self.gc_content = self.total_gc as f64 / self.total_bp as f64;
     }
@@ -129,7 +127,7 @@ pub struct FastaStats {
     pub total_bp: u32,
     pub total_n: u32,
     pub gc_content: f64,
-    pub n_content: f64, 
+    pub n_content: f64,
     pub mean: f64,
     pub min: u32,
     pub max: u32,
@@ -148,7 +146,7 @@ impl FastaStats {
         let mut con = Self {
             path: input.parent().unwrap().to_string_lossy().into_owned(),
             seqname: input.file_name().unwrap().to_string_lossy().into_owned(),
-            contig_counts : *contigs,
+            contig_counts: *contigs,
             total_bp: seq.iter().map(|s| s.seq_len).sum(),
             total_gc: seq.iter().map(|s| s.gc_count).sum(),
             total_n: seq.iter().map(|n| n.n_count).sum(),
@@ -168,7 +166,6 @@ impl FastaStats {
         };
 
         let contigs = seq.iter().map(|s| s.seq_len).collect::<Vec<u32>>();
-    
         con.gc_content();
         con.n_content();
         con.mean();
@@ -232,7 +229,6 @@ mod tests {
         let seq_e: SeqReads = SeqReads::get_seq_stats(&e.as_bytes());
         let seq_f: SeqReads = SeqReads::get_seq_stats(f);
 
-
         assert_eq!(0, seq_a.gc_count);
         assert_eq!(2, seq_b.gc_count);
         assert_eq!(0, seq_c.gc_count);
@@ -252,27 +248,24 @@ mod tests {
     fn all_reads_test() {
         let a: String = String::from("ttggcc");
         let b: String = String::from("taNctgncca");
-        
         let q = QScore {
-                q_len: 2,
-                mean_q: 40.0,
-                low_bases: 0,
-                sum: 40,
-            };
+            q_len: 2,
+            mean_q: 40.0,
+            low_bases: 0,
+            sum: 40,
+        };
         let q_two = QScore {
-                q_len: 2,
-                mean_q: 40.0,
-                low_bases: 0,
-                sum: 40
-            };
-        
+            q_len: 2,
+            mean_q: 40.0,
+            low_bases: 0,
+            sum: 40,
+        };
         let mut seq: Vec<SeqReads> = Vec::new();
         let seq_a = SeqReads::get_seq_stats(&a.as_bytes());
         seq.push(seq_a);
 
         let seq_b = SeqReads::get_seq_stats(&b.as_bytes());
         seq.push(seq_b);
-        
         let qscores: Vec<QScore> = vec![q, q_two];
 
         let fname = PathBuf::from("data/test.fastq");
@@ -294,7 +287,6 @@ mod tests {
         assert_eq!(40.0, res.mean_qscores);
         assert_eq!(0.0, res.low_bases_ratio);
     }
-    
     #[test]
     fn fasta_stats_test() {
         let fname = PathBuf::from("data/test.fasta");

@@ -23,7 +23,7 @@ pub fn traverse_dir(path: &str, iscsv: bool, fastq: bool) {
     }
 }
 
-pub fn get_files(path: &str, fastq: bool) -> Vec<PathBuf> {
+fn get_files(path: &str, fastq: bool) -> Vec<PathBuf> {
     let mut entries = Vec::new();
 
     WalkDir::new(path)
@@ -106,7 +106,7 @@ mod tests {
         let input = "test_files/";
         let files = call_walkdir(&input, false);
 
-        assert_eq!(5, files.len())
+        assert_eq!(4, files.len())
     }
 
     #[test]
