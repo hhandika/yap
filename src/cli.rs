@@ -123,7 +123,7 @@ fn get_args(version: &str) -> ArgMatches {
         .get_matches()
 }
 
-pub fn get_cli(version: &str) {
+pub fn parse_cli(version: &str) {
     let args = get_args(version);
     match args.subcommand() {
         ("assembly", Some(assemble_matches)) => match_assembly_cli(assemble_matches, version),
