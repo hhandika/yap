@@ -2,9 +2,10 @@ use std::path::PathBuf;
 
 use clap::{App, AppSettings, Arg, ArgMatches};
 
+use crate::assembly::asm_io;
 use crate::assembly::cleaner;
-use crate::assembly::io;
 use crate::checker;
+use crate::qc::qc_io;
 
 fn get_args(version: &str) -> ArgMatches {
     App::new("YAP")
@@ -13,6 +14,43 @@ fn get_args(version: &str) -> ArgMatches {
         .author("Heru Handika <hhandi1@lsu.edu>")
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .subcommand(App::new("check").about("Checks dependencies"))
+        .subcommand(
+            App::new("qc")
+                .about("Trim adapter and clean low quality reads using fastp")
+                .arg(
+                    Arg::with_name("input")
+                        .short("i")
+                        .long("input")
+                        .help("Inputs a config file")
+                        .takes_value(true)
+                        .value_name("INPUT"),
+                )
+                .arg(
+                    Arg::with_name("id")
+                        .long("id")
+                        .help("Uses id instead of filenames")
+                        .takes_value(false),
+                )
+                .arg(
+                    Arg::with_name("dry-run")
+                        .long("dry")
+                        .help("Checks if the program detect the correct files")
+                        .takes_value(false),
+                )
+                .arg(
+                    Arg::with_name("rename")
+                        .long("rename")
+                        .help("Renames output files")
+                        .takes_value(false),
+                )
+                .arg(
+                    Arg::with_name("opts")
+                        .long("opts")
+                        .help("Sets optional SPAdes params")
+                        .takes_value(true)
+                        .value_name("OPTIONAL PARAMS"),
+                ),
+        )
         .subcommand(
             App::new("assembly")
                 .about("Assemble reads using SPAdes")
@@ -127,6 +165,7 @@ pub fn parse_cli(version: &str) {
     let args = get_args(version);
     match args.subcommand() {
         ("assembly", Some(assembly_matches)) => match_assembly_cli(assembly_matches, version),
+        ("clean", Some(clean_matches)) => run_fastp_clean(clean_matches, version),
         ("check", Some(_)) => checker::check_dependencies().unwrap(),
         _ => unreachable!(),
     };
@@ -142,6 +181,31 @@ fn match_assembly_cli(args: &ArgMatches, version: &str) {
     };
 }
 
+fn run_fastp_clean(matches: &ArgMatches, version: &str) {
+    if matches.is_present("input") {
+        let path = PathBuf::from(matches.value_of("input").unwrap());
+        let mut is_id = false;
+        let mut is_rename = false;
+
+        if matches.is_present("id") {
+            is_id = true;
+        }
+
+        if matches.is_present("rename") {
+            is_rename = true;
+        }
+
+        let opts = get_opts(&matches);
+
+        if matches.is_present("dry-run") {
+            qc_io::dry_run(&path, is_id, is_rename);
+        } else {
+            println!("Starting fastp-runner v{}...\n", version);
+            qc_io::process_input(&path, is_id, is_rename, &opts);
+        }
+    }
+}
+
 struct Spades<'a> {
     version: &'a str,
 }
@@ -155,26 +219,26 @@ impl<'a> Spades<'a> {
         let path = matches.value_of("dir").unwrap();
         let dirname = matches.value_of("specify").unwrap();
         let threads = self.get_thread_num(matches);
-        let dir = self.get_dir(matches);
-        let args = self.get_args(matches);
+        let outdir = self.get_outdir(matches);
+        let args = get_opts(matches);
         if matches.is_present("dry-run") {
-            io::auto_dryrun(path, &dirname)
+            asm_io::auto_dryrun(path, &dirname)
         } else {
             println!("Starting spade-runner v{}...\n", self.version);
-            io::auto_process_input(path, dirname, &threads, &dir, &args);
+            asm_io::auto_process_input(path, dirname, &threads, &outdir, &args);
         }
     }
 
     fn run_spades(&self, matches: &ArgMatches) {
         let path = matches.value_of("input").unwrap();
         let threads = self.get_thread_num(matches);
-        let dir = self.get_dir(matches);
-        let args = self.get_args(matches);
+        let dir = self.get_outdir(matches);
+        let args = get_opts(matches);
         if matches.is_present("dry-run") {
-            io::dryrun(path)
+            asm_io::dryrun(path)
         } else {
             println!("Starting spade-runner v{}...\n", self.version);
-            io::process_input(path, &threads, &dir, &args);
+            asm_io::process_input(path, &threads, &dir, &args);
         }
     }
 
@@ -195,21 +259,21 @@ impl<'a> Spades<'a> {
         threads
     }
 
-    fn get_dir(&self, matches: &ArgMatches) -> Option<PathBuf> {
+    fn get_outdir(&self, matches: &ArgMatches) -> Option<PathBuf> {
         let mut dir = None;
         if matches.is_present("output") {
             dir = Some(PathBuf::from(matches.value_of("output").unwrap()));
         }
         dir
     }
+}
 
-    fn get_args(&self, matches: &ArgMatches) -> Option<String> {
-        let mut dir = None;
-        if matches.is_present("opts") {
-            let input = matches.value_of("opts").unwrap();
-            let args = input.replace("params=", "");
-            dir = Some(String::from(args.trim()));
-        }
-        dir
+fn get_opts(matches: &ArgMatches) -> Option<String> {
+    let mut opts = None;
+    if matches.is_present("opts") {
+        let input = matches.value_of("opts").unwrap();
+        let params = input.replace("params=", "");
+        opts = Some(String::from(params.trim()));
     }
+    opts
 }
