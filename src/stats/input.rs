@@ -103,8 +103,8 @@ mod tests {
 
     #[test]
     fn tranverse_dir_test() {
-        let input = "test_files/";
-        let files = tranverse_dir(&input, false);
+        let input = "test_files/stats";
+        let files = tranverse_dir(&input, true);
 
         assert_eq!(4, files.len())
     }

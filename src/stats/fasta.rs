@@ -107,8 +107,8 @@ mod test {
 
     #[test]
     fn process_fasta_test() {
-        let input = PathBuf::from("test_files/contigs.fasta.gz");
-        let in_unzip = PathBuf::from("test_files/contigs.fasta");
+        let input = PathBuf::from("test_files/stats/contigs.fasta.gz");
+        let in_unzip = PathBuf::from("test_files/stats/contigs.fasta");
 
         let res = process_fasta(&input);
         let res_unzip = process_fasta(&in_unzip);
@@ -118,7 +118,7 @@ mod test {
 
     #[test]
     fn process_spaced_fasta_test() {
-        let input = PathBuf::from("test_files/contigs_spaced.fasta");
+        let input = PathBuf::from("test_files/stats/contigs_spaced.fasta");
 
         let res = process_fasta(&input);
         assert_eq!(3, res.contig_counts);

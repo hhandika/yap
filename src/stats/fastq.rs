@@ -107,28 +107,28 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_parsing_all_panic() {
-        let input = PathBuf::from("test_files/invalid_fastq.fastq.gz");
+        let input = PathBuf::from("test_files/stats/invalid_fastq.fastq.gz");
         parse_gunzip_fastq(&input);
     }
 
     #[test]
-    #[should_panic(expected = "\"test_files/invalid.fastq.gz\" IS INVALID FASTQ. \
+    #[should_panic(expected = "\"test_files/stats/invalid.fastq.gz\" IS INVALID FASTQ. \
                                 LOOKING FOR '+' FOUND '-' at line 3")]
     fn test_parsing_invplus_panic() {
-        let input = PathBuf::from("test_files/invalid.fastq.gz");
+        let input = PathBuf::from("test_files/stats/invalid.fastq.gz");
         parse_gunzip_fastq(&input);
     }
 
     #[test]
-    #[should_panic(expected = "\"test_files/invalid2.fastq.gz\" IS INVALID FASTQ. \
+    #[should_panic(expected = "\"test_files/stats/invalid2.fastq.gz\" IS INVALID FASTQ. \
                                 LOOKING FOR '@' FOUND 'Bunomys_chrysocomus' at line 9")]
     fn test_parsing_invname_panic() {
-        let input = PathBuf::from("test_files/invalid2.fastq.gz");
+        let input = PathBuf::from("test_files/stats/invalid2.fastq.gz");
         parse_gunzip_fastq(&input);
     }
     #[test]
     fn parsing_whitespaced_fastq_gz_test() {
-        let input = PathBuf::from("test_files/whitespace.fastq.gz");
+        let input = PathBuf::from("test_files/stats/whitespace.fastq.gz");
         let res = parse_gunzip_fastq(&input);
 
         assert_eq!(70, res.total_bp);
@@ -138,7 +138,7 @@ mod tests {
 
     #[test]
     fn parsing_valid_fastq_qz_test() {
-        let input = PathBuf::from("test_files/valid.fastq.gz");
+        let input = PathBuf::from("test_files/stats/valid.fastq.gz");
         let res = parse_gunzip_fastq(&input);
 
         assert_eq!(140, res.total_bp);
