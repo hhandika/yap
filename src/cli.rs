@@ -10,7 +10,7 @@ use crate::qc::qc_io;
 fn get_args(version: &str) -> ArgMatches {
     App::new("YAP")
         .version(version)
-        .about("A pipeline for processing sequence capture data.")
+        .about("A cli app for phylogenomics")
         .author("Heru Handika <hhandi1@lsu.edu>")
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .subcommand(App::new("check").about("Checks dependencies"))
@@ -184,16 +184,8 @@ fn match_assembly_cli(args: &ArgMatches, version: &str) {
 fn run_fastp_clean(matches: &ArgMatches, version: &str) {
     if matches.is_present("input") {
         let path = PathBuf::from(matches.value_of("input").unwrap());
-        let mut is_id = false;
-        let mut is_rename = false;
-
-        if matches.is_present("id") {
-            is_id = true;
-        }
-
-        if matches.is_present("rename") {
-            is_rename = true;
-        }
+        let is_id = matches.is_present("id");
+        let is_rename = matches.is_present("rename");
 
         let opts = get_opts(&matches);
 
@@ -232,13 +224,13 @@ impl<'a> Spades<'a> {
     fn run_spades(&self, matches: &ArgMatches) {
         let path = matches.value_of("input").unwrap();
         let threads = self.get_thread_num(matches);
-        let dir = self.get_outdir(matches);
+        let outdir = self.get_outdir(matches);
         let args = get_opts(matches);
         if matches.is_present("dry-run") {
             asm_io::dryrun(path)
         } else {
             println!("Starting spade-runner v{}...\n", self.version);
-            asm_io::process_input(path, &threads, &dir, &args);
+            asm_io::process_input(path, &threads, &outdir, &args);
         }
     }
 
