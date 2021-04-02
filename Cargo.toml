@@ -12,6 +12,11 @@ num_cpus = "1.13.0"
 sysinfo = "0.16.4"
 spinners = "1.2.0"
 walkdir = "2.3.1"
+assert_approx_eq = "1.1.0"
+flate2 = "1.0.19"
+num-format = "0.4.0"
+rayon = "1.5.0"
+
 
 [[bin]]
 name = "yap"
