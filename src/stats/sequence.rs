@@ -3,8 +3,8 @@
 
 use std::path::PathBuf;
 
-use crate::qscores::QScore;
-use crate::stats::{self, NStats};
+use crate::stats::math::{self, NStats};
+use crate::stats::qscores::QScore;
 
 pub struct SeqReads {
     pub seq_len: u32,
@@ -71,7 +71,7 @@ impl FastqStats {
             total_bp: seq_len.iter().sum::<u32>() as u64,
             min_reads: *seq_len.iter().min().unwrap(),
             max_reads: *seq_len.iter().max().unwrap(),
-            median_reads: stats::median(&seq_len),
+            median_reads: math::median(&seq_len),
             total_gc: vec.iter().map(|v| v.gc_count).sum(),
             total_n: vec.iter().map(|v| v.n_count).sum(),
             sum_qlen: qscores.iter().map(|q| q.q_len).sum::<u32>() as u64,
@@ -107,7 +107,7 @@ impl FastqStats {
     }
 
     fn stdev(&mut self, seq_len: &[u32]) {
-        self.sd_reads = stats::stdev(&seq_len, &self.mean_reads);
+        self.sd_reads = math::stdev(&seq_len, &self.mean_reads);
     }
 
     fn mean_q(&mut self) {
@@ -189,11 +189,11 @@ impl FastaStats {
     }
 
     fn median(&mut self, contigs: &[u32]) {
-        self.median = stats::median(&contigs);
+        self.median = math::median(&contigs);
     }
 
     fn stdev(&mut self, contigs: &[u32]) {
-        self.sd = stats::stdev(contigs, &self.mean);
+        self.sd = math::stdev(contigs, &self.mean);
     }
 
     fn nstats(&mut self, contigs: &[u32]) {

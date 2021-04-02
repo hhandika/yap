@@ -173,11 +173,8 @@ mod test {
         seq.get_n90();
         seq.get_n75();
 
-        assert_eq!(27, seq.n50_len);
         assert_eq!(8, seq.n50);
-        assert_eq!(40, seq.n75_len);
         assert_eq!(6, seq.n75);
-        assert_eq!(48, seq.n90_len);
         assert_eq!(4, seq.n90);
     }
 }

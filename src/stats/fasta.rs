@@ -5,16 +5,16 @@ use std::path::PathBuf;
 
 use flate2::bufread::MultiGzDecoder;
 
-use crate::sequence::{FastaStats, SeqReads};
+use crate::stats::sequence::{FastaStats, SeqReads};
 
 pub fn process_fasta(input: &PathBuf) -> FastaStats {
     let file = File::open(input).unwrap();
     if is_gz_fasta(input) {
         let read = BufReader::new(file);
         let decom = MultiGzDecoder::new(read);
-        parse_fasta(decom, input) 
+        parse_fasta(decom, input)
     } else if is_unzip_fasta(input) {
-        parse_fasta(file, input) 
+        parse_fasta(file, input)
     } else {
         panic!("INVALID FASTA");
     }
@@ -23,7 +23,6 @@ pub fn process_fasta(input: &PathBuf) -> FastaStats {
 #[inline(always)]
 fn is_gz_fasta(input: &PathBuf) -> bool {
     let ext = input.extension().unwrap();
-    
     ext == "gz" || ext == "gzip"
 }
 
@@ -34,29 +33,23 @@ fn is_unzip_fasta(input: &PathBuf) -> bool {
     ext == "fasta" || ext == "fas" || ext == "fa"
 }
 
-
-
 fn parse_fasta<R: Read>(file: R, input: &PathBuf) -> FastaStats {
     let stdout = io::stdout();
     let mut stdbuf = io::BufWriter::new(stdout);
 
-    write!(stdbuf, "Processing {:?}\t",
-        input.file_name().unwrap()).unwrap();
+    write!(stdbuf, "Processing {:?}\t", input.file_name().unwrap()).unwrap();
 
     let mut contig_counts: u32 = 0;
     let mut contigs: Vec<SeqReads> = Vec::new();
 
     let file = Fasta::new(file);
 
-    file.into_iter()
-        .for_each(|recs| {
-            contig_counts += 1;
-            let reads = SeqReads::get_seq_stats(&recs.as_bytes());
-            contigs.push(reads);
-        });
-        
+    file.into_iter().for_each(|recs| {
+        contig_counts += 1;
+        let reads = SeqReads::get_seq_stats(&recs.as_bytes());
+        contigs.push(reads);
+    });
     writeln!(stdbuf, "\x1b[0;32mDONE!\x1b[0m").unwrap();
-    
     FastaStats::get_stats(input, &contig_counts, &contigs)
 }
 
@@ -71,10 +64,9 @@ impl<R: Read> Fasta<R> {
         Self {
             reader: BufReader::new(file).lines(),
             id: false,
-            seq: String::new()
+            seq: String::new(),
         }
     }
-    
 }
 
 impl<R: Read> Iterator for Fasta<R> {
@@ -83,7 +75,7 @@ impl<R: Read> Iterator for Fasta<R> {
     fn next(&mut self) -> Option<Self::Item> {
         while let Some(Ok(line)) = self.reader.next() {
             if line.starts_with('>') {
-                if self.id {                    
+                if self.id {
                     let mut res = String::new();
                     res.push_str(&self.seq);
                     self.id = true;
@@ -109,7 +101,6 @@ impl<R: Read> Iterator for Fasta<R> {
     }
 }
 
-
 #[cfg(test)]
 mod test {
     use super::*;
@@ -121,7 +112,6 @@ mod test {
 
         let res = process_fasta(&input);
         let res_unzip = process_fasta(&in_unzip);
-        
         assert_eq!(3, res.contig_counts);
         assert_eq!(3, res_unzip.contig_counts);
     }
@@ -131,7 +121,6 @@ mod test {
         let input = PathBuf::from("test_files/contigs_spaced.fasta");
 
         let res = process_fasta(&input);
-        
         assert_eq!(3, res.contig_counts);
     }
 
@@ -153,7 +142,6 @@ mod test {
         assert_eq!(true, is_unzip_fasta(&fname_fs));
         assert_eq!(true, is_unzip_fasta(&fname_fas));
     }
-    
     #[test]
     #[should_panic]
     fn process_fasta_panic_test() {

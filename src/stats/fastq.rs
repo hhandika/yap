@@ -5,8 +5,8 @@ use std::path::PathBuf;
 
 use flate2::bufread::MultiGzDecoder;
 
-use crate::sequence::{FastqStats, SeqReads};
-use crate::qscores::QScore;
+use crate::stats::qscores::QScore;
+use crate::stats::sequence::{FastqStats, SeqReads};
 
 pub fn process_fastq(input: &PathBuf) -> FastqStats {
     if is_gunzip(input) {
@@ -41,7 +41,6 @@ fn parse_gunzip_fastq(input: &PathBuf) -> FastqStats {
 fn parse_unzip_fastq(input: &PathBuf) -> FastqStats {
     let file = File::open(input).unwrap();
     let buff = BufReader::new(file);
-    
     parse_fastq(buff, input)
 }
 
@@ -49,8 +48,7 @@ fn parse_fastq<R: BufRead>(buff: R, input: &PathBuf) -> FastqStats {
     let stdout = io::stdout();
     let mut outbuff = io::BufWriter::new(stdout);
 
-    write!(outbuff, "Processing {:?}\t", 
-        &input.file_name().unwrap()).unwrap();
+    write!(outbuff, "Processing {:?}\t", &input.file_name().unwrap()).unwrap();
 
     let mut reads: u32 = 0;
     let mut sq_per_read: Vec<SeqReads> = Vec::new();
@@ -60,37 +58,44 @@ fn parse_fastq<R: BufRead>(buff: R, input: &PathBuf) -> FastqStats {
         .filter_map(|ok| ok.ok())
         .filter(|recs| !recs.is_empty())
         .enumerate()
-        .for_each(|(idx, recs)| {
-            match idx % 4 {
-                0 => { 
-                    if !&recs.starts_with('@') {
-                    panic!("{:?} IS INVALID FASTQ. \
+        .for_each(|(idx, recs)| match idx % 4 {
+            0 => {
+                if !&recs.starts_with('@') {
+                    panic!(
+                        "{:?} IS INVALID FASTQ. \
                         LOOKING FOR '@' FOUND '{}' at line {}",
-                        input, &recs, &idx + 1);
-                    } else { 
-                        reads += 1 }
-                    },
-
-                1 => {
-                    let reads = SeqReads::get_seq_stats(&recs.trim().as_bytes());
-                    sq_per_read.push(reads);
+                        input,
+                        &recs,
+                        &idx + 1
+                    );
+                } else {
+                    reads += 1
                 }
-                
-                2 => { 
-                    if !&recs.starts_with('+') {
-                        panic!("{:?} IS INVALID FASTQ. \
+            }
+
+            1 => {
+                let reads = SeqReads::get_seq_stats(&recs.trim().as_bytes());
+                sq_per_read.push(reads);
+            }
+
+            2 => {
+                if !&recs.starts_with('+') {
+                    panic!(
+                        "{:?} IS INVALID FASTQ. \
                             LOOKING FOR '+' FOUND '{}' at line {}",
-                            input, &recs, &idx + 1);
-                }},
+                        input,
+                        &recs,
+                        &idx + 1
+                    );
+                }
+            }
 
-                3 => qscores.push(QScore::analyze_qscores(&recs.trim().as_bytes())),
+            3 => qscores.push(QScore::analyze_qscores(&recs.trim().as_bytes())),
 
-                _ => panic!("INVALID FASTQ!"),
-        }});
+            _ => panic!("INVALID FASTQ!"),
+        });
 
-    let all_reads = FastqStats::count_all_reads(
-        input, &reads, &sq_per_read, &qscores);
-        
+    let all_reads = FastqStats::count_all_reads(input, &reads, &sq_per_read, &qscores);
     writeln!(outbuff, "\x1b[0;32mDONE!\x1b[0m").unwrap();
     all_reads
 }
@@ -121,7 +126,6 @@ mod tests {
         let input = PathBuf::from("test_files/invalid2.fastq.gz");
         parse_gunzip_fastq(&input);
     }
-    
     #[test]
     fn parsing_whitespaced_fastq_gz_test() {
         let input = PathBuf::from("test_files/whitespace.fastq.gz");

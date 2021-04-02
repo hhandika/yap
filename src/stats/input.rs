@@ -4,14 +4,13 @@
 use std::path::PathBuf;
 use std::sync::mpsc::channel;
 
-use glob::glob;
 use rayon::prelude::*;
 use walkdir::WalkDir;
 
-use crate::fasta;
-use crate::fastq;
-use crate::output;
-use crate::sequence::{FastaStats, FastqStats};
+use crate::stats::fasta;
+use crate::stats::fastq;
+use crate::stats::output;
+use crate::stats::sequence::{FastaStats, FastqStats};
 
 pub fn process_wildcard(entries: &[&str], iscsv: bool, fastq: bool) {
     let files: Vec<PathBuf> = entries.iter().map(PathBuf::from).collect();
@@ -19,11 +18,11 @@ pub fn process_wildcard(entries: &[&str], iscsv: bool, fastq: bool) {
 }
 
 pub fn process_walkdir(path: &str, iscsv: bool, fastq: bool) {
-    let entries = traverse_dir(path, fastq);
+    let entries = tranverse_dir(path, fastq);
     par_process_files(&entries, iscsv, fastq)
 }
 
-pub fn par_process_files(entries: &[PathBuf], iscsv: bool, fastq: bool) {
+fn par_process_files(entries: &[PathBuf], iscsv: bool, fastq: bool) {
     if fastq {
         par_process_fastq(&entries, iscsv);
     } else {
@@ -31,7 +30,7 @@ pub fn par_process_files(entries: &[PathBuf], iscsv: bool, fastq: bool) {
     }
 }
 
-fn traverse_dir(path: &str, fastq: bool) -> Vec<PathBuf> {
+fn tranverse_dir(path: &str, fastq: bool) -> Vec<PathBuf> {
     let mut entries = Vec::new();
 
     WalkDir::new(path)
@@ -105,7 +104,7 @@ mod tests {
     #[test]
     fn tranverse_dir_test() {
         let input = "test_files/";
-        let files = call_walkdir(&input, false);
+        let files = tranverse_dir(&input, false);
 
         assert_eq!(4, files.len())
     }
