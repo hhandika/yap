@@ -32,7 +32,7 @@ fn get_args(version: &str) -> ArgMatches {
                         .takes_value(false),
                 )
                 .arg(
-                    Arg::with_name("dry-run")
+                    Arg::with_name("dryrun")
                         .long("dry")
                         .help("Checks if the program detect the correct files")
                         .takes_value(false),
@@ -84,7 +84,7 @@ fn get_args(version: &str) -> ArgMatches {
                                 .value_name("OUTPUT DIR"),
                         )
                         .arg(
-                            Arg::with_name("dry-run")
+                            Arg::with_name("dryrun")
                                 .long("dry")
                                 .help("Checks if the program can find the correct files")
                                 .takes_value(false),
@@ -117,7 +117,7 @@ fn get_args(version: &str) -> ArgMatches {
                                 .value_name("INPUT"),
                         )
                         .arg(
-                            Arg::with_name("dry-run")
+                            Arg::with_name("dryrun")
                                 .long("dry")
                                 .help("Checks if the program detect the correct files")
                                 .takes_value(false),
@@ -189,7 +189,7 @@ fn run_fastp_clean(matches: &ArgMatches, version: &str) {
 
         let opts = get_opts(&matches);
 
-        if matches.is_present("dry-run") {
+        if matches.is_present("dryrun") {
             qc_io::dry_run(&path, is_id, is_rename);
         } else {
             println!("Starting fastp-runner v{}...\n", version);
@@ -213,7 +213,7 @@ impl<'a> Spades<'a> {
         let threads = self.get_thread_num(matches);
         let outdir = self.get_outdir(matches);
         let args = get_opts(matches);
-        if matches.is_present("dry-run") {
+        if matches.is_present("dryrun") {
             asm_io::auto_dryrun(path, &dirname)
         } else {
             println!("Starting spade-runner v{}...\n", self.version);
@@ -226,7 +226,7 @@ impl<'a> Spades<'a> {
         let threads = self.get_thread_num(matches);
         let outdir = self.get_outdir(matches);
         let args = get_opts(matches);
-        if matches.is_present("dry-run") {
+        if matches.is_present("dryrun") {
             asm_io::dryrun(path)
         } else {
             println!("Starting spade-runner v{}...\n", self.version);
