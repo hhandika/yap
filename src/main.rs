@@ -2,6 +2,7 @@ mod assembly;
 mod checker;
 mod cli;
 mod qc;
+mod stats;
 mod utils;
 
 use clap::crate_version;
