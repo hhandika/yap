@@ -6,6 +6,7 @@ use crate::assembly::asm_io;
 use crate::assembly::cleaner;
 use crate::checker;
 use crate::qc::qc_io;
+use crate::stats::input;
 
 fn get_args(version: &str) -> ArgMatches {
     App::new("YAP")
@@ -158,6 +159,66 @@ fn get_args(version: &str) -> ArgMatches {
                     ),
                 ),
         )
+        .subcommand(
+            App::new("stats")
+                .about("Get sequence statistics")
+                .subcommand(
+                    App::new("fastq")
+                        .about("Uses for FASTQ (raw-sequences) inputs")
+                        .arg(
+                            Arg::with_name("wildcard")
+                                .short("c")
+                                .long("wcard")
+                                .help("Finds files using wildcards. Allows multiple inputs")
+                                .conflicts_with_all(&["dir", "file", "wdir"])
+                                .multiple(true)
+                                .value_name("WILDCARD"),
+                        )
+                        .arg(
+                            Arg::with_name("wdir")
+                                .short("w")
+                                .long("walk")
+                                .help("Tranverses through nested directories")
+                                .conflicts_with_all(&["dir", "file", "wildcard"])
+                                .takes_value(true)
+                                .value_name("PARENT DIR"),
+                        )
+                        .arg(
+                            Arg::with_name("nocsv")
+                                .long("nocsv")
+                                .help("Does not save results")
+                                .takes_value(false),
+                        ),
+                )
+                .subcommand(
+                    App::new("fasta")
+                        .about("Uses for FASTA (sequence assemblies) inputs")
+                        .arg(
+                            Arg::with_name("wildcard")
+                                .short("c")
+                                .long("wcard")
+                                .help("Finds files using wildcards. Allows multiple inputs")
+                                .conflicts_with_all(&["dir", "file", "wdir"])
+                                .multiple(true)
+                                .value_name("WILDCARDS"),
+                        )
+                        .arg(
+                            Arg::with_name("wdir")
+                                .short("w")
+                                .long("walk")
+                                .help("Tranverses nested directories")
+                                .conflicts_with_all(&["dir", "file", "wildcard"])
+                                .takes_value(true)
+                                .value_name("PARENT DIR"),
+                        )
+                        .arg(
+                            Arg::with_name("nocsv")
+                                .long("nocsv")
+                                .help("Does not save results")
+                                .takes_value(false),
+                        ),
+                ),
+        )
         .get_matches()
 }
 
@@ -165,23 +226,79 @@ pub fn parse_cli(version: &str) {
     let args = get_args(version);
     match args.subcommand() {
         ("assembly", Some(assembly_matches)) => match_assembly_cli(assembly_matches, version),
-        ("qc", Some(clean_matches)) => run_fastp_clean(clean_matches, version),
+        ("qc", Some(qc_matches)) => run_fastp_clean(qc_matches),
         ("check", Some(_)) => checker::check_dependencies().unwrap(),
+        ("stats", Some(stats_matches)) => match_stats_cli(stats_matches, version),
         _ => unreachable!(),
     };
 }
 
 fn match_assembly_cli(args: &ArgMatches, version: &str) {
-    let spades = Spades::new(version);
+    let mut spades = Spades::new();
+    println!("Starting YAP v{}...\n", version);
     match args.subcommand() {
         ("auto", Some(clean_matches)) => spades.run_spades_auto(clean_matches),
         ("conf", Some(assembly_matches)) => spades.run_spades(assembly_matches),
         ("clean", Some(clean_matches)) => spades.clean_spades_files(clean_matches),
-        _ => (),
+        _ => unreachable!(),
     };
 }
 
-fn run_fastp_clean(matches: &ArgMatches, version: &str) {
+fn match_stats_cli(args: &ArgMatches, version: &str) {
+    let mut stats = Stats::new();
+    println!("Starting YAP v{}...\n", version);
+    match args.subcommand() {
+        ("fastq", Some(fastq_matches)) => stats.match_fastq(fastq_matches),
+        ("fasta", Some(fasta_matches)) => stats.match_fasta(fasta_matches),
+        _ => unreachable!(),
+    }
+}
+
+struct Stats {
+    fastq: bool,
+    is_csv: bool,
+}
+
+impl Stats {
+    fn new() -> Self {
+        Self {
+            fastq: false,
+            is_csv: false,
+        }
+    }
+
+    fn match_fastq(&mut self, matches: &ArgMatches) {
+        self.is_csv = matches.is_present("nocsv");
+        self.fastq = true;
+        self.get_stats(matches);
+    }
+
+    fn match_fasta(&mut self, matches: &ArgMatches) {
+        self.is_csv = matches.is_present("nocsv");
+        self.get_stats(matches);
+    }
+
+    fn get_stats(&self, matches: &ArgMatches) {
+        if matches.is_present("wildcard") {
+            self.get_stats_wildcard(matches);
+        } else if matches.is_present("wdir") {
+            self.get_stats_walkdir(matches);
+        }
+    }
+
+    fn get_stats_wildcard(&self, matches: &ArgMatches) {
+        let entries: Vec<&str> = matches.values_of("wildcard").unwrap().collect();
+        input::process_wildcard(&entries, self.is_csv, self.fastq)
+    }
+
+    fn get_stats_walkdir(&self, matches: &ArgMatches) {
+        let is_csv = matches.is_present("nocsv");
+        let entry = matches.value_of("wdir").unwrap();
+        input::process_walkdir(&entry, is_csv, true);
+    }
+}
+
+fn run_fastp_clean(matches: &ArgMatches) {
     if matches.is_present("input") {
         let path = PathBuf::from(matches.value_of("input").unwrap());
         let is_id = matches.is_present("id");
@@ -192,45 +309,42 @@ fn run_fastp_clean(matches: &ArgMatches, version: &str) {
         if matches.is_present("dryrun") {
             qc_io::dry_run(&path, is_id, is_rename);
         } else {
-            println!("Starting fastp-runner v{}...\n", version);
             qc_io::process_input(&path, is_id, is_rename, &opts);
         }
     }
 }
 
-struct Spades<'a> {
-    version: &'a str,
+struct Spades {
+    outdir: Option<PathBuf>,
 }
 
-impl<'a> Spades<'a> {
-    fn new(version: &'a str) -> Self {
-        Self { version }
+impl Spades {
+    fn new() -> Self {
+        Self { outdir: None }
     }
 
-    fn run_spades_auto(&self, matches: &ArgMatches) {
+    fn run_spades_auto(&mut self, matches: &ArgMatches) {
         let path = matches.value_of("dir").unwrap();
         let dirname = matches.value_of("specify").unwrap();
         let threads = self.get_thread_num(matches);
-        let outdir = self.get_outdir(matches);
+        self.get_outdir(matches);
         let args = get_opts(matches);
         if matches.is_present("dryrun") {
             asm_io::auto_dryrun(path, &dirname)
         } else {
-            println!("Starting spade-runner v{}...\n", self.version);
-            asm_io::auto_process_input(path, dirname, &threads, &outdir, &args);
+            asm_io::auto_process_input(path, dirname, &threads, &self.outdir, &args);
         }
     }
 
-    fn run_spades(&self, matches: &ArgMatches) {
+    fn run_spades(&mut self, matches: &ArgMatches) {
         let path = matches.value_of("input").unwrap();
         let threads = self.get_thread_num(matches);
-        let outdir = self.get_outdir(matches);
+        self.get_outdir(matches);
         let args = get_opts(matches);
         if matches.is_present("dryrun") {
             asm_io::dryrun(path)
         } else {
-            println!("Starting spade-runner v{}...\n", self.version);
-            asm_io::process_input(path, &threads, &outdir, &args);
+            asm_io::process_input(path, &threads, &self.outdir, &args);
         }
     }
 
@@ -251,12 +365,10 @@ impl<'a> Spades<'a> {
         threads
     }
 
-    fn get_outdir(&self, matches: &ArgMatches) -> Option<PathBuf> {
-        let mut dir = None;
+    fn get_outdir(&mut self, matches: &ArgMatches) {
         if matches.is_present("output") {
-            dir = Some(PathBuf::from(matches.value_of("output").unwrap()));
+            self.outdir = Some(PathBuf::from(matches.value_of("output").unwrap()));
         }
-        dir
     }
 }
 
