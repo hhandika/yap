@@ -226,7 +226,7 @@ pub fn parse_cli(version: &str) {
     let args = get_args(version);
     match args.subcommand() {
         ("assembly", Some(assembly_matches)) => match_assembly_cli(assembly_matches, version),
-        ("qc", Some(qc_matches)) => run_fastp_clean(qc_matches),
+        ("qc", Some(qc_matches)) => run_fastp_clean(qc_matches, version),
         ("check", Some(_)) => checker::check_dependencies().unwrap(),
         ("stats", Some(stats_matches)) => match_stats_cli(stats_matches, version),
         _ => unreachable!(),
@@ -235,7 +235,7 @@ pub fn parse_cli(version: &str) {
 
 fn match_assembly_cli(args: &ArgMatches, version: &str) {
     let mut spades = Spades::new();
-    println!("Starting YAP v{}...\n", version);
+    println!("Starting YAP-assembly v{}...\n", version);
     match args.subcommand() {
         ("auto", Some(clean_matches)) => spades.run_spades_auto(clean_matches),
         ("conf", Some(assembly_matches)) => spades.run_spades(assembly_matches),
@@ -246,7 +246,7 @@ fn match_assembly_cli(args: &ArgMatches, version: &str) {
 
 fn match_stats_cli(args: &ArgMatches, version: &str) {
     let mut stats = Stats::new();
-    println!("Starting YAP v{}...\n", version);
+    println!("Starting YAP-stats v{}...\n", version);
     match args.subcommand() {
         ("fastq", Some(fastq_matches)) => stats.match_fastq(fastq_matches),
         ("fasta", Some(fasta_matches)) => stats.match_fasta(fasta_matches),
@@ -298,7 +298,7 @@ impl Stats {
     }
 }
 
-fn run_fastp_clean(matches: &ArgMatches) {
+fn run_fastp_clean(matches: &ArgMatches, version: &str) {
     if matches.is_present("input") {
         let path = PathBuf::from(matches.value_of("input").unwrap());
         let is_id = matches.is_present("id");
@@ -309,6 +309,7 @@ fn run_fastp_clean(matches: &ArgMatches) {
         if matches.is_present("dryrun") {
             qc_io::dry_run(&path, is_id, is_rename);
         } else {
+            println!("Starting YAP-qc v{}...\n", version);
             qc_io::process_input(&path, is_id, is_rename, &opts);
         }
     }
