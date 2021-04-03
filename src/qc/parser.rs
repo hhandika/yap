@@ -127,10 +127,6 @@ impl RawSeq {
     fn get_output_name(&mut self, fname: &str) {
         self.outname = Some(fname.to_string());
     }
-
-    // fn get_costum_commands(&mut self, command: &str) {
-
-    // }
 }
 
 pub fn parse_csv(input: &PathBuf, is_id: bool, is_rename: bool) -> Vec<RawSeq> {
@@ -276,7 +272,7 @@ fn split_strings(lines: &str, csv: bool) -> Vec<String> {
 }
 
 fn glob_raw_reads(path: &PathBuf, id: &str, is_id: bool) -> Vec<PathBuf> {
-    let patterns = get_patterns(path, id, is_id);
+    let patterns = construct_patterns(path, id, is_id);
     let opts = MatchOptions {
         case_sensitive: true,
         ..Default::default()
@@ -288,7 +284,7 @@ fn glob_raw_reads(path: &PathBuf, id: &str, is_id: bool) -> Vec<PathBuf> {
         .collect()
 }
 
-fn get_patterns(path: &PathBuf, id: &str, is_id: bool) -> String {
+fn construct_patterns(path: &PathBuf, id: &str, is_id: bool) -> String {
     let parent = path.parent().unwrap();
     let mut pat_id = format!("*?{}?*", id);
 
