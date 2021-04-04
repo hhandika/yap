@@ -121,6 +121,7 @@ impl<'a> Runner<'a> {
         out.arg("--threads")
             .arg(self.threads.as_ref().unwrap().to_string());
     }
+
     fn set_spinner(&mut self) -> Spinner {
         let msg = "SPAdes is processing...\t".to_string();
         Spinner::new(Spinners::Moon, msg)
