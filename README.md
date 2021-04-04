@@ -11,7 +11,7 @@ A pipeline for processing high-throughput sequencing data.
 
 | Features                                         | Dependencies                               | Implementation |
 | ------------------------------------------------ | ------------------------------------------ | -------------- |
-| _Essential_                                      |
+| _Essentials_                                     |
 | Batch adapter trimming and bad sequence cleaning | [Fastp](https://github.com/OpenGene/fastp) | Done           |
 | Batch Assembly                                   | [SPAdes](https://github.com/ablab/spades)  | Done           |
 | Sequence statistics                              | None                                       | Done           |
