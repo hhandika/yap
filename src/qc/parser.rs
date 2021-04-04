@@ -1,7 +1,7 @@
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::BufReader;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use glob::{glob_with, MatchOptions};
 
@@ -56,9 +56,13 @@ impl RawSeq {
                 .to_string_lossy(),
         );
 
-        let ids = split_strings(&fnames, false);
+        let ids = self.split_id(&fnames);
         let dir = format!("{}_{}_{}", ids[0], ids[1], ids[2]);
         self.dir = PathBuf::from(dir);
+    }
+
+    fn split_id(&self, lines: &str) -> Vec<String> {
+        lines.split('_').map(|e| e.trim().to_string()).collect()
     }
 
     fn get_reads(&mut self, reads: &[PathBuf]) {
@@ -141,9 +145,10 @@ pub fn parse_csv(input: &PathBuf, is_id: bool, is_rename: bool) -> Vec<RawSeq> {
         .skip(1)
         .for_each(|line| {
             let mut seq = RawSeq::new();
-            let lines = split_strings(&line, true);
+            let lines = split_line(&line, true);
             let id = String::from(&lines[0]);
-            let reads = glob_raw_reads(&input, &id, is_id);
+            let iscsv = true;
+            let reads = ReadFinder::get(&input, &id, is_id, iscsv);
             check_reads(&reads, &id);
             seq.get_id(&id);
             seq.get_reads(&reads);
@@ -233,7 +238,6 @@ fn get_adapter_single(seq: &mut RawSeq, adapters: &str) {
 fn get_adapter_dual(seq: &mut RawSeq, i5: &str, i7: &str) {
     let adapter_i5 = i5.to_uppercase();
     if is_insert_missing(&adapter_i5) {
-        // i7 is a tag
         let adapter_i5 = tag::insert_tag(i5, i7);
         seq.get_adapter_single(&adapter_i5);
     } else {
@@ -252,9 +256,9 @@ fn get_insert_single(seq: &mut RawSeq, i5: &str, i7: &str, insert: &str) {
     }
 }
 
-fn get_insert_dual(seq: &mut RawSeq, i5: &str, i7: &str, in_i5: &str, in_i7: &str) {
-    let i5 = tag::insert_tag(i5, in_i5);
-    let i7 = tag::insert_tag(i7, in_i7);
+fn get_insert_dual(seq: &mut RawSeq, i5: &str, i7: &str, insert_i5: &str, insert_i7: &str) {
+    let i5 = tag::insert_tag(i5, insert_i5);
+    let i7 = tag::insert_tag(i7, insert_i7);
     seq.get_adapter_dual(&i5, &i7);
 }
 
@@ -262,37 +266,67 @@ fn is_insert_missing(adapter: &str) -> bool {
     adapter.contains('*')
 }
 
-fn split_strings(lines: &str, csv: bool) -> Vec<String> {
+fn split_line(lines: &str, csv: bool) -> Vec<String> {
     let mut sep = ',';
     if !csv {
-        sep = '_';
+        sep = ':';
     }
     let seqs = lines.split(sep).map(|e| e.trim().to_string()).collect();
     seqs
 }
 
-fn glob_raw_reads(path: &PathBuf, id: &str, is_id: bool) -> Vec<PathBuf> {
-    let patterns = construct_patterns(path, id, is_id);
-    let opts = MatchOptions {
-        case_sensitive: true,
-        ..Default::default()
-    };
-
-    glob_with(&patterns, opts)
-        .unwrap()
-        .filter_map(|ok| ok.ok())
-        .collect()
+struct ReadFinder<'a> {
+    path: &'a Path,
+    id: &'a str,
+    is_id: bool,
+    patterns: String,
 }
 
-fn construct_patterns(path: &PathBuf, id: &str, is_id: bool) -> String {
-    let parent = path.parent().unwrap();
-    let mut pat_id = format!("*?{}?*", id);
+impl<'a> ReadFinder<'a> {
+    fn get(path: &'a Path, id: &'a str, is_id: bool, iscsv: bool) -> Vec<PathBuf> {
+        let mut reads = Self {
+            path,
+            id,
+            is_id,
+            patterns: String::new(),
+        };
 
-    if !is_id {
-        pat_id = format!("{}?*", id);
+        if iscsv {
+            reads.construct_pattern_csv();
+        } else {
+            reads.construct_pattern_ini();
+        }
+
+        reads.glob_raw_reads()
     }
 
-    String::from(parent.join(pat_id).to_string_lossy())
+    fn glob_raw_reads(&self) -> Vec<PathBuf> {
+        let opts = MatchOptions {
+            case_sensitive: true,
+            ..Default::default()
+        };
+
+        glob_with(&self.patterns, opts)
+            .unwrap()
+            .filter_map(|ok| ok.ok())
+            .collect()
+    }
+
+    fn construct_pattern_csv(&mut self) {
+        let parent = self.path.parent().unwrap();
+        if !self.is_id {
+            let pat_id = format!("{}?*", self.id);
+            self.patterns = String::from(parent.join(pat_id).to_string_lossy());
+        } else {
+            let pat_id = format!("*?{}?*", self.id);
+            self.patterns = String::from(parent.join(pat_id).to_string_lossy());
+        }
+    }
+
+    fn construct_pattern_ini(&mut self) {
+        let pat_id = format!("{}?*", self.id);
+        self.patterns = String::from(self.path.join(pat_id).to_string_lossy());
+    }
 }
 
 #[cfg(test)]
@@ -333,8 +367,9 @@ mod test {
     fn glob_raw_reads_test() {
         let input = PathBuf::from("test_files/qc/data.test");
         let pattern = "cde";
+        let is_id = true;
 
-        let files = glob_raw_reads(&input, &pattern, true);
+        let files = ReadFinder::get(&input, pattern, is_id, true);
 
         assert_eq!(2, files.len());
     }
@@ -344,8 +379,7 @@ mod test {
         let input = PathBuf::from("test_files/qc/data.test");
         let pattern = "test_1";
         let is_id = false;
-
-        let files = glob_raw_reads(&input, &pattern, is_id);
+        let files = ReadFinder::get(&input, pattern, is_id, true);
 
         assert_eq!(2, files.len());
     }
