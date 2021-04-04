@@ -2,6 +2,8 @@
 
 ![YAP-Tests](https://github.com/hhandika/yap/workflows/YAP-Tests/badge.svg)
 
+[![Build Status](https://www.travis-ci.com/hhandika/yap.svg?branch=main)](https://www.travis-ci.com/hhandika/yap)
+
 YetAnotherPipeline
 
 A pipeline for processing high-throughput sequencing data.
