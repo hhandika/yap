@@ -263,12 +263,14 @@ impl Stats {
     fn new() -> Self {
         Self {
             fastq: false,
-            is_csv: false,
+            is_csv: true,
         }
     }
 
     fn match_fastq(&mut self, matches: &ArgMatches) {
-        self.is_csv = matches.is_present("nocsv");
+        if matches.is_present("nocsv") {
+            self.is_csv = false;
+        }
         self.fastq = true;
         self.get_stats(matches);
     }
