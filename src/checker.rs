@@ -24,7 +24,7 @@ fn check_fastp<W: Write>(handle: &mut W) -> Result<()> {
             "[OK]\t{}",
             str::from_utf8(&out.stderr).unwrap().trim()
         )?,
-        Err(_) => writeln!(handle, "[NOT FOUND]\tfastp")?,
+        Err(_) => writeln!(handle, "\x1b[0;41m[NOT FOUND]\x1b[0m\tfastp")?,
     }
 
     Ok(())
@@ -38,7 +38,7 @@ fn check_spades<W: Write>(handle: &mut W) -> Result<()> {
             "[OK]\t{}",
             str::from_utf8(&out.stdout).unwrap().trim()
         )?,
-        Err(_) => writeln!(handle, "[NOT FOUND]\tSPAdes")?,
+        Err(_) => writeln!(handle, "\x1b[0;41m[NOT FOUND]\x1b[0m\tSPAdes")?,
     }
 
     Ok(())
