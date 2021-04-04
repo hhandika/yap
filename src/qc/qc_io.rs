@@ -5,7 +5,7 @@ use crate::qc::parser::{self, RawSeq};
 use crate::qc::runner;
 
 pub fn dry_run(input: &PathBuf, is_id: bool, is_rename: bool) {
-    let reads: Vec<RawSeq> = parser::parse_csv(input, is_id, is_rename);
+    let reads: Vec<RawSeq> = parser::parse_input(input, is_id, is_rename);
     let stdout = io::stdout();
     let mut handle = io::BufWriter::new(stdout);
 
@@ -39,6 +39,6 @@ pub fn dry_run(input: &PathBuf, is_id: bool, is_rename: bool) {
 }
 
 pub fn process_input(input: &PathBuf, is_id: bool, is_rename: bool, params: &Option<String>) {
-    let reads: Vec<RawSeq> = parser::parse_csv(input, is_id, is_rename);
+    let reads: Vec<RawSeq> = parser::parse_input(input, is_id, is_rename);
     runner::clean_reads(&reads, params);
 }

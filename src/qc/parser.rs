@@ -133,7 +133,7 @@ impl RawSeq {
     }
 }
 
-pub fn parse_csv(input: &PathBuf, is_id: bool, is_rename: bool) -> Vec<RawSeq> {
+pub fn parse_input(input: &PathBuf, is_id: bool, is_rename: bool) -> Vec<RawSeq> {
     let file = File::open(input).unwrap();
     let buff = BufReader::new(file);
 
@@ -387,7 +387,7 @@ mod test {
     fn parse_csv_test() {
         let input = PathBuf::from("test_files/qc/parse_csv_test.csv");
 
-        let seq = parse_csv(&input, true, false);
+        let seq = parse_input(&input, true, false);
 
         assert_eq!(1, seq.len());
 
@@ -403,7 +403,7 @@ mod test {
     fn parse_csv_pattern_test() {
         let input = PathBuf::from("test_files/qc/parse_csv_pattern_test.csv");
 
-        let seq = parse_csv(&input, true, false);
+        let seq = parse_input(&input, true, false);
 
         seq.iter().for_each(|s| {
             let dir = input.parent().unwrap();
@@ -417,7 +417,7 @@ mod test {
     fn parse_csv_dual_indexes_test() {
         let input = PathBuf::from("test_files/qc/dual_index_test.csv");
 
-        let seq = parse_csv(&input, true, false);
+        let seq = parse_input(&input, true, false);
         let i5 = "ATGTCTCTCTATATATACT";
         let i7 = String::from("ATGTCTCTCTATATATGCT");
         seq.iter().for_each(|s| {
@@ -435,7 +435,7 @@ mod test {
     fn parse_csv_panic_test() {
         let input = PathBuf::from("test_files/invalid.csv");
 
-        parse_csv(&input, true, false);
+        parse_input(&input, true, false);
     }
 
     #[test]
@@ -443,7 +443,7 @@ mod test {
     fn parse_csv_multicols_panic_test() {
         let input = PathBuf::from("test_files/invalid_multicols.csv");
 
-        parse_csv(&input, true, false);
+        parse_input(&input, true, false);
     }
 
     #[test]
@@ -495,7 +495,7 @@ mod test {
         let is_rename = true;
         let is_id = false;
 
-        let reads = parse_csv(&input, is_id, is_rename);
+        let reads = parse_input(&input, is_id, is_rename);
 
         reads.iter().for_each(|r| {
             let res = PathBuf::from("Rattus_rattus_XYZ12345");
