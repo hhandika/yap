@@ -9,15 +9,15 @@ A pipeline for processing high-throughput sequencing data.
 
 ## Features
 
-| Features                                         | Dependencies                               | Implementation |
-| ------------------------------------------------ | ------------------------------------------ | -------------- |
-| _Essentials_                                     |
+| Features                                      | Dependencies                               | Implementation |
+| --------------------------------------------- | ------------------------------------------ | -------------- |
+| _Essentials_                                  |
 | Batch adapter trimming and sequence filtering | [Fastp](https://github.com/OpenGene/fastp) | Done           |
-| Batch Assembly                                   | [SPAdes](https://github.com/ablab/spades)  | Done           |
-| Sequence statistics                              | None                                       | Done           |
-| _Utilities_                                      |
-| Sequence finder                                  | None                                       | Planned        |
-| Sequence file renamer                            | None                                       | Planned        |
+| Batch sequence assembly                       | [SPAdes](https://github.com/ablab/spades)  | Done           |
+| Sequence statistics                           | None                                       | Done           |
+| _Utilities_                                   |
+| Sequence finder                               | None                                       | Planned        |
+| Sequence file renamer                         | None                                       | Planned        |
 
 ## Installation
 
