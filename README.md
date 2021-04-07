@@ -18,6 +18,8 @@ A pipeline for processing high-throughput sequencing data.
 | _Utilities_                                   |
 | Sequence finder                               | None                                       | Planned        |
 | Sequence file renamer                         | None                                       | Planned        |
+| _Extras_                                      |
+| Logger                                        | None                                       | Planned        |
 
 ## Installation
 
