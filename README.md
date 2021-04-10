@@ -20,6 +20,7 @@ A pipeline for processing high-throughput sequencing data.
 | Sequence file renamer                         | None                                       | Planned        |
 | _Extras_                                      |
 | Logger                                        | None                                       | Planned        |
+| Symlink fixer                                 | None                                       | Planned        |
 
 ## Installation
 
