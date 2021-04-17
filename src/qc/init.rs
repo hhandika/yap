@@ -50,9 +50,9 @@ fn print_saved_path(save_names: &str) {
         save_names
     );
 }
-
+ 
 fn get_fnames(iscsv: bool) -> String {
-    let mut fname = String::from("seq-finder");
+    let mut fname = String::from("yap-qc_input");
     if iscsv {
         fname.push_str(".csv");
     } else {
