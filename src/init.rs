@@ -5,83 +5,100 @@ use std::io::{LineWriter, Write};
 use regex::Regex;
 use walkdir::WalkDir;
 
-pub fn initialize_input_file(path: &str, len: usize, sep: char, iscsv: bool) {
-    let save_names = get_fnames(iscsv);
-    let output = File::create(&save_names).expect("FILE EXISTS.");
-    let mut line = LineWriter::new(output);
-    write_header(&mut line, iscsv);
-    WalkDir::new(path)
-        .into_iter()
-        .filter_map(|ok| ok.ok())
-        .filter(|e| e.file_type().is_file())
-        .for_each(|e| {
-            let path = e.path().parent().unwrap();
-            let fname = e.path().file_name().unwrap().to_string_lossy();
-            if re_matches_lazy(&fname) {
-                let id = construct_id(&fname, len, sep);
-                let full_path = String::from(path.canonicalize().unwrap().to_string_lossy());
-                write_content(&mut line, &id, &full_path, iscsv);
-            }
+pub struct Init<'a> {
+    path: &'a str,
+    len: usize,
+    sep: char,
+    iscsv: bool,
+    fname: String,
+}
+
+impl<'a> Init<'a> {
+    pub fn new(path: &'a str, len: usize, sep: char, iscsv: bool) -> Self {
+        Self {
+            path,
+            len,
+            sep,
+            iscsv,
+            fname: String::from("yap-qc_input"),
+        }
+    }
+
+    pub fn initialize_input_file(&mut self) {
+        self.get_fnames();
+        let output = File::create(&self.fname).expect("FILE EXISTS.");
+        let mut line = LineWriter::new(output);
+        self.write_header(&mut line);
+        WalkDir::new(&self.path)
+            .into_iter()
+            .filter_map(|ok| ok.ok())
+            .filter(|e| e.file_type().is_file())
+            .for_each(|e| {
+                let path = e.path().parent().unwrap();
+                let fname = e.path().file_name().unwrap().to_string_lossy();
+                if self.re_matches_lazy(&fname) {
+                    let id = self.construct_id(&fname);
+                    let full_path = String::from(path.canonicalize().unwrap().to_string_lossy());
+                    self.write_content(&mut line, &id, &full_path);
+                }
+            });
+        self.print_saved_path();
+    }
+
+    fn get_fnames(&mut self) {
+        if self.iscsv {
+            self.fname.push_str(".csv");
+        } else {
+            self.fname.push_str(".conf");
+        }
+    }
+
+    fn write_header<W: Write>(&self, line: &mut W) {
+        if self.iscsv {
+            writeln!(line, "id,path").unwrap();
+        } else {
+            writeln!(line, "[seq]").unwrap();
+        }
+    }
+
+    fn write_content<W: Write>(&self, line: &mut W, id: &str, full_path: &str) {
+        if self.iscsv {
+            writeln!(line, "{},{}/", id, full_path).unwrap();
+        } else {
+            writeln!(line, "{}:{}/", id, full_path).unwrap();
+        }
+    }
+
+    fn print_saved_path(&self) {
+        let path = env::current_dir().unwrap();
+        println!(
+            "Done! The result is saved as {}/{}",
+            path.display(),
+            self.fname
+        );
+    }
+
+    fn re_matches_lazy(&self, fname: &str) -> bool {
+        lazy_static! {
+            static ref RE: Regex = Regex::new(r"(_|-)((?i)(read|r)1)(?:.*)(gz|gzip)").unwrap();
+        }
+
+        RE.is_match(fname)
+    }
+
+    fn construct_id(&self, names: &str) -> String {
+        let words: Vec<&str> = names.split(self.sep).collect();
+        assert!(words.len() > self.len, "NO. OF WORDS EXCEED THE SLICES");
+        let mut seqname = String::new();
+
+        words[0..(self.len - 1)].iter().for_each(|w| {
+            let comp = format!("{}{}", w, self.sep);
+            seqname.push_str(&comp);
         });
-    print_saved_path(&save_names);
-}
 
-fn write_header<W: Write>(line: &mut W, iscsv: bool) {
-    if iscsv {
-        writeln!(line, "id,path").unwrap();
-    } else {
-        writeln!(line, "[seq]").unwrap();
+        seqname.push_str(words[self.len - 1]);
+        seqname
     }
-}
-
-fn write_content<W: Write>(line: &mut W, id: &str, full_path: &str, iscsv: bool) {
-    if iscsv {
-        writeln!(line, "{},{}/", id, full_path).unwrap();
-    } else {
-        writeln!(line, "{}:{}/", id, full_path).unwrap();
-    }
-}
-
-fn print_saved_path(save_names: &str) {
-    let path = env::current_dir().unwrap();
-    println!(
-        "Done! The result is saved as {}/{}",
-        path.display(),
-        save_names
-    );
-}
- 
-fn get_fnames(iscsv: bool) -> String {
-    let mut fname = String::from("yap-qc_input");
-    if iscsv {
-        fname.push_str(".csv");
-    } else {
-        fname.push_str(".conf");
-    }
-
-    fname
-}
-
-fn re_matches_lazy(fname: &str) -> bool {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(r"(_|-)((?i)(read|r)1)(?:.*)(gz|gzip)").unwrap();
-    }
-
-    RE.is_match(fname)
-}
-
-fn construct_id(names: &str, len: usize, sep: char) -> String {
-    let words: Vec<&str> = names.split(sep).collect();
-    assert!(words.len() > len, "NO. OF WORDS EXCEED THE SLICES");
-    let mut seqname = String::new();
-
-    words[0..(len - 1)].iter().for_each(|w| {
-        let comp = format!("{}{}", w, sep);
-        seqname.push_str(&comp);
-    });
-
-    seqname.push_str(words[len - 1]);
-    seqname
 }
 
 #[cfg(test)]
@@ -90,40 +107,27 @@ mod test {
 
     #[test]
     fn regex_test() {
+        let path = "test_files/init/";
+        let len = 3;
+        let sep = '_';
+        let re = Init::new(path, len, sep, true);
         let zipped_read = "sample_buno_clean_read1.fastq.gz";
         let unzipped_read = "sample_buno_clean_read1.fastq";
 
-        assert_eq!(true, re_matches_lazy(zipped_read));
-        assert_eq!(false, re_matches_lazy(unzipped_read));
-    }
-
-    #[test]
-    fn regex_io_test() {
-        use glob::glob;
-        use std::path::PathBuf;
-
-        let path = "test_files/*";
-        let entries = glob(path)
-            .unwrap()
-            .filter_map(|ok| ok.ok())
-            .collect::<Vec<PathBuf>>();
-
-        let mut files = Vec::new();
-        entries.iter().for_each(|e| {
-            let path = String::from(e.file_name().unwrap().to_string_lossy());
-            if re_matches_lazy(&path) {
-                files.push(e);
-            }
-        });
-
-        assert_eq!(3, files.len());
+        assert_eq!(true, re.re_matches_lazy(zipped_read));
+        assert_eq!(false, re.re_matches_lazy(unzipped_read));
     }
 
     #[test]
     fn construct_id_test() {
+        let path = "test_files/init/";
+        let len = 3;
+        let sep = '_';
+        let re = Init::new(path, len, sep, true);
+
         let fnames = "sample_buno_ABCD123_read1.fastq.gz";
 
-        let id = construct_id(fnames, 3, '_');
+        let id = re.construct_id(fnames);
 
         assert_eq!("sample_buno_ABCD123", id);
     }
@@ -131,8 +135,12 @@ mod test {
     #[test]
     #[should_panic]
     fn construct_id_panic_test() {
+        let path = "test_files/init/";
+        let len = 4;
+        let sep = '_';
+        let re = Init::new(path, len, sep, true);
         let fnames = "sample_buno_ABCD123_read1.fastq.gz";
 
-        construct_id(fnames, 4, '_');
+        re.construct_id(fnames);
     }
 }
