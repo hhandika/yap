@@ -16,7 +16,7 @@ A pipeline for processing high-throughput sequencing data.
 | Batch sequence assembly                       | [SPAdes](https://github.com/ablab/spades)  | Done           |
 | Sequence statistics                           | None                                       | Done           |
 | _Utilities_                                   |
-| Sequence finder                               | None                                       | Planned        |
+| Sequence finder                               | None                                       | Done           |
 | Sequence file renamer                         | None                                       | Planned        |
 | _Extras_                                      |
 | Logger                                        | None                                       | Planned        |
