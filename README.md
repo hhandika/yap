@@ -32,4 +32,4 @@ OS support:
 
 ## State of Code
 
-Only checker and read assembly functions are working. Everything else is still broken.
+All the features are working as expecting. There may be some bugs.
