@@ -32,4 +32,4 @@ OS support:
 
 ## State of Code
 
-All the features are working as expecting. There may be some bugs.
+All the features are working as expected. There may be some bugs.
