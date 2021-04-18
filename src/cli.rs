@@ -5,6 +5,7 @@ use clap::{App, AppSettings, Arg, ArgMatches};
 use crate::assembly::asm_io;
 use crate::assembly::cleaner;
 use crate::checker;
+use crate::init::Init;
 use crate::qc::qc_io;
 use crate::stats::input;
 
@@ -15,6 +16,37 @@ fn get_args(version: &str) -> ArgMatches {
         .author("Heru Handika <hhandi1@lsu.edu>")
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .subcommand(App::new("check").about("Checks dependencies"))
+        .subcommand(
+            App::new("init")
+                .about("Find sequences and generate input files")
+                .arg(
+                    Arg::with_name("dir")
+                        .short("d")
+                        .long("dir")
+                        .help("Specify input directory")
+                        .takes_value(true)
+                        .default_value("raw_reads")
+                        .value_name("DIR"),
+                )
+                .arg(
+                    Arg::with_name("len")
+                        .short("l")
+                        .long("len")
+                        .help("Word lengths")
+                        .takes_value(true)
+                        .default_value("3")
+                        .value_name("LEN"),
+                )
+                .arg(
+                    Arg::with_name("sep")
+                        .short("s")
+                        .long("sep")
+                        .help("Separator type")
+                        .takes_value(true)
+                        .default_value("_")
+                        .value_name("SEP"),
+                ),
+        )
         .subcommand(
             App::new("qc")
                 .about("Trims adapters and clean low quality reads using fastp")
@@ -225,12 +257,30 @@ fn get_args(version: &str) -> ArgMatches {
 pub fn parse_cli(version: &str) {
     let args = get_args(version);
     match args.subcommand() {
+        ("init", Some(init_matches)) => initialize_input(init_matches),
         ("assembly", Some(assembly_matches)) => match_assembly_cli(assembly_matches, version),
         ("qc", Some(qc_matches)) => run_fastp_clean(qc_matches, version),
         ("check", Some(_)) => checker::check_dependencies().unwrap(),
         ("stats", Some(stats_matches)) => match_stats_cli(stats_matches, version),
         _ => unreachable!(),
     };
+}
+
+fn initialize_input(matches: &ArgMatches) {
+    let path = matches.value_of("dir").expect("IS NOT A VALID FILE PATH");
+    let len = matches
+        .value_of("len")
+        .unwrap()
+        .parse::<usize>()
+        .expect("NOT AN INTEGER");
+    let sep = matches
+        .value_of("sep")
+        .unwrap()
+        .parse::<char>()
+        .expect("SEPARATOR SHOULD BE A SINGLE CHARACTER");
+    let mut init = Init::new(path, len, sep, true);
+
+    init.initialize_input_file();
 }
 
 fn match_assembly_cli(args: &ArgMatches, version: &str) {
