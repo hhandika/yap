@@ -45,6 +45,12 @@ fn get_args(version: &str) -> ArgMatches {
                         .takes_value(true)
                         .default_value("_")
                         .value_name("SEP"),
+                )
+                .arg(
+                    Arg::with_name("csv")
+                        .long("csv")
+                        .takes_value(false)
+                        .help("Save as csv"),
                 ),
         )
         .subcommand(
@@ -278,7 +284,8 @@ fn initialize_input(matches: &ArgMatches) {
         .unwrap()
         .parse::<char>()
         .expect("SEPARATOR SHOULD BE A SINGLE CHARACTER");
-    let mut init = Init::new(path, len, sep, true);
+    let iscsv = matches.is_present("csv");
+    let mut init = Init::new(path, len, sep, iscsv);
 
     init.initialize_input_file();
 }
@@ -318,9 +325,7 @@ impl Stats {
     }
 
     fn match_fastq(&mut self, matches: &ArgMatches) {
-        if matches.is_present("nocsv") {
-            self.is_csv = false;
-        }
+        self.is_csv = matches.is_present("nocsv");
         self.fastq = true;
         self.get_stats(matches);
     }
