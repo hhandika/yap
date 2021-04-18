@@ -1,9 +1,13 @@
 mod assembly;
 mod checker;
 mod cli;
+mod init;
 mod qc;
 mod stats;
 mod utils;
+
+#[macro_use]
+extern crate lazy_static;
 
 use clap::crate_version;
 use std::time::Instant;
