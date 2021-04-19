@@ -57,7 +57,7 @@ impl<'a> Init<'a> {
         if self.iscsv {
             writeln!(line, "id,path").unwrap();
         } else {
-            writeln!(line, "[seq]").unwrap();
+            writeln!(line, "[seqs]").unwrap();
         }
     }
 
