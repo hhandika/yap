@@ -187,6 +187,10 @@ fn is_insert_missing(adapter: &str) -> bool {
 }
 
 fn split_line(lines: &str, csv: bool) -> Vec<String> {
+    assert!(
+        lines.contains(',') || lines.contains(':'),
+        "INVALID INPUT LINE FORMAT"
+    );
     let mut sep = ',';
     if !csv {
         sep = ':';
@@ -429,17 +433,37 @@ mod test {
     }
 
     #[test]
+    #[should_panic]
+    fn invalid_line_test() {
+        let line = "some_speces;/mnt/d/test/";
+        split_line(line, false);
+    }
+
+    #[test]
+    fn valid_ini_line_test() {
+        let line = "some_speces:/mnt/d/test/";
+        let iscsv = false;
+        let seq = split_line(line, iscsv);
+        assert_eq!(2, seq.len());
+    }
+
+    #[test]
+    fn valid_csv_line_test() {
+        let line = "some_speces,other_species";
+        let iscsv = true;
+        let seq = split_line(line, iscsv);
+        assert_eq!(2, seq.len());
+    }
+
+    #[test]
     fn parse_ini_test() {
         let input = PathBuf::from("test_files/qc/yap-qc_input.conf");
         let seq = parse_input(&input, false, false);
 
-        assert_eq!(1, seq.len());
-
-        seq.iter().for_each(|s| {
-            let dir = Path::new("/mnt/d/Programming/Rust/yap/test_files/qc/");
-            assert_eq!(dir.join("some_animals_XYZ12345_R1.fastq.gz"), s.read_1);
-            assert_eq!(dir.join("some_animals_XYZ12345_R2.fastq.gz"), s.read_2);
-        });
+        assert_eq!(2, seq.len());
+        let dir = Path::new("/mnt/d/Programming/Rust/yap/test_files/qc/");
+        assert_eq!(dir.join("some_animals_XYZ12345_R1.fastq.gz"), seq[1].read_1);
+        assert_eq!(dir.join("some_animals_XYZ12345_R2.fastq.gz"), seq[1].read_2);
     }
 
     #[test]
