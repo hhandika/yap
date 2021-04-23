@@ -1,17 +1,7 @@
-use std::fs;
 use std::io::{self, Result, Write};
-use std::path::Path;
 
 use chrono::NaiveTime;
 use sysinfo::{System, SystemExt};
-
-pub fn check_dir_exists(dir: &Path) {
-    if dir.exists() {
-        panic!("{:?} DIR EXISTS. PLEASE RENAME OR REMOVE IT", dir);
-    } else {
-        fs::create_dir_all(dir).expect("CAN'T CREATE DIR");
-    }
-}
 
 fn parse_duration(duration: u64) -> String {
     let sec = (duration % 60) as u32;
