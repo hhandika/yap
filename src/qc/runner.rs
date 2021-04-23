@@ -118,10 +118,36 @@ impl<'a> Runner<'a> {
         let mut buff = io::BufWriter::new(stdout);
 
         writeln!(buff, "Target dir\t: {}", &self.clean_dir.to_string_lossy())?;
-        writeln!(buff, "Input R1\t: {}", &self.reads.read_1.to_string_lossy())?;
-        writeln!(buff, "Input R2\t: {}", &self.reads.read_2.to_string_lossy())?;
-        writeln!(buff, "Output R1\t: {}", &self.out_r1.to_string_lossy())?;
-        writeln!(buff, "Output R2\t: {}", &self.out_r2.to_string_lossy())?;
+        writeln!(
+            buff,
+            "Input dir\t: {}",
+            &self.reads.read_1.parent().unwrap().to_string_lossy()
+        )?;
+        writeln!(
+            buff,
+            "Input R1\t: {}",
+            &self.reads.read_1.file_name().unwrap().to_string_lossy()
+        )?;
+        writeln!(
+            buff,
+            "Input R2\t: {}",
+            &self.reads.read_2.file_name().unwrap().to_string_lossy()
+        )?;
+        writeln!(
+            buff,
+            "Output Dir\t: {}",
+            &self.out_r1.parent().unwrap().to_string_lossy()
+        )?;
+        writeln!(
+            buff,
+            "Output R1\t: {}",
+            &self.out_r1.file_name().unwrap().to_string_lossy()
+        )?;
+        writeln!(
+            buff,
+            "Output R2\t: {}",
+            &self.out_r2.file_name().unwrap().to_string_lossy()
+        )?;
         if self.reads.auto_idx {
             writeln!(buff, "Adapters\t: AUTO-DETECT")?;
         } else if !self.dual_idx {
