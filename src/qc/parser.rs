@@ -7,133 +7,53 @@ use glob::{glob_with, MatchOptions};
 
 use crate::qc::tag;
 
-pub struct RawSeq {
-    pub id: String,
-    pub dir: PathBuf,
-    pub read_1: PathBuf,
-    pub read_2: PathBuf,
-    pub adapter_i5: Option<String>,
-    pub adapter_i7: Option<String>,
-    pub outname: Option<String>,
-    pub auto_idx: bool,
-    pub command: Option<String>,
-}
-
-impl RawSeq {
-    pub fn new() -> Self {
-        Self {
-            id: String::new(),
-            dir: PathBuf::new(),
-            read_1: PathBuf::new(),
-            read_2: PathBuf::new(),
-            adapter_i5: None,
-            adapter_i7: None,
-            outname: None,
-            auto_idx: false,
-            command: None,
-        }
-    }
-
-    fn get_id(&mut self, id: &str) {
-        self.id = String::from(id);
-    }
-
-    fn get_dir(&mut self, is_id: bool, is_rename: bool) {
-        if !is_id && !is_rename {
-            self.dir = PathBuf::from(&self.id);
-        } else if is_rename {
-            self.dir = PathBuf::from(&self.outname.as_ref().unwrap());
-        } else {
-            self.create_dir_from_r1();
-        }
-    }
-
-    fn create_dir_from_r1(&mut self) {
-        let fnames = String::from(
-            self.read_1
-                .file_name()
-                .expect("MISSING FILES")
-                .to_string_lossy(),
-        );
-
-        let ids = self.split_id(&fnames);
-        let dir = format!("{}_{}_{}", ids[0], ids[1], ids[2]);
-        self.dir = PathBuf::from(dir);
-    }
-
-    fn split_id(&self, lines: &str) -> Vec<String> {
-        lines.split('_').map(|e| e.trim().to_string()).collect()
-    }
-
-    fn get_reads(&mut self, reads: &[PathBuf]) {
-        reads
-            .iter()
-            .for_each(|reads| match reads.to_string_lossy().to_uppercase() {
-                s if s.contains("READ1") => self.read_1 = PathBuf::from(reads),
-                s if s.contains("_R1") => self.read_1 = PathBuf::from(reads),
-                s if s.contains("READ2") => self.read_2 = PathBuf::from(reads),
-                s if s.contains("_R2") => self.read_2 = PathBuf::from(reads),
-                _ => (),
-            });
-
-        self.check_missing_reads();
-    }
-
-    fn check_missing_reads(&self) {
-        let missing_r1 = self.read_1.to_string_lossy().is_empty();
-        let missing_r2 = self.read_2.to_string_lossy().is_empty();
-        if missing_r1 || missing_r2 {
-            panic!(
-                "CANNOT FIND BOTH READS FOR {}. \
-                Read 1: {:?} \
-                Read 2: {:?}",
-                self.id, self.read_1, self.read_2
-            );
-        }
-    }
-
-    fn get_adapter_single(&mut self, adapter: &str) {
-        self.adapter_i5 = Some(String::from(adapter));
-    }
-
-    fn get_adapter_dual(&mut self, adapter_i5: &str, adapter_i7: &str) {
-        let i5 = String::from(adapter_i5.trim());
-        let i7 = String::from(adapter_i7.trim());
-
-        if self.is_both_idx_exist(&i5, &i7) {
-            self.adapter_i5 = Some(i5);
-            self.adapter_i7 = Some(i7);
-        } else if self.is_missing_i7(&i5, &i7) {
-            self.adapter_i5 = Some(i5);
-        } else if self.is_missing_both_idx(&i5, &i7) {
-            self.get_adapter_auto();
-        } else {
-            self.adapter_i5 = Some(i5);
-        }
-    }
-
-    fn is_both_idx_exist(&self, i5: &str, i7: &str) -> bool {
-        !i5.is_empty() && !i7.is_empty()
-    }
-
-    fn is_missing_i7(&self, i5: &str, i7: &str) -> bool {
-        !i5.is_empty() && i7.is_empty()
-    }
-
-    fn is_missing_both_idx(&self, i5: &str, i7: &str) -> bool {
-        i5.is_empty() && i7.is_empty()
-    }
-
-    fn get_adapter_auto(&mut self) {
-        self.auto_idx = true;
-    }
-
-    fn get_output_name(&mut self, fname: &str) {
-        self.outname = Some(fname.to_string());
-    }
-}
-
 pub fn parse_input(input: &PathBuf, is_id: bool, is_rename: bool) -> Vec<RawSeq> {
+    let ext = input.extension().unwrap().to_string_lossy();
+    if ext == "conf" {
+        parse_input_ini(input)
+    } else if ext == "csv" {
+        parse_input_csv(input, is_id, is_rename)
+    } else {
+        panic!(
+            "{:?} IS INVALID INPUT FILES. THE EXTENSION MUST BE .conf OR .csv.",
+            input
+        );
+    }
+}
+
+fn parse_input_ini(input: &PathBuf) -> Vec<RawSeq> {
+    let file = File::open(input).expect("CAN'T OPEN INPUT FILE.");
+    let buff = BufReader::new(file);
+    let mut raw_seqs = Vec::new();
+    let mut lcounts: usize = 0;
+
+    buff.lines()
+        .filter_map(|ok| ok.ok())
+        .skip(1)
+        .for_each(|line| {
+            let mut seq = RawSeq::new();
+            let line = split_line(&line, false);
+            let id = String::from(&line[0]);
+            let path = PathBuf::from(&line[1]);
+            let iscsv = false;
+            let is_id = false;
+            let reads = ReadFinder::get(&path, &id, is_id, iscsv);
+            check_reads(&reads, &id);
+            seq.get_id(&id);
+            seq.get_reads(&reads);
+            seq.get_adapter_auto();
+            let is_rename = false;
+            seq.get_dir(is_id, is_rename);
+            raw_seqs.push(seq);
+            lcounts += 1;
+        });
+
+    println!("Total samples: {}", lcounts);
+
+    raw_seqs
+}
+
+fn parse_input_csv(input: &PathBuf, is_id: bool, is_rename: bool) -> Vec<RawSeq> {
     let file = File::open(input).unwrap();
     let buff = BufReader::new(file);
 
@@ -275,6 +195,130 @@ fn split_line(lines: &str, csv: bool) -> Vec<String> {
     seqs
 }
 
+pub struct RawSeq {
+    pub id: String,
+    pub dir: PathBuf,
+    pub read_1: PathBuf,
+    pub read_2: PathBuf,
+    pub adapter_i5: Option<String>,
+    pub adapter_i7: Option<String>,
+    pub outname: Option<String>,
+    pub auto_idx: bool,
+}
+
+impl RawSeq {
+    pub fn new() -> Self {
+        Self {
+            id: String::new(),
+            dir: PathBuf::new(),
+            read_1: PathBuf::new(),
+            read_2: PathBuf::new(),
+            adapter_i5: None,
+            adapter_i7: None,
+            outname: None,
+            auto_idx: false,
+        }
+    }
+
+    fn get_id(&mut self, id: &str) {
+        self.id = String::from(id);
+    }
+
+    fn get_dir(&mut self, is_id: bool, is_rename: bool) {
+        if !is_id && !is_rename {
+            self.dir = PathBuf::from(&self.id);
+        } else if is_rename {
+            self.dir = PathBuf::from(&self.outname.as_ref().unwrap());
+        } else {
+            self.create_dir_from_r1();
+        }
+    }
+
+    fn create_dir_from_r1(&mut self) {
+        let fnames = String::from(
+            self.read_1
+                .file_name()
+                .expect("MISSING FILES")
+                .to_string_lossy(),
+        );
+
+        let ids = self.split_id(&fnames);
+        let dir = format!("{}_{}_{}", ids[0], ids[1], ids[2]);
+        self.dir = PathBuf::from(dir);
+    }
+
+    fn split_id(&self, lines: &str) -> Vec<String> {
+        lines.split('_').map(|e| e.trim().to_string()).collect()
+    }
+
+    fn get_reads(&mut self, reads: &[PathBuf]) {
+        reads
+            .iter()
+            .for_each(|reads| match reads.to_string_lossy().to_uppercase() {
+                s if s.contains("READ1") => self.read_1 = PathBuf::from(reads),
+                s if s.contains("_R1") => self.read_1 = PathBuf::from(reads),
+                s if s.contains("READ2") => self.read_2 = PathBuf::from(reads),
+                s if s.contains("_R2") => self.read_2 = PathBuf::from(reads),
+                _ => (),
+            });
+
+        self.check_missing_reads();
+    }
+
+    fn check_missing_reads(&self) {
+        let missing_r1 = self.read_1.to_string_lossy().is_empty();
+        let missing_r2 = self.read_2.to_string_lossy().is_empty();
+        if missing_r1 || missing_r2 {
+            panic!(
+                "CANNOT FIND BOTH READS FOR {}. \
+                Read 1: {:?} \
+                Read 2: {:?}",
+                self.id, self.read_1, self.read_2
+            );
+        }
+    }
+
+    fn get_adapter_single(&mut self, adapter: &str) {
+        self.adapter_i5 = Some(String::from(adapter));
+    }
+
+    fn get_adapter_dual(&mut self, adapter_i5: &str, adapter_i7: &str) {
+        let i5 = String::from(adapter_i5.trim());
+        let i7 = String::from(adapter_i7.trim());
+
+        if self.is_both_idx_exist(&i5, &i7) {
+            self.adapter_i5 = Some(i5);
+            self.adapter_i7 = Some(i7);
+        } else if self.is_missing_i7(&i5, &i7) {
+            self.adapter_i5 = Some(i5);
+        } else if self.is_missing_both_idx(&i5, &i7) {
+            self.get_adapter_auto();
+        } else {
+            self.adapter_i5 = Some(i5);
+        }
+    }
+
+    fn is_both_idx_exist(&self, i5: &str, i7: &str) -> bool {
+        !i5.is_empty() && !i7.is_empty()
+    }
+
+    fn is_missing_i7(&self, i5: &str, i7: &str) -> bool {
+        !i5.is_empty() && i7.is_empty()
+    }
+
+    fn is_missing_both_idx(&self, i5: &str, i7: &str) -> bool {
+        i5.is_empty() && i7.is_empty()
+    }
+
+    fn get_adapter_auto(&mut self) {
+        self.auto_idx = true;
+    }
+
+    fn get_output_name(&mut self, fname: &str) {
+        self.outname = Some(fname.to_string());
+    }
+}
+
 struct ReadFinder<'a> {
     path: &'a Path,
     id: &'a str,
@@ -383,6 +427,21 @@ mod test {
 
         assert_eq!(2, files.len());
     }
+
+    #[test]
+    fn parse_ini_test() {
+        let input = PathBuf::from("test_files/qc/yap-qc_input.conf");
+        let seq = parse_input(&input, false, false);
+
+        assert_eq!(1, seq.len());
+
+        seq.iter().for_each(|s| {
+            let dir = Path::new("/mnt/d/Programming/Rust/yap/test_files/qc/");
+            assert_eq!(dir.join("some_animals_XYZ12345_R1.fastq.gz"), s.read_1);
+            assert_eq!(dir.join("some_animals_XYZ12345_R2.fastq.gz"), s.read_2);
+        });
+    }
+
     #[test]
     fn parse_csv_test() {
         let input = PathBuf::from("test_files/qc/parse_csv_test.csv");
