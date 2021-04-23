@@ -16,7 +16,7 @@ pub fn assemble_reads(
     args: &Option<String>,
 ) {
     let dir = get_outdir(&outdir);
-    utils::check_dir_exists(&dir);
+    check_dir_exists(&dir);
     let contig_dir = dir.join("contig_symlinks");
     fs::create_dir_all(&contig_dir).unwrap();
     println!("\x1b[0;33mTotal samples: {}\n\x1b[0m", reads.len());
@@ -30,6 +30,14 @@ fn get_outdir(outdir: &Option<PathBuf>) -> PathBuf {
     match outdir {
         Some(dir) => dir.clone(),
         None => PathBuf::from("assemblies"),
+    }
+}
+
+fn check_dir_exists(dir: &Path) {
+    if dir.exists() {
+        panic!("{:?} DIR EXISTS. PLEASE RENAME OR REMOVE IT", dir);
+    } else {
+        fs::create_dir_all(dir).expect("CAN'T CREATE ASSEMBLY DIR");
     }
 }
 
