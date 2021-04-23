@@ -83,6 +83,14 @@ fn get_args(version: &str) -> ArgMatches {
                         .takes_value(false),
                 )
                 .arg(
+                    Arg::with_name("output")
+                        .short("o")
+                        .long("output")
+                        .help("Specifies output folders")
+                        .takes_value(true)
+                        .value_name("OUTPUT DIR"),
+                )
+                .arg(
                     Arg::with_name("opts")
                         .long("opts")
                         .help("Sets optional SPAdes params")
@@ -360,14 +368,18 @@ fn run_fastp_clean(matches: &ArgMatches, version: &str) {
         let path = PathBuf::from(matches.value_of("input").unwrap());
         let is_id = matches.is_present("id");
         let is_rename = matches.is_present("rename");
-
         let opts = get_opts(&matches);
+        let mut outdir = None;
+
+        if matches.is_present("output") {
+            outdir = Some(PathBuf::from(matches.value_of("output").unwrap()));
+        }
 
         if matches.is_present("dryrun") {
             qc_io::dry_run(&path, is_id, is_rename);
         } else {
             println!("Starting YAP-qc v{}...\n", version);
-            qc_io::process_input(&path, is_id, is_rename, &opts);
+            qc_io::process_input(&path, is_id, is_rename, &opts, &outdir);
         }
     }
 }

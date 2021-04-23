@@ -38,7 +38,13 @@ pub fn dry_run(input: &PathBuf, is_id: bool, is_rename: bool) {
     });
 }
 
-pub fn process_input(input: &PathBuf, is_id: bool, is_rename: bool, params: &Option<String>) {
+pub fn process_input(
+    input: &PathBuf,
+    is_id: bool,
+    is_rename: bool,
+    params: &Option<String>,
+    outdir: &Option<PathBuf>,
+) {
     let reads: Vec<RawSeq> = parser::parse_input(input, is_id, is_rename);
-    runner::clean_reads(&reads, params);
+    runner::clean_reads(&reads, params, outdir);
 }

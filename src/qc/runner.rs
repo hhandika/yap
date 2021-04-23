@@ -11,8 +11,8 @@ use spinners::{Spinner, Spinners};
 use crate::qc::parser::RawSeq;
 use crate::utils;
 
-pub fn clean_reads(reads: &[RawSeq], params: &Option<String>) {
-    let dir = Path::new("clean_reads");
+pub fn clean_reads(reads: &[RawSeq], params: &Option<String>, outdir: &Option<PathBuf>) {
+    let dir = get_outdir(outdir);
     check_dir_exists(&dir);
     reads.iter().for_each(|read| {
         let mut run = Runner::new(&dir, read, params);
@@ -26,6 +26,13 @@ pub fn clean_reads(reads: &[RawSeq], params: &Option<String>) {
     });
 
     println!();
+}
+
+fn get_outdir(outdir: &Option<PathBuf>) -> PathBuf {
+    match outdir {
+        Some(dir) => dir.clone(),
+        None => PathBuf::from("clean_reads"),
+    }
 }
 
 fn check_dir_exists(dir: &Path) {
