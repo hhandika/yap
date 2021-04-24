@@ -55,7 +55,7 @@ impl<'a> Init<'a> {
 
     fn write_header<W: Write>(&self, line: &mut W) {
         if self.iscsv {
-            writeln!(line, "id,path").unwrap();
+            writeln!(line, "id,new_name").unwrap();
         } else {
             writeln!(line, "[seqs]").unwrap();
         }
@@ -63,7 +63,7 @@ impl<'a> Init<'a> {
 
     fn write_content<W: Write>(&self, line: &mut W, id: &str, full_path: &str) {
         if self.iscsv {
-            writeln!(line, "{},{}/", id, full_path).unwrap();
+            writeln!(line, "{}", id).unwrap();
         } else {
             writeln!(line, "{}:{}/", id, full_path).unwrap();
         }
