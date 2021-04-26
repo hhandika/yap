@@ -93,7 +93,7 @@ fn get_args(version: &str) -> ArgMatches {
                 .arg(
                     Arg::with_name("opts")
                         .long("opts")
-                        .help("Sets optional SPAdes params")
+                        .help("Sets optional Fastp params")
                         .takes_value(true)
                         .value_name("OPTIONAL PARAMS"),
                 ),
