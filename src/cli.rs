@@ -319,50 +319,6 @@ fn match_stats_cli(args: &ArgMatches, version: &str) {
     }
 }
 
-struct Stats {
-    fastq: bool,
-    is_csv: bool,
-}
-
-impl Stats {
-    fn new() -> Self {
-        Self {
-            fastq: false,
-            is_csv: true,
-        }
-    }
-
-    fn match_fastq(&mut self, matches: &ArgMatches) {
-        self.is_csv = matches.is_present("nocsv");
-        self.fastq = true;
-        self.get_stats(matches);
-    }
-
-    fn match_fasta(&mut self, matches: &ArgMatches) {
-        self.is_csv = matches.is_present("nocsv");
-        self.get_stats(matches);
-    }
-
-    fn get_stats(&self, matches: &ArgMatches) {
-        if matches.is_present("wildcard") {
-            self.get_stats_wildcard(matches);
-        } else if matches.is_present("wdir") {
-            self.get_stats_walkdir(matches);
-        }
-    }
-
-    fn get_stats_wildcard(&self, matches: &ArgMatches) {
-        let entries: Vec<&str> = matches.values_of("wildcard").unwrap().collect();
-        input::process_wildcard(&entries, self.is_csv, self.fastq)
-    }
-
-    fn get_stats_walkdir(&self, matches: &ArgMatches) {
-        let is_csv = matches.is_present("nocsv");
-        let entry = matches.value_of("wdir").unwrap();
-        input::process_walkdir(&entry, is_csv, true);
-    }
-}
-
 fn run_fastp_clean(matches: &ArgMatches, version: &str) {
     if matches.is_present("input") {
         let path = PathBuf::from(matches.value_of("input").unwrap());
@@ -450,4 +406,48 @@ fn get_opts(matches: &ArgMatches) -> Option<String> {
         opts = Some(String::from(params.trim()));
     }
     opts
+}
+
+struct Stats {
+    fastq: bool,
+    is_csv: bool,
+}
+
+impl Stats {
+    fn new() -> Self {
+        Self {
+            fastq: false,
+            is_csv: true,
+        }
+    }
+
+    fn match_fastq(&mut self, matches: &ArgMatches) {
+        self.is_csv = matches.is_present("nocsv");
+        self.fastq = true;
+        self.get_stats(matches);
+    }
+
+    fn match_fasta(&mut self, matches: &ArgMatches) {
+        self.is_csv = matches.is_present("nocsv");
+        self.get_stats(matches);
+    }
+
+    fn get_stats(&self, matches: &ArgMatches) {
+        if matches.is_present("wildcard") {
+            self.get_stats_wildcard(matches);
+        } else if matches.is_present("wdir") {
+            self.get_stats_walkdir(matches);
+        }
+    }
+
+    fn get_stats_wildcard(&self, matches: &ArgMatches) {
+        let entries: Vec<&str> = matches.values_of("wildcard").unwrap().collect();
+        input::process_wildcard(&entries, self.is_csv, self.fastq)
+    }
+
+    fn get_stats_walkdir(&self, matches: &ArgMatches) {
+        let is_csv = matches.is_present("nocsv");
+        let entry = matches.value_of("wdir").unwrap();
+        input::process_walkdir(&entry, is_csv, true);
+    }
 }
