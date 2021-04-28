@@ -107,7 +107,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_parsing_all_panic() {
-        let input = PathBuf::from("test_files/stats/invalid_fastq.fastq.gz");
+        let input = Path::new("test_files/stats/invalid_fastq.fastq.gz");
         parse_gunzip_fastq(&input);
     }
 
@@ -115,7 +115,7 @@ mod tests {
     #[should_panic(expected = "\"test_files/stats/invalid.fastq.gz\" IS INVALID FASTQ. \
                                 LOOKING FOR '+' FOUND '-' at line 3")]
     fn test_parsing_invplus_panic() {
-        let input = PathBuf::from("test_files/stats/invalid.fastq.gz");
+        let input = Path::new("test_files/stats/invalid.fastq.gz");
         parse_gunzip_fastq(&input);
     }
 
@@ -123,12 +123,12 @@ mod tests {
     #[should_panic(expected = "\"test_files/stats/invalid2.fastq.gz\" IS INVALID FASTQ. \
                                 LOOKING FOR '@' FOUND 'Bunomys_chrysocomus' at line 9")]
     fn test_parsing_invname_panic() {
-        let input = PathBuf::from("test_files/stats/invalid2.fastq.gz");
+        let input = Path::new("test_files/stats/invalid2.fastq.gz");
         parse_gunzip_fastq(&input);
     }
     #[test]
     fn parsing_whitespaced_fastq_gz_test() {
-        let input = PathBuf::from("test_files/stats/whitespace.fastq.gz");
+        let input = Path::new("test_files/stats/whitespace.fastq.gz");
         let res = parse_gunzip_fastq(&input);
 
         assert_eq!(70, res.total_bp);
@@ -138,7 +138,7 @@ mod tests {
 
     #[test]
     fn parsing_valid_fastq_qz_test() {
-        let input = PathBuf::from("test_files/stats/valid.fastq.gz");
+        let input = Path::new("test_files/stats/valid.fastq.gz");
         let res = parse_gunzip_fastq(&input);
 
         assert_eq!(140, res.total_bp);
@@ -152,21 +152,21 @@ mod tests {
     #[test]
     #[should_panic]
     fn panic_invalid_fastq_test() {
-        let input = PathBuf::from("valid_input.fasta");
+        let input = Path::new("valid_input.fasta");
         process_fastq(&input);
     }
 
     #[test]
     fn is_gunzip_fastq_test() {
-        let input = PathBuf::from("valid_input.fastq.gz");
+        let input = Path::new("valid_input.fastq.gz");
         assert_eq!(true, is_gunzip(&input));
     }
 
     #[test]
     fn is_unzip_fastq_test() {
-        let fastq_gz = PathBuf::from("valid_input.fastq.gz");
-        let fastq = PathBuf::from("valid_input.fastq");
-        let fq = PathBuf::from("valid_input.fq");
+        let fastq_gz = Path::new("valid_input.fastq.gz");
+        let fastq = Path::new("valid_input.fastq");
+        let fq = Path::new("valid_input.fq");
 
         assert_eq!(false, is_unzip_fastq(&fastq_gz));
         assert_eq!(true, is_unzip_fastq(&fastq));
@@ -175,7 +175,7 @@ mod tests {
 
     #[test]
     fn is_unzip_fastq_panic_test() {
-        let invalid = PathBuf::from("invalid_input.fasta");
+        let invalid = Path::new("invalid_input.fasta");
         assert_eq!(false, is_unzip_fastq(&invalid));
     }
 }

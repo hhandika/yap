@@ -268,7 +268,7 @@ mod tests {
         seq.push(seq_b);
         let qscores: Vec<QScore> = vec![q, q_two];
 
-        let fname = PathBuf::from("data/test.fastq");
+        let fname = Path::new("data/test.fastq");
         let reads = 2;
 
         let res = FastqStats::count_all_reads(&fname, &reads, &seq, &qscores);
@@ -289,7 +289,7 @@ mod tests {
     }
     #[test]
     fn fasta_stats_test() {
-        let fname = PathBuf::from("data/test.fasta");
+        let fname = Path::new("data/test.fasta");
         let a = "AA";
         let b = "AAGC";
         let contigs = 1;

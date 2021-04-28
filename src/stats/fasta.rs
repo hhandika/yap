@@ -107,8 +107,8 @@ mod test {
 
     #[test]
     fn process_fasta_test() {
-        let input = PathBuf::from("test_files/stats/contigs.fasta.gz");
-        let in_unzip = PathBuf::from("test_files/stats/contigs.fasta");
+        let input = Path::new("test_files/stats/contigs.fasta.gz");
+        let in_unzip = Path::new("test_files/stats/contigs.fasta");
 
         let res = process_fasta(&input);
         let res_unzip = process_fasta(&in_unzip);
@@ -118,7 +118,7 @@ mod test {
 
     #[test]
     fn process_spaced_fasta_test() {
-        let input = PathBuf::from("test_files/stats/contigs_spaced.fasta");
+        let input = Path::new("test_files/stats/contigs_spaced.fasta");
 
         let res = process_fasta(&input);
         assert_eq!(3, res.contig_counts);
@@ -126,17 +126,17 @@ mod test {
 
     #[test]
     fn is_gz_fasta_test() {
-        let fname = PathBuf::from("valid.fasta.gz");
-        let fname_gzip = PathBuf::from("valid.fasta.gzip");
+        let fname = Path::new("valid.fasta.gz");
+        let fname_gzip = Path::new("valid.fasta.gzip");
         assert_eq!(true, is_gz_fasta(&fname));
         assert_eq!(true, is_gz_fasta(&fname_gzip));
     }
 
     #[test]
     fn is_unzip_fasta_test() {
-        let fname = PathBuf::from("valid.fasta");
-        let fname_fs = PathBuf::from("valid.fa");
-        let fname_fas = PathBuf::from("valid.fas");
+        let fname = Path::new("valid.fasta");
+        let fname_fs = Path::new("valid.fa");
+        let fname_fas = Path::new("valid.fas");
 
         assert_eq!(true, is_unzip_fasta(&fname));
         assert_eq!(true, is_unzip_fasta(&fname_fs));
@@ -145,7 +145,7 @@ mod test {
     #[test]
     #[should_panic]
     fn process_fasta_panic_test() {
-        let fname = PathBuf::from("invalid.fastq");
+        let fname = Path::new("invalid.fastq");
 
         process_fasta(&fname);
     }
