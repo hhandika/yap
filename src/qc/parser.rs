@@ -8,25 +8,28 @@ use glob::{glob_with, MatchOptions};
 use crate::qc::tag;
 
 pub fn parse_input(input: &Path, is_id: bool, is_rename: bool) -> Vec<RawSeq> {
+    let file = File::open(input).expect("CAN'T OPEN INPUT FILE.");
+    let buff = BufReader::new(file);
+    let mut raw_seqs = Vec::new();
+    let mut lcounts: usize = 0;
+
     let ext = input.extension().unwrap().to_string_lossy();
     if ext == "conf" {
-        parse_input_ini(input)
+        parse_input_ini(buff, &mut raw_seqs, &mut lcounts);
     } else if ext == "csv" {
-        parse_input_csv(input, is_id, is_rename)
+        parse_input_csv(buff, input, &mut raw_seqs, &mut lcounts, is_id, is_rename)
     } else {
         panic!(
             "{:?} IS INVALID INPUT FILES. THE EXTENSION MUST BE .conf OR .csv.",
             input
         );
     }
+
+    println!("Total samples: {}", lcounts);
+    raw_seqs
 }
 
-fn parse_input_ini(input: &Path) -> Vec<RawSeq> {
-    let file = File::open(input).expect("CAN'T OPEN INPUT FILE.");
-    let buff = BufReader::new(file);
-    let mut raw_seqs = Vec::new();
-    let mut lcounts: usize = 0;
-
+fn parse_input_ini<R: BufRead>(buff: R, raw_seqs: &mut Vec<RawSeq>, lcount: &mut usize) {
     buff.lines()
         .filter_map(|ok| ok.ok())
         .skip(1)
@@ -45,21 +48,18 @@ fn parse_input_ini(input: &Path) -> Vec<RawSeq> {
             let is_rename = false;
             seq.get_dir(is_id, is_rename);
             raw_seqs.push(seq);
-            lcounts += 1;
+            *lcount += 1;
         });
-
-    println!("Total samples: {}", lcounts);
-
-    raw_seqs
 }
 
-fn parse_input_csv(input: &Path, is_id: bool, is_rename: bool) -> Vec<RawSeq> {
-    let file = File::open(input).unwrap();
-    let buff = BufReader::new(file);
-
-    let mut raw_seqs = Vec::new();
-    let mut lcounts: usize = 0;
-
+fn parse_input_csv<R: BufRead>(
+    buff: R,
+    input: &Path,
+    raw_seqs: &mut Vec<RawSeq>,
+    lcount: &mut usize,
+    is_id: bool,
+    is_rename: bool,
+) {
     buff.lines()
         .filter_map(|ok| ok.ok())
         .skip(1)
@@ -80,12 +80,8 @@ fn parse_input_csv(input: &Path, is_id: bool, is_rename: bool) -> Vec<RawSeq> {
 
             seq.get_dir(is_id, is_rename);
             raw_seqs.push(seq);
-            lcounts += 1;
+            *lcount += 1;
         });
-
-    println!("Total samples: {}", lcounts);
-
-    raw_seqs
 }
 
 fn check_reads(reads: &[PathBuf], id: &str) {
