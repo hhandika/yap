@@ -7,7 +7,7 @@ use glob::{glob_with, MatchOptions};
 
 use crate::qc::tag;
 
-pub fn parse_input(input: &PathBuf, is_id: bool, is_rename: bool) -> Vec<RawSeq> {
+pub fn parse_input(input: &Path, is_id: bool, is_rename: bool) -> Vec<RawSeq> {
     let ext = input.extension().unwrap().to_string_lossy();
     if ext == "conf" {
         parse_input_ini(input)
@@ -21,7 +21,7 @@ pub fn parse_input(input: &PathBuf, is_id: bool, is_rename: bool) -> Vec<RawSeq>
     }
 }
 
-fn parse_input_ini(input: &PathBuf) -> Vec<RawSeq> {
+fn parse_input_ini(input: &Path) -> Vec<RawSeq> {
     let file = File::open(input).expect("CAN'T OPEN INPUT FILE.");
     let buff = BufReader::new(file);
     let mut raw_seqs = Vec::new();
@@ -53,7 +53,7 @@ fn parse_input_ini(input: &PathBuf) -> Vec<RawSeq> {
     raw_seqs
 }
 
-fn parse_input_csv(input: &PathBuf, is_id: bool, is_rename: bool) -> Vec<RawSeq> {
+fn parse_input_csv(input: &Path, is_id: bool, is_rename: bool) -> Vec<RawSeq> {
     let file = File::open(input).unwrap();
     let buff = BufReader::new(file);
 

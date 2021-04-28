@@ -1,10 +1,10 @@
 use std::io::{self, Write};
-use std::path::PathBuf;
+use std::path::{Path,PathBuf};
 
 use crate::qc::parser::{self, RawSeq};
 use crate::qc::runner;
 
-pub fn dry_run(input: &PathBuf, is_id: bool, is_rename: bool) {
+pub fn dry_run(input: &Path, is_id: bool, is_rename: bool) {
     let reads: Vec<RawSeq> = parser::parse_input(input, is_id, is_rename);
     let stdout = io::stdout();
     let mut handle = io::BufWriter::new(stdout);
@@ -39,7 +39,7 @@ pub fn dry_run(input: &PathBuf, is_id: bool, is_rename: bool) {
 }
 
 pub fn process_input(
-    input: &PathBuf,
+    input: &Path,
     is_id: bool,
     is_rename: bool,
     params: &Option<String>,

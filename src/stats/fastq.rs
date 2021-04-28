@@ -1,14 +1,14 @@
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::{self, BufReader, Write};
-use std::path::PathBuf;
+use std::path::Path;
 
 use flate2::bufread::MultiGzDecoder;
 
 use crate::stats::qscores::QScore;
 use crate::stats::sequence::{FastqStats, SeqReads};
 
-pub fn process_fastq(input: &PathBuf) -> FastqStats {
+pub fn process_fastq(input: &Path) -> FastqStats {
     if is_gunzip(input) {
         parse_gunzip_fastq(input)
     } else if is_unzip_fastq(input) {
@@ -19,17 +19,17 @@ pub fn process_fastq(input: &PathBuf) -> FastqStats {
 }
 
 #[inline(always)]
-fn is_gunzip(input: &PathBuf) -> bool {
+fn is_gunzip(input: &Path) -> bool {
     input.extension().unwrap() == "gz"
 }
 
-fn is_unzip_fastq(input: &PathBuf) -> bool {
+fn is_unzip_fastq(input: &Path) -> bool {
     let ext = input.extension().unwrap();
 
     ext == "fastq" || ext == "fq"
 }
 
-fn parse_gunzip_fastq(input: &PathBuf) -> FastqStats {
+fn parse_gunzip_fastq(input: &Path) -> FastqStats {
     let file = File::open(input).unwrap();
     let reader = BufReader::new(file);
     let decompressor = MultiGzDecoder::new(reader);
@@ -38,13 +38,13 @@ fn parse_gunzip_fastq(input: &PathBuf) -> FastqStats {
     parse_fastq(buff, input)
 }
 
-fn parse_unzip_fastq(input: &PathBuf) -> FastqStats {
+fn parse_unzip_fastq(input: &Path) -> FastqStats {
     let file = File::open(input).unwrap();
     let buff = BufReader::new(file);
     parse_fastq(buff, input)
 }
 
-fn parse_fastq<R: BufRead>(buff: R, input: &PathBuf) -> FastqStats {
+fn parse_fastq<R: BufRead>(buff: R, input: &Path) -> FastqStats {
     let stdout = io::stdout();
     let mut outbuff = io::BufWriter::new(stdout);
 

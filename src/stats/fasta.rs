@@ -1,13 +1,13 @@
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::{self, BufReader, Lines, Write};
-use std::path::PathBuf;
+use std::path::Path;
 
 use flate2::bufread::MultiGzDecoder;
 
 use crate::stats::sequence::{FastaStats, SeqReads};
 
-pub fn process_fasta(input: &PathBuf) -> FastaStats {
+pub fn process_fasta(input: &Path) -> FastaStats {
     let file = File::open(input).unwrap();
     if is_gz_fasta(input) {
         let read = BufReader::new(file);
@@ -21,19 +21,19 @@ pub fn process_fasta(input: &PathBuf) -> FastaStats {
 }
 
 #[inline(always)]
-fn is_gz_fasta(input: &PathBuf) -> bool {
+fn is_gz_fasta(input: &Path) -> bool {
     let ext = input.extension().unwrap();
     ext == "gz" || ext == "gzip"
 }
 
 #[inline(always)]
-fn is_unzip_fasta(input: &PathBuf) -> bool {
+fn is_unzip_fasta(input: &Path) -> bool {
     let ext = input.extension().unwrap();
 
     ext == "fasta" || ext == "fas" || ext == "fa"
 }
 
-fn parse_fasta<R: Read>(file: R, input: &PathBuf) -> FastaStats {
+fn parse_fasta<R: Read>(file: R, input: &Path) -> FastaStats {
     let stdout = io::stdout();
     let mut stdbuf = io::BufWriter::new(stdout);
 

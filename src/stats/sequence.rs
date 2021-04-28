@@ -1,7 +1,7 @@
 //! Heru Handika
 //! Modules to process sequencing data
 
-use std::path::PathBuf;
+use std::path::Path;
 
 use crate::stats::math::{self, NStats};
 use crate::stats::qscores::QScore;
@@ -57,7 +57,7 @@ pub struct FastqStats {
 
 impl FastqStats {
     pub fn count_all_reads(
-        fname: &PathBuf,
+        fname: &Path,
         reads: &u32,
         vec: &[SeqReads],
         qscores: &[QScore],
@@ -142,7 +142,7 @@ pub struct FastaStats {
 }
 
 impl FastaStats {
-    pub fn get_stats(input: &PathBuf, contigs: &u32, seq: &[SeqReads]) -> Self {
+    pub fn get_stats(input: &Path, contigs: &u32, seq: &[SeqReads]) -> Self {
         let mut con = Self {
             path: input.parent().unwrap().to_string_lossy().into_owned(),
             seqname: input.file_name().unwrap().to_string_lossy().into_owned(),
