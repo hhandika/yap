@@ -273,7 +273,7 @@ pub fn parse_cli(version: &str) {
     match args.subcommand() {
         ("init", Some(init_matches)) => initialize_input(init_matches),
         ("assembly", Some(assembly_matches)) => match_assembly_cli(assembly_matches, version),
-        ("qc", Some(qc_matches)) => Fastp::run(qc_matches, version),
+        ("qc", Some(qc_matches)) => Fastp::process_cli(qc_matches, version),
         ("check", Some(_)) => checker::check_dependencies().unwrap(),
         ("stats", Some(stats_matches)) => match_stats_cli(stats_matches, version),
         _ => unreachable!(),
@@ -302,9 +302,9 @@ fn match_assembly_cli(args: &ArgMatches, version: &str) {
     let mut spades = Spades::new();
     println!("Starting YAP-assembly v{}...\n", version);
     match args.subcommand() {
-        ("auto", Some(clean_matches)) => spades.run_spades_auto(clean_matches),
-        ("conf", Some(assembly_matches)) => spades.run_spades(assembly_matches),
-        ("clean", Some(clean_matches)) => spades.clean_spades_files(clean_matches),
+        ("auto", Some(clean_matches)) => spades.run_auto(clean_matches),
+        ("conf", Some(assembly_matches)) => spades.run(assembly_matches),
+        ("clean", Some(clean_matches)) => spades.clean_files(clean_matches),
         _ => unreachable!(),
     };
 }
@@ -319,22 +319,37 @@ fn match_stats_cli(args: &ArgMatches, version: &str) {
     }
 }
 
+trait Opts {
+    fn get_opts(&self, matches: &ArgMatches) -> Option<String> {
+        let mut opts = None;
+        if matches.is_present("opts") {
+            let input = matches.value_of("opts").unwrap();
+            let params = input.replace("params=", "");
+            opts = Some(String::from(params.trim()));
+        }
+        opts
+    }
+}
+
+impl Opts for Fastp {}
+impl Opts for Spades {}
+
 struct Fastp {
     outdir: Option<PathBuf>,
 }
 
 impl Fastp {
-    fn run(matches: &ArgMatches, version: &str) {
+    fn process_cli(matches: &ArgMatches, version: &str) {
         let mut set = Self { outdir: None };
-        set.clean(matches, version);
+        set.run(matches, version);
     }
 
-    fn clean(&mut self, matches: &ArgMatches, version: &str) {
+    fn run(&mut self, matches: &ArgMatches, version: &str) {
         if matches.is_present("input") {
             let path = PathBuf::from(matches.value_of("input").unwrap());
             let is_id = matches.is_present("id");
             let is_rename = matches.is_present("rename");
-            let opts = get_opts(&matches);
+            let opts = self.get_opts(&matches);
 
             if matches.is_present("output") {
                 self.outdir = Some(PathBuf::from(matches.value_of("output").unwrap()));
@@ -359,12 +374,12 @@ impl Spades {
         Self { outdir: None }
     }
 
-    fn run_spades_auto(&mut self, matches: &ArgMatches) {
+    fn run_auto(&mut self, matches: &ArgMatches) {
         let path = matches.value_of("dir").unwrap();
         let dirname = matches.value_of("specify").unwrap();
         let threads = self.get_thread_num(matches);
         self.get_outdir(matches);
-        let args = get_opts(matches);
+        let args = self.get_opts(matches);
         if matches.is_present("dryrun") {
             asm_io::auto_dryrun(path, &dirname)
         } else {
@@ -372,11 +387,11 @@ impl Spades {
         }
     }
 
-    fn run_spades(&mut self, matches: &ArgMatches) {
+    fn run(&mut self, matches: &ArgMatches) {
         let path = matches.value_of("input").unwrap();
         let threads = self.get_thread_num(matches);
         self.get_outdir(matches);
-        let args = get_opts(matches);
+        let args = self.get_opts(matches);
         if matches.is_present("dryrun") {
             asm_io::dryrun(path)
         } else {
@@ -384,7 +399,7 @@ impl Spades {
         }
     }
 
-    fn clean_spades_files(&self, matches: &ArgMatches) {
+    fn clean_files(&self, matches: &ArgMatches) {
         let path = PathBuf::from(matches.value_of("dir").unwrap());
         cleaner::clean_spades_files(&path);
     }
@@ -406,16 +421,6 @@ impl Spades {
             self.outdir = Some(PathBuf::from(matches.value_of("output").unwrap()));
         }
     }
-}
-
-fn get_opts(matches: &ArgMatches) -> Option<String> {
-    let mut opts = None;
-    if matches.is_present("opts") {
-        let input = matches.value_of("opts").unwrap();
-        let params = input.replace("params=", "");
-        opts = Some(String::from(params.trim()));
-    }
-    opts
 }
 
 struct Stats {
