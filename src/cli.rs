@@ -273,7 +273,7 @@ pub fn parse_cli(version: &str) {
     match args.subcommand() {
         ("init", Some(init_matches)) => initialize_input(init_matches),
         ("assembly", Some(assembly_matches)) => match_assembly_cli(assembly_matches, version),
-        ("qc", Some(qc_matches)) => run_fastp_clean(qc_matches, version),
+        ("qc", Some(qc_matches)) => Fastp::run(qc_matches, version),
         ("check", Some(_)) => checker::check_dependencies().unwrap(),
         ("stats", Some(stats_matches)) => match_stats_cli(stats_matches, version),
         _ => unreachable!(),
@@ -319,23 +319,33 @@ fn match_stats_cli(args: &ArgMatches, version: &str) {
     }
 }
 
-fn run_fastp_clean(matches: &ArgMatches, version: &str) {
-    if matches.is_present("input") {
-        let path = PathBuf::from(matches.value_of("input").unwrap());
-        let is_id = matches.is_present("id");
-        let is_rename = matches.is_present("rename");
-        let opts = get_opts(&matches);
-        let mut outdir = None;
+struct Fastp {
+    outdir: Option<PathBuf>,
+}
 
-        if matches.is_present("output") {
-            outdir = Some(PathBuf::from(matches.value_of("output").unwrap()));
-        }
+impl Fastp {
+    fn run(matches: &ArgMatches, version: &str) {
+        let mut set = Self { outdir: None };
+        set.clean(matches, version);
+    }
 
-        if matches.is_present("dryrun") {
-            qc_io::dry_run(&path, is_id, is_rename);
-        } else {
-            println!("Starting YAP-qc v{}...\n", version);
-            qc_io::process_input(&path, is_id, is_rename, &opts, &outdir);
+    fn clean(&mut self, matches: &ArgMatches, version: &str) {
+        if matches.is_present("input") {
+            let path = PathBuf::from(matches.value_of("input").unwrap());
+            let is_id = matches.is_present("id");
+            let is_rename = matches.is_present("rename");
+            let opts = get_opts(&matches);
+
+            if matches.is_present("output") {
+                self.outdir = Some(PathBuf::from(matches.value_of("output").unwrap()));
+            }
+
+            if matches.is_present("dryrun") {
+                qc_io::dry_run(&path, is_id, is_rename);
+            } else {
+                println!("Starting YAP-qc v{}...\n", version);
+                qc_io::process_input(&path, is_id, is_rename, &opts, &self.outdir);
+            }
         }
     }
 }
