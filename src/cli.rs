@@ -273,7 +273,7 @@ pub fn parse_cli(version: &str) {
     match args.subcommand() {
         ("init", Some(init_matches)) => initialize_input(init_matches),
         ("assembly", Some(assembly_matches)) => match_assembly_cli(assembly_matches, version),
-        ("qc", Some(qc_matches)) => Fastp::process_cli(qc_matches, version),
+        ("qc", Some(qc_matches)) => Fastp::match_cli(qc_matches, version),
         ("check", Some(_)) => checker::check_dependencies().unwrap(),
         ("stats", Some(stats_matches)) => match_stats_cli(stats_matches, version),
         _ => unreachable!(),
@@ -329,36 +329,47 @@ trait Opts {
         }
         opts
     }
+
+    fn get_outdir(&mut self, matches: &ArgMatches) -> Option<PathBuf> {
+        let mut outdir = None;
+        if matches.is_present("output") {
+            outdir = Some(PathBuf::from(matches.value_of("output").unwrap()));
+        }
+        outdir
+    }
 }
 
-impl Opts for Fastp {}
+impl Opts for Fastp<'_> {}
 impl Opts for Spades {}
 
-struct Fastp {
+struct Fastp<'a> {
     outdir: Option<PathBuf>,
+    version: &'a str,
+    matches: &'a ArgMatches<'a>,
 }
 
-impl Fastp {
-    fn process_cli(matches: &ArgMatches, version: &str) {
-        let mut set = Self { outdir: None };
-        set.run(matches, version);
+impl<'a> Fastp<'a> {
+    fn match_cli(matches: &'a ArgMatches, version: &'a str) {
+        let mut set = Self {
+            outdir: None,
+            matches,
+            version,
+        };
+        set.run();
     }
 
-    fn run(&mut self, matches: &ArgMatches, version: &str) {
-        if matches.is_present("input") {
-            let path = PathBuf::from(matches.value_of("input").unwrap());
-            let is_id = matches.is_present("id");
-            let is_rename = matches.is_present("rename");
-            let opts = self.get_opts(&matches);
+    fn run(&mut self) {
+        if self.matches.is_present("input") {
+            let path = PathBuf::from(self.matches.value_of("input").unwrap());
+            let is_id = self.matches.is_present("id");
+            let is_rename = self.matches.is_present("rename");
+            let opts = self.get_opts(&self.matches);
+            self.outdir = self.get_outdir(self.matches);
 
-            if matches.is_present("output") {
-                self.outdir = Some(PathBuf::from(matches.value_of("output").unwrap()));
-            }
-
-            if matches.is_present("dryrun") {
+            if self.matches.is_present("dryrun") {
                 qc_io::dry_run(&path, is_id, is_rename);
             } else {
-                println!("Starting YAP-qc v{}...\n", version);
+                println!("Starting YAP-qc v{}...\n", self.version);
                 qc_io::process_input(&path, is_id, is_rename, &opts, &self.outdir);
             }
         }
@@ -390,7 +401,7 @@ impl Spades {
     fn run(&mut self, matches: &ArgMatches) {
         let path = matches.value_of("input").unwrap();
         let threads = self.get_thread_num(matches);
-        self.get_outdir(matches);
+        self.outdir = self.get_outdir(matches);
         let args = self.get_opts(matches);
         if matches.is_present("dryrun") {
             asm_io::dryrun(path)
@@ -414,12 +425,6 @@ impl Spades {
             }
         }
         threads
-    }
-
-    fn get_outdir(&mut self, matches: &ArgMatches) {
-        if matches.is_present("output") {
-            self.outdir = Some(PathBuf::from(matches.value_of("output").unwrap()));
-        }
     }
 }
 
