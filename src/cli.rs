@@ -442,13 +442,13 @@ impl Stats {
     }
 
     fn match_fastq(&mut self, matches: &ArgMatches) {
-        self.is_csv = matches.is_present("nocsv");
+        self.check_is_nocsv(matches);
         self.fastq = true;
         self.get_stats(matches);
     }
 
     fn match_fasta(&mut self, matches: &ArgMatches) {
-        self.is_csv = matches.is_present("nocsv");
+        self.check_is_nocsv(matches);
         self.get_stats(matches);
     }
 
@@ -469,5 +469,11 @@ impl Stats {
         let is_csv = matches.is_present("nocsv");
         let entry = matches.value_of("wdir").unwrap();
         input::process_walkdir(&entry, is_csv, true);
+    }
+
+    fn check_is_nocsv(&mut self, matches: &ArgMatches) {
+        if matches.is_present("nocsv") {
+            self.is_csv = false;
+        }
     }
 }
