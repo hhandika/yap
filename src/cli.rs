@@ -320,7 +320,7 @@ fn match_stats_cli(args: &ArgMatches, version: &str) {
 }
 
 trait Opts {
-    fn get_opts(&self, matches: &ArgMatches) -> Option<String> {
+    fn get_params(&self, matches: &ArgMatches) -> Option<String> {
         let mut opts = None;
         if matches.is_present("opts") {
             let input = matches.value_of("opts").unwrap();
@@ -363,7 +363,7 @@ impl<'a> Fastp<'a> {
             let path = PathBuf::from(self.matches.value_of("input").unwrap());
             let is_id = self.matches.is_present("id");
             let is_rename = self.matches.is_present("rename");
-            let opts = self.get_opts(&self.matches);
+            let opts = self.get_params(&self.matches);
             self.outdir = self.get_outdir(self.matches);
 
             if self.matches.is_present("dryrun") {
@@ -390,7 +390,7 @@ impl Spades {
         let dirname = matches.value_of("specify").unwrap();
         let threads = self.get_thread_num(matches);
         self.get_outdir(matches);
-        let args = self.get_opts(matches);
+        let args = self.get_params(matches);
         if matches.is_present("dryrun") {
             asm_io::auto_dryrun(path, &dirname)
         } else {
@@ -402,7 +402,7 @@ impl Spades {
         let path = matches.value_of("input").unwrap();
         let threads = self.get_thread_num(matches);
         self.outdir = self.get_outdir(matches);
-        let args = self.get_opts(matches);
+        let args = self.get_params(matches);
         if matches.is_present("dryrun") {
             asm_io::dryrun(path)
         } else {
