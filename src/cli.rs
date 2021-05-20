@@ -466,9 +466,8 @@ impl Stats {
     }
 
     fn get_stats_walkdir(&self, matches: &ArgMatches) {
-        let is_csv = matches.is_present("nocsv");
         let entry = matches.value_of("wdir").unwrap();
-        input::process_walkdir(&entry, is_csv, self.fastq);
+        input::process_walkdir(&entry, self.is_csv, self.fastq);
     }
 
     fn check_is_nocsv(&mut self, matches: &ArgMatches) {
