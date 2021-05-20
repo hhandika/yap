@@ -1,5 +1,8 @@
 # Yap Change Log
 
+0.1.3
+- Update csv filenames for stats summary
+
 0.1.2
 - Fix issues using walkdir for fasta files.
 
