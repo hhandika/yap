@@ -238,7 +238,7 @@ fn write_fastq_csv(all_reads: &[FastqStats]) {
 }
 
 fn write_fasta_csv(stats: &[FastaStats]) {
-    let fname = "YAP-fastq-summary.csv";
+    let fname = "YAP-fasta-summary.csv";
     let output = File::create(&fname).expect("FILE EXISTS.");
     let mut line = LineWriter::new(output);
     let path = !stats[0].path.is_empty();
