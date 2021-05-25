@@ -7,6 +7,8 @@ YetAnotherPipeline
 
 A pipeline for processing high-throughput sequencing data.
 
+Under development. More soon!
+
 ## Features
 
 | Features                                      | Dependencies                               | Implementation |
@@ -15,6 +17,7 @@ A pipeline for processing high-throughput sequencing data.
 | Batch adapter trimming and sequence filtering | [Fastp](https://github.com/OpenGene/fastp) | Done           |
 | Batch sequence assembly                       | [SPAdes](https://github.com/ablab/spades)  | Done           |
 | Sequence statistics                           | None                                       | Done           |
+| Read mapping                                  |                                            | Planned        |
 | _Utilities_                                   |
 | Sequence finder                               | None                                       | Done           |
 | Sequence file renamer                         | None                                       | Planned        |
@@ -32,4 +35,4 @@ OS support:
 
 ## State of Code
 
-All the features are working as expected. There may be some bugs.
+All implemented features are working as expected. Please, expect significant code changes as the development of the program is still at the early stage.
