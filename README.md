@@ -18,6 +18,7 @@ Under development. More soon!
 | Batch sequence assembly                       | [SPAdes](https://github.com/ablab/spades)  | Done           |
 | Sequence statistics                           | None                                       | Done           |
 | Read mapping                                  |                                            | Planned        |
+| Sequence alignment                            |                                            | Planned        |
 | _Utilities_                                   |
 | Sequence finder                               | None                                       | Done           |
 | Sequence file renamer                         | None                                       | Planned        |
