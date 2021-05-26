@@ -11,20 +11,22 @@ Under development. More soon!
 
 ## Features
 
-| Features                                      | Dependencies                               | Implementation |
-| --------------------------------------------- | ------------------------------------------ | -------------- |
+| Features                                      | Dependencies                                       | Implementation |
+| --------------------------------------------- | -------------------------------------------------- | -------------- |
 | _Essentials_                                  |
-| Batch adapter trimming and sequence filtering | [Fastp](https://github.com/OpenGene/fastp) | Done           |
-| Batch sequence assembly                       | [SPAdes](https://github.com/ablab/spades)  | Done           |
-| Sequence statistics                           | None                                       | Done           |
-| Read mapping                                  |                                            | Planned        |
-| Sequence alignment                            |                                            | Planned        |
+| Batch adapter trimming and sequence filtering | [Fastp](https://github.com/OpenGene/fastp)         | Done           |
+| Batch sequence assembly                       | [SPAdes](https://github.com/ablab/spades)          | Done           |
+| Sequence statistics                           | None                                               | Done           |
+| Read mapping                                  |                                                    | Planned        |
+| Sequence alignment                            |                                                    | Planned        |
+| Alignment trimming                            | [TrimAl](http://trimal.cgenomics.org/introduction) | Planned        |
+| Alignment format conversion                   | [ReadAl](http://trimal.cgenomics.org/introduction) | Planned        |
 | _Utilities_                                   |
-| Sequence finder                               | None                                       | Done           |
-| Sequence file renamer                         | None                                       | Planned        |
+| Sequence finder                               | None                                               | Done           |
+| Sequence file renamer                         | None                                               | Planned        |
 | _Extras_                                      |
-| Logger                                        | None                                       | Planned        |
-| Symlink fixer                                 | None                                       | Planned        |
+| Logger                                        | None                                               | Planned        |
+| Symlink fixer                                 | None                                               | Planned        |
 
 ## Installation
 
