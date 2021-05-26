@@ -17,8 +17,8 @@ Under development. More soon!
 | Batch adapter trimming and sequence filtering | [Fastp](https://github.com/OpenGene/fastp)         | Done           |
 | Batch sequence assembly                       | [SPAdes](https://github.com/ablab/spades)          | Done           |
 | Sequence statistics                           | None                                               | Done           |
-| Read mapping                                  |                                                    | Planned        |
-| Sequence alignment                            |                                                    | Planned        |
+| Read mapping                                  | [BWA-MEM2](https://github.com/bwa-mem2/bwa-mem2)   | Planned        |
+| Sequence alignment                            | [Mafft](https://mafft.cbrc.jp/alignment/software/) | Planned        |
 | Alignment trimming                            | [TrimAl](http://trimal.cgenomics.org/introduction) | Planned        |
 | Alignment format conversion                   | [ReadAl](http://trimal.cgenomics.org/introduction) | Planned        |
 | _Utilities_                                   |
