@@ -36,6 +36,37 @@ OS support:
 2. Linux
 3. Windows-WSL
 
+## Usages
+
+Current working commands:
+
+```
+YAP 0.1.1
+Heru Handika
+A cli app for phylogenomics
+
+USAGE:
+    yap <SUBCOMMAND>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+SUBCOMMANDS:
+    assembly    Assemble reads using SPAdes
+    check       Checks dependencies
+    help        Prints this message or the help of the given subcommand(s)
+    init        Find sequences and generate input files
+    qc          Trims adapters and clean low quality reads using fastp
+    stats       Get sequence statistics
+```
+
+More about the subcommands:
+
+```
+yap <SUBCOMMAND> --help
+```
+
 ## State of Code
 
 All implemented features are working as expected. Please, expect significant code changes as the development of the program is still at the early stage.
