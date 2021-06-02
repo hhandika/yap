@@ -17,7 +17,7 @@ fn get_args(version: &str) -> ArgMatches {
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .subcommand(App::new("check").about("Checks dependencies"))
         .subcommand(
-            App::new("init")
+            App::new("new")
                 .about("Find sequences and generate input files")
                 .arg(
                     Arg::with_name("dir")
@@ -271,7 +271,7 @@ fn get_args(version: &str) -> ArgMatches {
 pub fn parse_cli(version: &str) {
     let args = get_args(version);
     match args.subcommand() {
-        ("init", Some(init_matches)) => initialize_input(init_matches),
+        ("new", Some(init_matches)) => new_input(init_matches),
         ("assembly", Some(assembly_matches)) => match_assembly_cli(assembly_matches, version),
         ("qc", Some(qc_matches)) => Fastp::match_cli(qc_matches, version),
         ("check", Some(_)) => checker::check_dependencies().unwrap(),
@@ -280,7 +280,7 @@ pub fn parse_cli(version: &str) {
     };
 }
 
-fn initialize_input(matches: &ArgMatches) {
+fn new_input(matches: &ArgMatches) {
     let path = matches.value_of("dir").expect("IS NOT A VALID FILE PATH");
     let len = matches
         .value_of("len")
