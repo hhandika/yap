@@ -62,6 +62,7 @@ fn get_args(version: &str) -> ArgMatches {
                         .long("input")
                         .help("Inputs a config file")
                         .takes_value(true)
+                        .default_value("yap-qc_input.conf")
                         .value_name("INPUT"),
                 )
                 .arg(
