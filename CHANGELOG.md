@@ -1,5 +1,8 @@
 # Yap Change Log
 
+0.1.4
+- Add default value to qc input.
+
 0.1.3
 - Update csv filenames for stats summary
 
