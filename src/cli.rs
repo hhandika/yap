@@ -112,7 +112,7 @@ fn get_args(version: &str) -> ArgMatches {
                                 .help("Inputs a directory for auto search")
                                 .takes_value(true)
                                 .value_name("CLEAN-READ DIR")
-                                .required(true),
+                                .default_value("clean_reads"),
                         )
                         .arg(
                             Arg::with_name("specify")
