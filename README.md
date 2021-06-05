@@ -3,13 +3,18 @@
 ![YAP-Tests](https://github.com/hhandika/yap/workflows/YAP-Tests/badge.svg)
 [![Build Status](https://www.travis-ci.com/hhandika/yap.svg?branch=main)](https://www.travis-ci.com/hhandika/yap)
 
-YetAnotherPipeline
+A pipeline for processing high-throughput sequencing data. The goals:
 
-A pipeline for processing high-throughput sequencing data.
+1. To develop single contained executable pipeline that reduce the numbers of dependecies for the users.
+2. Robust error handlings.
+3. Elegant commands.
+4. Fast
 
 Under development. More soon!
 
 ## Features
+
+Below are the planned and already implemented features:
 
 | Features                                      | Dependencies                                       | Implementation |
 | --------------------------------------------- | -------------------------------------------------- | -------------- |
@@ -30,21 +35,31 @@ Under development. More soon!
 
 ## Installation
 
-OS support:
+YAP operating system support:
 
 1. MacOS
 2. Linux
 3. Windows-WSL
 
+Everyone is welcome to try the development version of YAP. First, please install [the Rust Compiler](https://www.rust-lang.org/learn/get-started), and then:
+
+```{Bash}
+cargo install --git https://github.com/hhandika/yap
+```
+
+Confirm the app properly installed:
+
+```{Bash}
+yap --version
+```
+
+It should show the app version.
+
 ## Usages
 
 Current working commands:
 
-```
-YAP 0.1.1
-Heru Handika
-A cli app for phylogenomics
-
+```{Bash}
 USAGE:
     yap <SUBCOMMAND>
 
@@ -56,14 +71,15 @@ SUBCOMMANDS:
     assembly    Assemble reads using SPAdes
     check       Checks dependencies
     help        Prints this message or the help of the given subcommand(s)
-    init        Find sequences and generate input files
+    new         Find sequences and generate input files
     qc          Trims adapters and clean low quality reads using fastp
     stats       Get sequence statistics
+
 ```
 
 More about the subcommands:
 
-```
+```{Bash}
 yap <SUBCOMMAND> --help
 ```
 
