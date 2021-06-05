@@ -1,7 +1,7 @@
 # Yap Change Log
 
 0.1.4
-- Add default value to qc input.
+- Add default value to qc and assembly inputs
 
 0.1.3
 - Update csv filenames for stats summary
