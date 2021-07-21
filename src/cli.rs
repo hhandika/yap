@@ -95,6 +95,7 @@ fn get_args(version: &str) -> ArgMatches {
                     Arg::with_name("opts")
                         .long("opts")
                         .help("Sets optional Fastp params")
+                        .require_equals(true)
                         .takes_value(true)
                         .value_name("OPTIONAL PARAMS"),
                 ),
@@ -149,6 +150,7 @@ fn get_args(version: &str) -> ArgMatches {
                             Arg::with_name("opts")
                                 .long("opts")
                                 .help("Sets optional SPAdes params")
+                                .require_equals(true)
                                 .takes_value(true)
                                 .value_name("OPTIONAL PARAMS"),
                         ),
@@ -322,13 +324,12 @@ fn match_stats_cli(args: &ArgMatches, version: &str) {
 
 trait Opts {
     fn get_params(&self, matches: &ArgMatches) -> Option<String> {
-        let mut opts = None;
+        let mut params = None;
         if matches.is_present("opts") {
             let input = matches.value_of("opts").unwrap();
-            let params = input.replace("params=", "");
-            opts = Some(String::from(params.trim()));
+            params = Some(String::from(input));
         }
-        opts
+        params
     }
 
     fn get_outdir(&mut self, matches: &ArgMatches) -> Option<PathBuf> {

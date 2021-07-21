@@ -192,10 +192,8 @@ impl<'a> Runner<'a> {
             .arg(self.out_r2.clone());
 
         self.set_fastp_idx(&mut out);
+        self.set_opt_params(&mut out);
 
-        if self.params.is_some() {
-            self.set_opt_params(&mut out);
-        }
         out.output().unwrap()
     }
 
@@ -226,7 +224,15 @@ impl<'a> Runner<'a> {
     }
 
     fn set_opt_params(&self, out: &mut Command) {
-        out.arg(self.params.as_ref().unwrap());
+        match self.params {
+            Some(param) => {
+                let params: Vec<&str> = param.split_whitespace().collect();
+                params.iter().for_each(|param| {
+                    out.arg(param);
+                });
+            }
+            None => (),
+        }
     }
 
     fn try_creating_symlink(&self) {
