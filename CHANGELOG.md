@@ -1,5 +1,9 @@
 # YAP Release Notes
 
+## v0.1.6
+
+- Fix artifact names.
+
 ## v0.1.5
 
 - Add CI support.
