@@ -1,8 +1,16 @@
 # YAP Release Notes
 
+## v0.1.10
+
+- Update release rules.
+
+## v0.1.9
+
+- CI Fixes.
+
 ## v0.1.8
 
-- Token updates
+- Token updates.
 
 ## v0.1.7
 
