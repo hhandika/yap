@@ -50,4 +50,4 @@ jobs:
         with:
           files: ${{ matrix.asset_name }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.YAP_TOKEN }}

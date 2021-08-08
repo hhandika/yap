@@ -1,5 +1,9 @@
 # YAP Release Notes
 
+## v0.1.8
+
+- Token updates
+
 ## v0.1.7
 
 - Input format for stats now is an argument instead of subcommand.
