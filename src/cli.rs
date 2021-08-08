@@ -2,12 +2,12 @@ use std::path::PathBuf;
 
 use clap::{App, AppSettings, Arg, ArgMatches};
 
-use crate::assembly::asm_io;
+use crate::assembly;
 use crate::assembly::cleaner;
 use crate::checker;
 use crate::init::Init;
-use crate::qc::qc_io;
-use crate::stats::input;
+use crate::qc;
+use crate::stats;
 
 fn get_args(version: &str) -> ArgMatches {
     App::new("YAP")
@@ -369,10 +369,10 @@ impl<'a> Fastp<'a> {
             self.outdir = self.get_outdir(self.matches);
 
             if self.matches.is_present("dryrun") {
-                qc_io::dry_run(&path, is_id, is_rename);
+                qc::dry_run(&path, is_id, is_rename);
             } else {
                 println!("Starting YAP-qc v{}...\n", self.version);
-                qc_io::process_input(&path, is_id, is_rename, &opts, &self.outdir);
+                qc::process_input(&path, is_id, is_rename, &opts, &self.outdir);
             }
         }
     }
@@ -394,9 +394,9 @@ impl Spades {
         self.get_outdir(matches);
         let args = self.get_params(matches);
         if matches.is_present("dryrun") {
-            asm_io::auto_dryrun(path, &dirname)
+            assembly::auto_dryrun(path, &dirname)
         } else {
-            asm_io::auto_process_input(path, dirname, &threads, &self.outdir, &args);
+            assembly::auto_process_input(path, dirname, &threads, &self.outdir, &args);
         }
     }
 
@@ -406,9 +406,9 @@ impl Spades {
         self.outdir = self.get_outdir(matches);
         let args = self.get_params(matches);
         if matches.is_present("dryrun") {
-            asm_io::dryrun(path)
+            assembly::dryrun(path)
         } else {
-            asm_io::process_input(path, &threads, &self.outdir, &args);
+            assembly::process_input(path, &threads, &self.outdir, &args);
         }
     }
 
@@ -464,12 +464,12 @@ impl Stats {
 
     fn get_stats_wildcard(&self, matches: &ArgMatches) {
         let entries: Vec<&str> = matches.values_of("wildcard").unwrap().collect();
-        input::process_wildcard(&entries, self.is_csv, self.fastq)
+        stats::process_wildcard(&entries, self.is_csv, self.fastq)
     }
 
     fn get_stats_walkdir(&self, matches: &ArgMatches) {
         let entry = matches.value_of("wdir").unwrap();
-        input::process_walkdir(&entry, self.is_csv, self.fastq);
+        stats::process_walkdir(&entry, self.is_csv, self.fastq);
     }
 
     fn check_is_nocsv(&mut self, matches: &ArgMatches) {
