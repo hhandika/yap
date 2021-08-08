@@ -2,8 +2,8 @@ name: Release
 
 on:
   push:
-    tags:
-      - "*"
+    # tags:
+    #   - "*"
 
 jobs:
   publish:
@@ -45,9 +45,13 @@ jobs:
           filename: ${{ matrix.asset_name }}
 
       - name: Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+        uses: "marvinpinto/action-automatic-releases@latest"
         with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
           files: ${{ matrix.asset_name }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.YAP_TOKEN }}
+        # uses: softprops/action-gh-release@v1
+        # if: startsWith(github.ref, 'refs/tags/')
+        # with:
+        #   files: ${{ matrix.asset_name }}
+        # env:
+        #   GITHUB_TOKEN: ${{ secrets.YAP_TOKEN }}
