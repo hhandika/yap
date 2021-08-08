@@ -1,5 +1,9 @@
 # YAP Release Notes
 
+## v0.1.7
+
+- Input format for stats now is an argument instead of subcommand.
+
 ## v0.1.6
 
 - Fix artifact names.
