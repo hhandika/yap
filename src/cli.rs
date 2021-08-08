@@ -211,61 +211,40 @@ fn get_args(version: &str) -> ArgMatches {
         .subcommand(
             App::new("stats")
                 .about("Get sequence statistics")
-                .subcommand(
-                    App::new("fastq")
-                        .about("Uses for FASTQ (raw-sequences) inputs")
-                        .arg(
-                            Arg::with_name("wildcard")
-                                .short("c")
-                                .long("wcard")
-                                .help("Finds files using wildcards. Allows multiple inputs")
-                                .conflicts_with_all(&["dir", "file", "wdir"])
-                                .multiple(true)
-                                .value_name("WILDCARD"),
-                        )
-                        .arg(
-                            Arg::with_name("wdir")
-                                .short("w")
-                                .long("walk")
-                                .help("Tranverses through nested directories")
-                                .conflicts_with_all(&["dir", "file", "wildcard"])
-                                .takes_value(true)
-                                .value_name("PARENT DIR"),
-                        )
-                        .arg(
-                            Arg::with_name("nocsv")
-                                .long("nocsv")
-                                .help("Does not save results")
-                                .takes_value(false),
-                        ),
+                .arg(
+                    Arg::with_name("wildcard")
+                        .short("c")
+                        .long("wcard")
+                        .help("Finds files using wildcards. Allows multiple inputs")
+                        .conflicts_with_all(&["dir", "file", "wdir"])
+                        .multiple(true)
+                        .value_name("WILDCARD"),
                 )
-                .subcommand(
-                    App::new("fasta")
-                        .about("Uses for FASTA (sequence assemblies) inputs")
-                        .arg(
-                            Arg::with_name("wildcard")
-                                .short("c")
-                                .long("wcard")
-                                .help("Finds files using wildcards. Allows multiple inputs")
-                                .conflicts_with_all(&["dir", "file", "wdir"])
-                                .multiple(true)
-                                .value_name("WILDCARDS"),
-                        )
-                        .arg(
-                            Arg::with_name("wdir")
-                                .short("w")
-                                .long("walk")
-                                .help("Tranverses nested directories")
-                                .conflicts_with_all(&["dir", "file", "wildcard"])
-                                .takes_value(true)
-                                .value_name("PARENT DIR"),
-                        )
-                        .arg(
-                            Arg::with_name("nocsv")
-                                .long("nocsv")
-                                .help("Does not save results")
-                                .takes_value(false),
-                        ),
+                .arg(
+                    Arg::with_name("wdir")
+                        .short("w")
+                        .long("walk")
+                        .help("Tranverses through nested directories")
+                        .conflicts_with_all(&["dir", "file", "wildcard"])
+                        .takes_value(true)
+                        .value_name("PARENT DIR"),
+                )
+                .arg(
+                    Arg::with_name("format")
+                        .short("f")
+                        .long("format")
+                        .help("Specifies input format")
+                        .required(true)
+                        .takes_value(true)
+                        .possible_values(&["fastq", "fasta"])
+                        .default_value("fastq")
+                        .value_name("PARENT DIR"),
+                )
+                .arg(
+                    Arg::with_name("nocsv")
+                        .long("nocsv")
+                        .help("Does not save results")
+                        .takes_value(false),
                 ),
         )
         .get_matches()
@@ -315,10 +294,11 @@ fn match_assembly_cli(args: &ArgMatches, version: &str) {
 fn match_stats_cli(args: &ArgMatches, version: &str) {
     let mut stats = Stats::new();
     println!("Starting YAP-stats v{}...\n", version);
-    match args.subcommand() {
-        ("fastq", Some(fastq_matches)) => stats.match_fastq(fastq_matches),
-        ("fasta", Some(fasta_matches)) => stats.match_fasta(fasta_matches),
-        _ => unreachable!(),
+    let value = args.value_of("format").expect("IS NOT A VALID FILE PATH");
+    match value {
+        "fastq" => stats.match_fastq(args),
+        "fasta" => stats.match_fasta(args),
+        _ => unreachable!("Please specify the allowed values"),
     }
 }
 
