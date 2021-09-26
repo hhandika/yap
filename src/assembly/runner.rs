@@ -4,8 +4,6 @@ use std::os::unix;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
 
-use spinners::{Spinner, Spinners};
-
 use crate::assembly::finder::SeqReads;
 use crate::utils;
 
@@ -69,10 +67,11 @@ impl<'a> Runner<'a> {
     fn run_spades(&mut self) {
         utils::print_header(&self.reads.id);
         self.print_settings().unwrap();
-        let spin = self.set_spinner();
+        let spin = utils::set_spinner();
+        spin.set_message("SPAdes is processing...\t");
         let out = self.call_spades();
         self.check_spades_success(&out);
-        spin.stop();
+        spin.finish_with_message("DONE!");
         self.create_symlink();
     }
 
@@ -130,11 +129,6 @@ impl<'a> Runner<'a> {
             .arg(self.threads.as_ref().unwrap().to_string());
     }
 
-    fn set_spinner(&mut self) -> Spinner {
-        let msg = "SPAdes is processing...\t".to_string();
-        Spinner::new(Spinners::Moon, msg)
-    }
-
     fn print_settings(&self) -> Result<()> {
         let stdout = io::stdout();
         let mut buff = io::BufWriter::new(stdout);
@@ -168,7 +162,6 @@ impl<'a> Runner<'a> {
             let path = contigs_path.canonicalize().unwrap();
             let symlink = self.symlink_dir.join(contig_sym);
             unix::fs::symlink(&path, &symlink).unwrap();
-            self.print_done().unwrap();
             self.print_contig_path(&contigs_path, &symlink).unwrap();
         } else {
             eprintln!(
@@ -176,13 +169,6 @@ impl<'a> Runner<'a> {
                 SPAdes HAS FAILED. PLEASE CHECK SPAdes OUTPUT ABOVE FOR DETAILS.\n"
             );
         }
-    }
-
-    fn print_done(&self) -> Result<()> {
-        let stdout = io::stdout();
-        let mut handle = stdout.lock();
-        writeln!(handle, "\x1b[0;32mDONE!\x1b[0m")?;
-        Ok(())
     }
 
     fn print_contig_path(&self, path: &Path, symlink: &Path) -> Result<()> {

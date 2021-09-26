@@ -1,6 +1,7 @@
 use std::io::{self, Result, Write};
 
 use chrono::NaiveTime;
+use indicatif::{ProgressBar, ProgressStyle};
 use sysinfo::{System, SystemExt};
 
 fn parse_duration(duration: u64) -> String {
@@ -14,6 +15,17 @@ fn parse_duration(duration: u64) -> String {
 pub fn print_formatted_duration(duration: u64) {
     let time = parse_duration(duration);
     println!("Execution time (HH:MM:SS): {}", time);
+}
+
+pub fn set_spinner() -> ProgressBar {
+    let spin = ProgressBar::new_spinner();
+    spin.enable_steady_tick(150);
+    spin.set_style(
+        ProgressStyle::default_spinner()
+            .tick_chars("🌑🌒🌓🌔🌕🌖🌗🌘")
+            .template("{spinner} {msg}"),
+    );
+    spin
 }
 
 pub fn get_system_info() -> Result<()> {
