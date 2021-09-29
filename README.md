@@ -5,7 +5,7 @@
 
 A pipeline for processing high-throughput sequencing data. The goals:
 
-1. To develop single contained executable pipeline that reduce the numbers of dependecies for the users.
+1. To develop single contained executable pipeline that reduce the numbers of dependecies at runtime.
 2. Robust error handlings.
 3. Elegant commands.
 4. Fast

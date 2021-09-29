@@ -6,8 +6,6 @@ use std::process::{Command, Output};
 #[cfg(target_family = "unix")]
 use std::os::unix;
 
-use spinners::{Spinner, Spinners};
-
 use crate::qc::parser::RawSeq;
 use crate::utils;
 
@@ -69,22 +67,16 @@ impl<'a> Runner<'a> {
         utils::print_header(&self.reads.id);
         self.get_out_fnames();
         self.display_settings().unwrap();
-        let spin = self.set_spinner();
+        let spin = utils::set_spinner();
+        spin.set_message("Fastp is processing\t");
         let out = self.call_fastp();
         let mut reports = FastpReports::new(&self.clean_dir);
         reports.check_fastp_status(&out);
         reports.write_stdout(&out);
         self.try_creating_symlink();
         reports.reorganize_reports().unwrap();
-        spin.stop();
-        self.print_done();
+        spin.finish_with_message("\x1b[0;32mDONE!\x1b[0m");
         reports.display_report_paths().unwrap();
-    }
-
-    fn print_done(&self) {
-        let stdout = io::stdout();
-        let mut handle = stdout.lock();
-        writeln!(handle, "\x1b[0;32mDONE!\x1b[0m").unwrap();
     }
 
     fn get_out_fnames(&mut self) {
@@ -172,11 +164,6 @@ impl<'a> Runner<'a> {
         writeln!(buff)?;
 
         Ok(())
-    }
-
-    fn set_spinner(&mut self) -> Spinner {
-        let msg = "Fastp is processing...\t".to_string();
-        Spinner::new(Spinners::Moon, msg)
     }
 
     fn call_fastp(&self) -> Output {
