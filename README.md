@@ -163,6 +163,20 @@ You can pass SPAdes parameter using `--opts=` option. The code implementation al
 yap qc auto --opts="SPAdes-params"
 ```
 
+### Optional Step. Generate sequence statistics
+
+`yap` provide a fast summary statistics function. To generate sequence statistics for raw-reads or clean-reads fastq files:
+
+```Bash
+yap stats -w [read-dir]
+```
+
+For assembly files in fasta format, use the option `--format` or `-f:
+
+```Bash
+yap stats -w [assembly-fasta-dir] --format fasta
+```
+
 ## State of Code
 
 All implemented features are working as expected. Please, expect significant code changes as the development of the program is still at the early stage.
