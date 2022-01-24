@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use clap::{App, AppSettings, Arg, ArgMatches};
+use clap::{App, AppSettings, Arg, ArgMatches, crate_description, crate_name};
 
 use crate::assembly;
 use crate::assembly::cleaner;
@@ -10,9 +10,9 @@ use crate::qc;
 use crate::stats;
 
 fn get_args(version: &str) -> ArgMatches {
-    App::new("YAP")
+    App::new(crate_name!())
         .version(version)
-        .about("A cli app for phylogenomics")
+        .about(crate_description!())
         .author("Heru Handika <hhandi1@lsu.edu>")
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .subcommand(App::new("check").about("Checks dependencies"))
