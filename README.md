@@ -157,10 +157,86 @@ If you clean your reads using `yap` workflow. You only need to do assembly using
 yap assembly auto
 ```
 
-You can pass SPAdes parameter using `--opts=` option. The code implementation allows you to pass any SPAdes paremeter available now and in the future.
+An option to use a configuration file is also available. You can use a two-column csv:
+
+| Samples         | Path                                       |
+| --------------- | ------------------------------------------ |
+| some_species    | clean_reads/some_species/trimmed_reads/    |
+| another_species | clean_reads/another_species/trimmed_reads/ |
+
+Or using ini format:
 
 ```Bash
-yap qc auto --opts="SPAdes-params"
+[samples]
+some_species:clean_reads/some_species/trimmed_reads/
+another_species:clean_reads/another_species/trimmed_reads/
+```
+
+Then, save your configuration file. The extension for your file does not matter, you could just save it as txt. The command to run spade-runner using a configuration file is as below:
+
+```Bash
+yap assembly conf -i [path-to-your-config-file]
+```
+
+For example
+
+```Bash
+yap assembly conf -i bunomys_assembly.conf
+```
+
+You can check if the app correctly detect your reads using the `dry-run` option:
+
+```Bash
+yap assembly auto -d [your-clean-read-folder] --dry
+```
+
+or
+
+```Bash
+yap assembly conf -i [path-to-your-config-file] --dry
+```
+
+By default, the app passes `--careful` options to SPAdes. The full command is equal to running SPAdes using this command:
+
+```Bash
+spades --pe1-1 [path-to-read1] --pe1-2 [path-to-read2] -o [target-output-dir] --careful
+```
+
+It will add `--pe1-s [path-to-singleton/unpaired-read]` if the app detects a singleton read in your sample directory.
+
+You can also specify the number of threads by passing `-t` or `--threads` option:
+
+```Bash
+yap assembly auto -d [your-clean-read-folder] -t [number-of-threads]
+```
+
+or if you use a config file:
+
+```Bash
+yap assembly conf -i [path-to-your-config-file] -t [number-of-threads]
+```
+
+Other SPAdes parameter is available by using `--opts` option. The given parameters should be in a qoute and starts with `params=`. For example, here we define max memory size to 16 gb. The program will override the careful option used in the default settings. Hence, we will need to pass it again if we want to use it.
+
+```Bash
+yap auto -d clean_reads/ --opts "params=--careful -m 16"
+```
+
+The app won't check the correctness of the parameters. Instead, it will let SPAdes checking them. This way it gives user flexibility to pass any SPAdes cli parameters available for pair-end reads.
+
+You may not want to keep all the resulting SPAdes files. To clean the resulting files:
+
+```Bash
+yap assembly clean -d [assembly-dir]
+```
+
+Yap will only retain these files:
+
+```Bash
+/contigs.fasta
+/scaffolds.fasta
+/spades.log
+/warnings.log
 ```
 
 ### Optional Step. Generate sequence statistics
