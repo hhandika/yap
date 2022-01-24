@@ -55,7 +55,7 @@ Confirm the app properly installed:
 yap --version
 ```
 
-It should show the app version. 
+It should show the app version.
 
 ### Dependencies
 
