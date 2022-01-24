@@ -177,8 +177,9 @@ impl<'a> Runner<'a> {
             .arg(self.out_r1.clone())
             .arg("-O")
             .arg(self.out_r2.clone());
-
-        self.set_fastp_idx(&mut out);
+        if !self.reads.auto_idx {
+            self.set_fastp_idx(&mut out)
+        }
         self.set_opt_params(&mut out);
 
         out.output().unwrap()
@@ -187,16 +188,14 @@ impl<'a> Runner<'a> {
     fn set_fastp_idx(&self, out: &mut Command) {
         if self.dual_idx {
             self.set_fastp_dual_idx(out);
-        } else if self.reads.auto_idx {
-            self.set_fastp_auto_idx(out);
         } else {
             self.set_fastp_single_idx(out);
         }
     }
 
-    fn set_fastp_auto_idx(&self, out: &mut Command) {
-        out.arg("--detect_adapter_for_pe");
-    }
+    // fn set_fastp_auto_idx(&self, out: &mut Command) {
+    //     out.arg("--detect_adapter_for_pe");
+    // }
 
     fn set_fastp_single_idx(&self, out: &mut Command) {
         out.arg("--adapter_sequence")
