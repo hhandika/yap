@@ -71,6 +71,21 @@ To check if yap detect the dependencies:
 yap check
 ```
 
+It will show your system information and the dependency status:
+
+```Bash
+System Information
+Operating system        : Ubuntu 20.04
+Kernel version          : 4.19.104-microsoft-standard
+Available cores         : 4
+Available threads       : 8
+Total RAM               : 7 Gb
+
+Dependencies:
+[OK]    fastp 0.20.0
+[OK]    SPAdes v3.13.1
+```
+
 ## Usages
 
 Current working commands:
