@@ -83,6 +83,56 @@ More about the subcommands:
 yap <SUBCOMMAND> --help
 ```
 
+## Workflow
+
+### Step 1. Generate a configuration file
+
+The first step for working on yap is to generate the config file for subsequent analyses. The config file is just a simple .conf or .csv file that contain the sequence name for the clean-read folders and the path to the raw read. In some pipelines, you may do this manually. In yap, the app write it for you. It is simplify and speed-up the workflow and also avoid typing errors when it is done manually. By ,default, yap will generate .conf file The command is as below:
+
+```Bash
+yap new -d [directory-to-raw-read-fastq-files]
+```
+
+Yap infer the sequence name from the raw reads file name. By default, it looks for the file name with this pattern:
+
+```Bash
+genus_species_voucherNo_readNo.extension
+```
+
+For example, our raw files are in the folder `/home/users/test_uce/`. The folders contains two sequences with two reads each:
+
+```Bash
+test_files/
+├── Bunomys_andrewsi_museum6789_locality1_READ1.fq.gz
+├── Bunomys_andrewsi_museum6789_locality1_READ2.fq.gz
+├── Bunomys_chrysocomus_museum12345_locality1_READ1.fq.gz
+└── Bunomys_chrysocomus_museum12345_locality1_READ2.fq.gz
+```
+
+When we run the `yap new` in the directory above using the default settings, the resulting .conf file will be as below:
+
+```Bash
+[seqs]
+Bunomys_chrysocomus_museum12345:/home/users/test_uce/
+Bunomys_andrewsi_museum6789:/home/users/test_uce/
+```
+
+If you prefer to capture the locality name from the file, you can change the default word length 3 `--len` or `-l` to 4. The command will be as below:
+
+```Bash
+yap new -d [raw-read-dir] -l 4
+```
+
+The resulting .conf file will be as below:
+
+```Bash
+[seqs]
+Bunomys_chrysocomus_museum12345_locality1:/home/users/test_uce/
+Bunomys_andrewsi_museum6789_locality1:/home/users/test_uce/
+```
+
+If you prefer to generate the configuration file in csv. You can pass the flag `--csv`.
+
 ## State of Code
 
 All implemented features are working as expected. Please, expect significant code changes as the development of the program is still at the early stage.
