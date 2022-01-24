@@ -100,7 +100,7 @@ impl<'a> Init<'a> {
 
     fn re_matches_lazy(&self, fname: &str) -> bool {
         lazy_static! {
-            static ref RE: Regex = Regex::new(r"(_|-)((?i)(read|r)1)(?:.*)(gz|gzip)").unwrap();
+            static ref RE: Regex = Regex::new(r"(_|-)((?i)(read|r)1)(.fq|.fastq)(?:.*)").unwrap();
         }
 
         RE.is_match(fname)
@@ -135,7 +135,7 @@ mod test {
         let unzipped_read = "sample_buno_clean_read1.fastq";
 
         assert_eq!(true, re.re_matches_lazy(zipped_read));
-        assert_eq!(false, re.re_matches_lazy(unzipped_read));
+        assert_eq!(true, re.re_matches_lazy(unzipped_read));
     }
 
     #[test]
