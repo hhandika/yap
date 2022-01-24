@@ -1,5 +1,9 @@
 # YAP Release Notes
 
+## v0.2.0
+
+- Add support for uncompressed files.
+
 ## v0.1.10
 
 - Update release rules.
