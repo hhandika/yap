@@ -216,10 +216,10 @@ or if you use a config file:
 yap assembly conf -i [path-to-your-config-file] -t [number-of-threads]
 ```
 
-Other SPAdes parameter is available by using `--opts` option. The given parameters should be in a qoute and starts with `params=`. For example, here we define max memory size to 16 gb. The program will override the careful option used in the default settings. Hence, we will need to pass it again if we want to use it.
+Other SPAdes parameter is available by using `--opts` option. For example, here we define max memory size to 16 gb. The program will override the careful option used in the default settings. Hence, we will need to pass it again if we want to use it.
 
 ```Bash
-yap auto -d clean_reads/ --opts "params=--careful -m 16"
+yap auto -d clean_reads/ --opts="--careful -m 16"
 ```
 
 The app won't check the correctness of the parameters. Instead, it will let SPAdes checking them. This way it gives user flexibility to pass any SPAdes cli parameters available for pair-end reads.
