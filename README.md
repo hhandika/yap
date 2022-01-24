@@ -41,7 +41,9 @@ YAP operating system support:
 2. Linux
 3. Windows-WSL
 
-Everyone is welcome to try the development version of YAP. First, please install [the Rust Compiler](https://www.rust-lang.org/learn/get-started), and then:
+The quickest way to install the app is using a pre-compiled binary available in [the release page](https://github.com/hhandika/yap/releases). Donwload, extract, and copy the file to your PATH environment to be able to run it in any working directory in your system.
+
+You can also install segul by compiling it from source. First, please install [the Rust Compiler](https://www.rust-lang.org/learn/get-started), and then:
 
 ```{Bash}
 cargo install --git https://github.com/hhandika/yap
@@ -53,7 +55,21 @@ Confirm the app properly installed:
 yap --version
 ```
 
-It should show the app version.
+It should show the app version. 
+
+### Dependencies
+
+Read cleaning: Fastp ([INSTALL](https://github.com/OpenGene/fastp#get-fastp))
+
+Assembly: SPAdes ([INSTALL](https://cab.spbu.ru/software/spades/))
+
+Statistic: None
+
+To check if yap detect the dependencies:
+
+```Bash
+yap check
+```
 
 ## Usages
 
