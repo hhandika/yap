@@ -1,5 +1,9 @@
 # YAP Release Notes
 
+## v0.2.1
+
+- Fix auto index issues.
+
 ## v0.2.0
 
 - Add support for uncompressed files.
