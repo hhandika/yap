@@ -141,6 +141,12 @@ To clean the read, we only need to feed yap with the configuration file we gener
 yap qc -i yap-qc_input.conf
 ```
 
+To check if `yap` parse the input file correctly. You can do:
+
+```Bash
+yap qc -i yap-qc_input.conf --dry
+```
+
 ## State of Code
 
 All implemented features are working as expected. Please, expect significant code changes as the development of the program is still at the early stage.
