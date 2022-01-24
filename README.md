@@ -133,6 +133,14 @@ Bunomys_andrewsi_museum6789_locality1:/home/users/test_uce/
 
 If you prefer to generate the configuration file in csv. You can pass the flag `--csv`.
 
+### Step 2. Cleaning raw sequence reads using Fastp
+
+To clean the read, we only need to feed yap with the configuration file we generate in step 1:
+
+```Bash
+yap qc -i yap-qc_input.conf
+```
+
 ## State of Code
 
 All implemented features are working as expected. Please, expect significant code changes as the development of the program is still at the early stage.
