@@ -147,6 +147,22 @@ To check if `yap` parse the input file correctly. You can do:
 yap qc -i yap-qc_input.conf --dry
 ```
 
+You can also pass Fastp parameters using `--opts=` option and put fastp params in quotation. The code implementation allows you to pass any Fastp paremeter available now and in the future.
+
+### Step 3. Assembly clean sequence reads using SPAdes
+
+If you clean your reads using `yap` workflow. You only need to do assembly using the auto settings.
+
+```Bash
+yap assembly auto
+```
+
+You can pass SPAdes parameter using `--opts=` option. The code implementation allows you to pass any SPAdes paremeter available now and in the future.
+
+```Bash
+yap qc auto --opts="SPAdes-params"
+```
+
 ## State of Code
 
 All implemented features are working as expected. Please, expect significant code changes as the development of the program is still at the early stage.
