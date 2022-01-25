@@ -10,7 +10,7 @@ A pipeline for processing high-throughput sequencing data. The goals:
 3. Elegant commands.
 4. Fast
 
-Yap is a part of our phylogenomic toolkit that includes a wrapper to easily generate gene and species trees ([`myte`](https://github.com/hhandika/myte)), and alignment statistics and manipulation tool (['segul'](https://github.com/hhandika/segul)).
+Yap is a part of our phylogenomic toolkit that includes a wrapper to easily generate gene and species trees ([`myte`](https://github.com/hhandika/myte)), and alignment statistics and manipulation tool ([`segul`](https://github.com/hhandika/segul)).
 
 ## Features
 
