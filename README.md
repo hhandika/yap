@@ -16,22 +16,22 @@ Yap is a part of our phylogenomic toolkit that includes a wrapper to easily gene
 
 Below are the planned and already implemented features:
 
-| Features                                      | Dependencies                                       | Implementation |
-| --------------------------------------------- | -------------------------------------------------- | -------------- |
+| Features                                      | Dependencies                                       | Implementation                                                        |
+| --------------------------------------------- | -------------------------------------------------- | --------------------------------------------------------------------- |
 | _Essentials_                                  |
-| Batch adapter trimming and sequence filtering | [Fastp](https://github.com/OpenGene/fastp)         | Done           |
-| Batch sequence assembly                       | [SPAdes](https://github.com/ablab/spades)          | Done           |
-| Sequence statistics                           | None                                               | Done           |
-| Read mapping                                  | [BWA-MEM2](https://github.com/bwa-mem2/bwa-mem2)   | Planned        |
-| Sequence alignment                            | [Mafft](https://mafft.cbrc.jp/alignment/software/) | Planned        |
-| Alignment trimming                            | [TrimAl](http://trimal.cgenomics.org/introduction) | Planned        |
-| Alignment format conversion                   | [ReadAl](http://trimal.cgenomics.org/introduction) | Cancelled (implemented in [segul](https://github.com/hhandika/segul))        |
+| Batch adapter trimming and sequence filtering | [Fastp](https://github.com/OpenGene/fastp)         | Done                                                                  |
+| Batch sequence assembly                       | [SPAdes](https://github.com/ablab/spades)          | Done                                                                  |
+| Sequence statistics                           | None                                               | Done                                                                  |
+| Read mapping                                  | [BWA-MEM2](https://github.com/bwa-mem2/bwa-mem2)   | Planned                                                               |
+| Sequence alignment                            | [Mafft](https://mafft.cbrc.jp/alignment/software/) | Planned                                                               |
+| Alignment trimming                            | [TrimAl](http://trimal.cgenomics.org/introduction) | Planned                                                               |
+| Alignment format conversion                   | None                                               | Cancelled (implemented in [segul](https://github.com/hhandika/segul)) |
 | _Utilities_                                   |
-| Sequence finder                               | None                                               | Done           |
-| Sequence file renamer                         | None                                               | Planned        |
+| Sequence finder                               | None                                               | Done                                                                  |
+| Sequence file renamer                         | None                                               | Planned                                                               |
 | _Extras_                                      |
-| Logger                                        | None                                               | Planned        |
-| Symlink fixer                                 | None                                               | Planned        |
+| Logger                                        | None                                               | Planned                                                               |
+| Symlink fixer                                 | None                                               | Planned                                                               |
 
 ## Installation
 
