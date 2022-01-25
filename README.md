@@ -10,7 +10,7 @@ A pipeline for processing high-throughput sequencing data. The goals:
 3. Elegant commands.
 4. Fast
 
-Yap is a part of our phylogenomic toolkit that include a wrapper to easily generate gene and species trees ([`myte`](https://github.com/hhandika/myte)), and alignment statistics and manipulation tool (['segul'](https://github.com/hhandika/segul)).
+Yap is a part of our phylogenomic toolkit that includes a wrapper to easily generate gene and species trees ([`myte`](https://github.com/hhandika/myte)), and alignment statistics and manipulation tool (['segul'](https://github.com/hhandika/segul)).
 
 ## Features
 
@@ -25,7 +25,7 @@ Below are the planned and already implemented features:
 | Read mapping                                  | [BWA-MEM2](https://github.com/bwa-mem2/bwa-mem2)   | Planned        |
 | Sequence alignment                            | [Mafft](https://mafft.cbrc.jp/alignment/software/) | Planned        |
 | Alignment trimming                            | [TrimAl](http://trimal.cgenomics.org/introduction) | Planned        |
-| Alignment format conversion                   | [ReadAl](http://trimal.cgenomics.org/introduction) | Cancelled (implemented in [segul]((https://github.com/hhandika/segul)))        |
+| Alignment format conversion                   | [ReadAl](http://trimal.cgenomics.org/introduction) | Cancelled (implemented in [segul](https://github.com/hhandika/segul))        |
 | _Utilities_                                   |
 | Sequence finder                               | None                                               | Done           |
 | Sequence file renamer                         | None                                               | Planned        |
