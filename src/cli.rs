@@ -1,6 +1,12 @@
+use std::io::Result;
 use std::path::PathBuf;
 
-use clap::{App, AppSettings, Arg, ArgMatches, crate_description, crate_name};
+use clap::{crate_description, crate_name, App, AppSettings, Arg, ArgMatches};
+use log::LevelFilter;
+use log4rs::append::console::ConsoleAppender;
+use log4rs::append::file::FileAppender;
+use log4rs::config::{Appender, Config, Root};
+use log4rs::encode::pattern::PatternEncoder;
 
 use crate::assembly;
 use crate::assembly::cleaner;
@@ -8,6 +14,8 @@ use crate::checker;
 use crate::init::Init;
 use crate::qc;
 use crate::stats;
+
+const LOG_FILE: &str = "yap.log";
 
 fn get_args(version: &str) -> ArgMatches {
     App::new(crate_name!())
@@ -252,6 +260,7 @@ fn get_args(version: &str) -> ArgMatches {
 
 pub fn parse_cli(version: &str) {
     let args = get_args(version);
+    setup_logger().expect("Failed setting up logger");
     match args.subcommand() {
         ("new", Some(init_matches)) => new_input(init_matches),
         ("assembly", Some(assembly_matches)) => match_assembly_cli(assembly_matches, version),
@@ -260,6 +269,35 @@ pub fn parse_cli(version: &str) {
         ("stats", Some(stats_matches)) => match_stats_cli(stats_matches, version),
         _ => unreachable!(),
     };
+}
+
+fn setup_logger() -> Result<()> {
+    let log_dir = std::env::current_dir()?;
+    let target = log_dir.join(LOG_FILE);
+    let tofile = FileAppender::builder()
+        .encoder(Box::new(PatternEncoder::new(
+            "{d(%Y-%m-%d %H:%M:%S %Z)} - {l} - {m}\n",
+        )))
+        .build(target)?;
+
+    let stdout = ConsoleAppender::builder()
+        .encoder(Box::new(PatternEncoder::new("{m}\n")))
+        .build();
+
+    let config = Config::builder()
+        .appender(Appender::builder().build("stdout", Box::new(stdout)))
+        .appender(Appender::builder().build("logfile", Box::new(tofile)))
+        .build(
+            Root::builder()
+                .appender("stdout")
+                .appender("logfile")
+                .build(LevelFilter::Info),
+        )
+        .expect("Failed building log configuration");
+
+    log4rs::init_config(config).expect("Cannot initiate log configuration");
+
+    Ok(())
 }
 
 fn new_input(matches: &ArgMatches) {
