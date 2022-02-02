@@ -1,8 +1,30 @@
+use std::fs;
 use std::io::{self, Result, Write};
+use std::path::Path;
 
 use chrono::NaiveTime;
+use dialoguer::{theme::ColorfulTheme, Confirm};
 use indicatif::{ProgressBar, ProgressStyle};
 use sysinfo::{System, SystemExt};
+
+pub fn check_dir_exist(path: &Path) {
+    if path.is_dir() {
+        let selection = Confirm::with_theme(&ColorfulTheme::default())
+            .with_prompt(format!("Output dir already exists: {}", path.display()))
+            .interact();
+        match selection {
+            Ok(yes) => {
+                if yes {
+                    fs::remove_dir_all(path).expect("Failed removing the directory!");
+                    println!();
+                } else {
+                    std::process::abort();
+                }
+            }
+            Err(err) => panic!("Failed parsing user input: {}", err),
+        }
+    }
+}
 
 fn parse_duration(duration: u64) -> String {
     let sec = (duration % 60) as u32;

@@ -11,7 +11,8 @@ use crate::utils;
 
 pub fn clean_reads(reads: &[RawSeq], params: &Option<String>, outdir: &Option<PathBuf>) {
     let dir = get_outdir(outdir);
-    check_dir_exists(&dir);
+    utils::check_dir_exist(&dir);
+    fs::create_dir_all(&dir).expect("CAN'T CREATE CLEAN READ DIR");
     reads.iter().for_each(|read| {
         let mut run = Runner::new(&dir, read, params);
 
@@ -30,15 +31,6 @@ fn get_outdir(outdir: &Option<PathBuf>) -> PathBuf {
     match outdir {
         Some(dir) => dir.clone(),
         None => PathBuf::from("clean_reads"),
-    }
-}
-
-fn check_dir_exists(dir: &Path) {
-    if dir.exists() {
-        panic!("{:?} DIR EXISTS. PLEASE RENAME OR REMOVE IT", dir);
-    } else {
-        // if not create one
-        fs::create_dir_all(dir).expect("CAN'T CREATE CLEAN READ DIR");
     }
 }
 
@@ -192,10 +184,6 @@ impl<'a> Runner<'a> {
             self.set_fastp_single_idx(out);
         }
     }
-
-    // fn set_fastp_auto_idx(&self, out: &mut Command) {
-    //     out.arg("--detect_adapter_for_pe");
-    // }
 
     fn set_fastp_single_idx(&self, out: &mut Command) {
         out.arg("--adapter_sequence")
