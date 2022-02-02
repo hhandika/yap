@@ -1,5 +1,10 @@
 # YAP Release Notes
 
+## v0.3.0
+
+- Add logger.
+- Prompt users to remove (or not) the output directory if the directory with the same name exists.
+
 ## v0.2.1
 
 - Fix auto index issues.
