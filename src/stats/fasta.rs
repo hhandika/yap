@@ -37,7 +37,7 @@ fn parse_fasta<R: Read>(file: R, input: &Path) -> FastaStats {
     let stdout = io::stdout();
     let mut stdbuf = io::BufWriter::new(stdout);
 
-    write!(stdbuf, "Processing {:?}\t", input.file_name().display()).unwrap();
+    write!(stdbuf, "Processing {:?}\t", input.file_name().unwrap()).unwrap();
 
     let mut contig_counts: u32 = 0;
     let mut contigs: Vec<SeqReads> = Vec::new();
