@@ -45,26 +45,21 @@ pub fn dryrun(input: &str) {
 }
 
 fn print_dryrun(dirs: &[SeqReads]) -> Result<()> {
-    let out = io::stdout();
-    let mut handle = io::BufWriter::new(out);
-
-    writeln!(handle, "\x1b[0;33mTotal samples: {}\n\x1b[0m", dirs.len())?;
+    log::info!("\x1b[0;33mTotal samples: {}\n\x1b[0m", dirs.len());
     dirs.iter().for_each(|e| {
-        writeln!(handle, "\x1b[0;32mID\t\t: {}\x1b[0m", e.id).unwrap();
-        writeln!(handle, "Dir\t\t: {}", e.dir.to_string_lossy()).unwrap();
-        writeln!(handle, "Read 1\t\t: {}", e.read_1.to_string_lossy()).unwrap();
-        writeln!(handle, "Read 2\t\t: {}", e.read_2.to_string_lossy()).unwrap();
+        log::info!("\x1b[0;32mID\t\t: {}\x1b[0m", e.id);
+        log::info!("Dir\t\t: {}", e.dir.to_string_lossy());
+        log::info!("Read 1\t\t: {}", e.read_1.to_string_lossy());
+        log::info!("Read 2\t\t: {}", e.read_2.to_string_lossy());
 
         if e.singleton.is_some() {
-            writeln!(
-                handle,
+            log::info!(
                 "Singleton\t: {}",
                 e.singleton.as_ref().unwrap().to_string_lossy()
-            )
-            .unwrap();
+            );
         }
 
-        writeln!(handle).unwrap();
+        println!();
     });
     Ok(())
 }

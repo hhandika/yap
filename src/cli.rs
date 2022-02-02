@@ -320,7 +320,7 @@ fn new_input(matches: &ArgMatches) {
 
 fn match_assembly_cli(args: &ArgMatches, version: &str) {
     let mut spades = Spades::new();
-    println!("Starting YAP-assembly v{}...\n", version);
+    log::info!("Starting YAP-assembly v{}...\n", version);
     match args.subcommand() {
         ("auto", Some(clean_matches)) => spades.run_auto(clean_matches),
         ("conf", Some(assembly_matches)) => spades.run(assembly_matches),
@@ -331,7 +331,7 @@ fn match_assembly_cli(args: &ArgMatches, version: &str) {
 
 fn match_stats_cli(args: &ArgMatches, version: &str) {
     let mut stats = Stats::new();
-    println!("Starting YAP-stats v{}...\n", version);
+    log::info!("Starting YAP-stats v{}...\n", version);
     let value = args.value_of("format").expect("IS NOT A VALID FILE PATH");
     match value {
         "fastq" => stats.match_fastq(args),
@@ -389,7 +389,7 @@ impl<'a> Fastp<'a> {
             if self.matches.is_present("dryrun") {
                 qc::dry_run(&path, is_id, is_rename);
             } else {
-                println!("Starting YAP-qc v{}...\n", self.version);
+                log::info!("Starting YAP-qc v{}...\n", self.version);
                 qc::process_input(&path, is_id, is_rename, &opts, &self.outdir);
             }
         }

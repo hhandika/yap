@@ -58,7 +58,7 @@ impl<'a> Runner<'a> {
     fn process_reads(&mut self) {
         utils::print_header(&self.reads.id);
         self.get_out_fnames();
-        self.display_settings().unwrap();
+        self.display_settings();
         let spin = utils::set_spinner();
         spin.set_message("Fastp is processing\t");
         let out = self.call_fastp();
@@ -68,7 +68,7 @@ impl<'a> Runner<'a> {
         self.try_creating_symlink();
         reports.reorganize_reports().unwrap();
         spin.finish_with_message("\x1b[0;32mDONE!\x1b[0m");
-        reports.display_report_paths().unwrap();
+        reports.display_report_paths();
     }
 
     fn get_out_fnames(&mut self) {
@@ -97,65 +97,42 @@ impl<'a> Runner<'a> {
         outname.replace(&self.reads.id, &target)
     }
 
-    fn display_settings(&self) -> Result<()> {
-        let stdout = io::stdout();
-        let mut buff = io::BufWriter::new(stdout);
-
-        writeln!(buff, "Target dir\t: {}", &self.clean_dir.to_string_lossy())?;
-        writeln!(
-            buff,
+    fn display_settings(&self) {
+        log::info!("Target dir\t: {}", &self.clean_dir.to_string_lossy());
+        log::info!(
             "Input dir\t: {}",
             &self.reads.read_1.parent().unwrap().to_string_lossy()
-        )?;
-        writeln!(
-            buff,
+        );
+        log::info!(
             "Input R1\t: {}",
             &self.reads.read_1.file_name().unwrap().to_string_lossy()
-        )?;
-        writeln!(
-            buff,
+        );
+        log::info!(
             "Input R2\t: {}",
             &self.reads.read_2.file_name().unwrap().to_string_lossy()
-        )?;
-        writeln!(
-            buff,
+        );
+        log::info!(
             "Output Dir\t: {}",
             &self.out_r1.parent().unwrap().to_string_lossy()
-        )?;
-        writeln!(
-            buff,
+        );
+        log::info!(
             "Output R1\t: {}",
             &self.out_r1.file_name().unwrap().to_string_lossy()
-        )?;
-        writeln!(
-            buff,
+        );
+        log::info!(
             "Output R2\t: {}",
             &self.out_r2.file_name().unwrap().to_string_lossy()
-        )?;
+        );
         if self.reads.auto_idx {
-            writeln!(buff, "Adapters\t: AUTO-DETECT")?;
+            log::info!("Adapters\t: AUTO-DETECT");
         } else if !self.dual_idx {
-            writeln!(
-                buff,
-                "Adapters\t: {}",
-                self.reads.adapter_i5.as_ref().unwrap()
-            )?;
+            log::info!("Adapters\t: {}", self.reads.adapter_i5.as_ref().unwrap());
         } else {
-            writeln!(
-                buff,
-                "Adapter i5\t: {}",
-                self.reads.adapter_i5.as_ref().unwrap()
-            )?;
-            writeln!(
-                buff,
-                "Adapters i7\t: {}",
-                self.reads.adapter_i7.as_ref().unwrap()
-            )?;
+            log::info!("Adapter i5\t: {}", self.reads.adapter_i5.as_ref().unwrap());
+            log::info!("Adapters i7\t: {}", self.reads.adapter_i7.as_ref().unwrap());
         }
 
-        writeln!(buff)?;
-
-        Ok(())
+        println!();
     }
 
     fn call_fastp(&self) -> Output {
@@ -304,17 +281,12 @@ impl FastpReports {
         Ok(())
     }
 
-    fn display_report_paths(&self) -> Result<()> {
-        let stdout = io::stdout();
-        let mut handle = io::BufWriter::new(stdout);
-
-        writeln!(handle)?;
-        writeln!(handle, "Fastp Reports:")?;
-        writeln!(handle, "1. {}", self.html_out.to_string_lossy())?;
-        writeln!(handle, "2. {}", self.json_out.to_string_lossy())?;
-        writeln!(handle, "3. {}", self.log_out.to_string_lossy())?;
-        writeln!(handle)?;
-
-        Ok(())
+    fn display_report_paths(&self) {
+        println!();
+        log::info!("Fastp Reports:");
+        log::info!("1. {}", self.html_out.to_string_lossy());
+        log::info!("2. {}", self.json_out.to_string_lossy());
+        log::info!("3. {}", self.log_out.to_string_lossy());
+        println!();
     }
 }

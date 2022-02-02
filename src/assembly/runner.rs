@@ -123,26 +123,23 @@ impl<'a> Runner<'a> {
     }
 
     fn print_settings(&self) -> Result<()> {
-        let stdout = io::stdout();
-        let mut buff = io::BufWriter::new(stdout);
-        writeln!(buff, "ID\t\t: {}", &self.reads.id)?;
-        writeln!(buff, "Input R1\t: {}", &self.reads.read_1.to_string_lossy())?;
-        writeln!(buff, "Input R2\t: {}", &self.reads.read_2.to_string_lossy())?;
+        log::info!("ID\t\t: {}", &self.reads.id);
+        log::info!("Input R1\t: {}", &self.reads.read_1.to_string_lossy());
+        log::info!("Input R2\t: {}", &self.reads.read_2.to_string_lossy());
 
         if self.reads.singleton.is_some() {
-            writeln!(
-                buff,
+            log::info!(
                 "Singleton\t: {}",
                 &self.reads.singleton.as_ref().unwrap().to_string_lossy()
-            )?;
+            );
         }
 
-        writeln!(buff, "Output\t\t: {}", &self.output.to_string_lossy())?;
+        log::info!("Output\t\t: {}", &self.output.to_string_lossy());
 
         if self.args.is_some() {
-            writeln!(buff, "Opt params\t: {}", &self.args.as_ref().unwrap())?;
+            log::info!("Opt params\t: {}", &self.args.as_ref().unwrap());
         }
-        writeln!(buff)?;
+        println!();
 
         Ok(())
     }
@@ -155,26 +152,21 @@ impl<'a> Runner<'a> {
             let path = contigs_path.canonicalize().unwrap();
             let symlink = self.symlink_dir.join(contig_sym);
             unix::fs::symlink(&path, &symlink).unwrap();
-            self.print_contig_path(&contigs_path, &symlink).unwrap();
+            self.print_contig_path(&contigs_path, &symlink);
         } else {
-            eprintln!(
+            log::warn!(
                 "\x1b[41m[ERROR]\x1b[0m \
                 SPAdes HAS FAILED. PLEASE CHECK SPAdes OUTPUT ABOVE FOR DETAILS.\n"
             );
         }
     }
 
-    fn print_contig_path(&self, path: &Path, symlink: &Path) -> Result<()> {
-        let stdout = io::stdout();
-        let mut handle = io::BufWriter::new(stdout);
-
-        writeln!(handle)?;
-        writeln!(handle, "Contig Path")?;
-        writeln!(handle, "File\t\t: {}", path.to_string_lossy())?;
-        writeln!(handle, "Symlink\t\t: {}", symlink.to_string_lossy())?;
-        writeln!(handle)?;
-
-        Ok(())
+    fn print_contig_path(&self, path: &Path, symlink: &Path) {
+        println!();
+        log::info!("Contig Path");
+        log::info!("File\t\t: {}", path.to_string_lossy());
+        log::info!("Symlink\t\t: {}", symlink.to_string_lossy());
+        println!();
     }
 }
 
