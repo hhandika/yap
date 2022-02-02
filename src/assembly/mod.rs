@@ -3,7 +3,7 @@ mod finder;
 mod parser;
 mod runner;
 
-use std::io::{self, Result, Write};
+use std::io::Result;
 use std::path::PathBuf;
 
 use crate::assembly::finder::SeqReads;

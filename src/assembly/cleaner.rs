@@ -1,5 +1,4 @@
 use std::fs;
-use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 
 use glob::glob;
