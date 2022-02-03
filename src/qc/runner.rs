@@ -24,7 +24,7 @@ pub fn clean_reads(reads: &[RawSeq], params: &Option<String>, outdir: &Option<Pa
         run.process_reads();
     });
 
-    println!();
+    log::info!("");
 }
 
 fn get_outdir(outdir: &Option<PathBuf>) -> PathBuf {
@@ -132,7 +132,7 @@ impl<'a> Runner<'a> {
             log::info!("Adapters i7\t: {}", self.reads.adapter_i7.as_ref().unwrap());
         }
 
-        println!();
+        log::info!("");
     }
 
     fn call_fastp(&self) -> Output {
@@ -282,11 +282,11 @@ impl FastpReports {
     }
 
     fn display_report_paths(&self) {
-        println!();
+        log::info!("");
         log::info!("Fastp Reports:");
         log::info!("1. {}", self.html_out.to_string_lossy());
         log::info!("2. {}", self.json_out.to_string_lossy());
         log::info!("3. {}", self.log_out.to_string_lossy());
-        println!();
+        log::info!("");
     }
 }
