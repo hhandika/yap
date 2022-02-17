@@ -2,6 +2,7 @@
 
 ![YAP-Tests](https://github.com/hhandika/yap/workflows/YAP-Tests/badge.svg)
 [![Build Status](https://www.travis-ci.com/hhandika/yap.svg?branch=main)](https://www.travis-ci.com/hhandika/yap)
+[![DOI](https://zenodo.org/badge/325113546.svg)](https://zenodo.org/badge/latestdoi/325113546)
 
 A pipeline for processing high-throughput sequencing data. The goals:
 
@@ -11,6 +12,8 @@ A pipeline for processing high-throughput sequencing data. The goals:
 4. Fast
 
 Yap is a part of our phylogenomic toolkit that includes a wrapper to easily generate gene and species trees ([`myte`](https://github.com/hhandika/myte)), and alignment statistics and manipulation tool ([`segul`](https://github.com/hhandika/segul)).
+
+> CITATION: Heru Handika. (2022). YAP: A single executable pipeline for phylogenomics (v0.3.0). Zenodo. https://doi.org/10.5281/zenodo.6128874
 
 ## Features
 
