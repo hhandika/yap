@@ -118,7 +118,7 @@ yap <SUBCOMMAND> --help
 
 ### Step 1. Generate a configuration file
 
-The first step for working on yap is to generate the config file for subsequent analyses. The config file is just a simple .conf or .csv file that contain the sequence name for the clean-read folders and the path to the raw read. In some pipelines, you may do this manually. In yap, the app write it for you. It is simplify and speed-up the workflow and also avoid typing errors when it is done manually. By default, yap will generate .conf file The command is as below:
+The first step for working on yap is to generate a config file for subsequent analyses. The config file is a .conf or .csv file that contain the sequence name for the clean-read folders and the path to the raw read. In some pipelines, you may do this manually. In yap, the app write it for you. It simplifies and speeds-up the workflow and also avoid typing errors when it is done manually. By default, yap will generate .conf file The command is as below:
 
 ```Bash
 yap new -d [directory-to-raw-read-fastq-files]
