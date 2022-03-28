@@ -13,7 +13,7 @@ A pipeline for processing high-throughput sequencing data. The goals:
 
 Yap is a part of our phylogenomic toolkit that includes a wrapper to easily generate gene and species trees ([`myte`](https://github.com/hhandika/myte)), and alignment statistics and manipulation tool ([`segul`](https://github.com/hhandika/segul)).
 
-> CITATION: Heru Handika. (2022). YAP: A single executable pipeline for phylogenomics (v0.3.0). Zenodo. https://doi.org/10.5281/zenodo.6128874
+> CITATION: Heru Handika. (2022). YAP: A single executable pipeline for phylogenomics (v0.3.0). Zenodo. [https://doi.org/10.5281/zenodo.6128874](https://doi.org/10.5281/zenodo.6128874)
 
 ## Features
 
