@@ -1,7 +1,7 @@
 # YAP (Yet-Another-Pipeline)
 
 ![YAP-Tests](https://github.com/hhandika/yap/workflows/YAP-Tests/badge.svg)
-[![Build Status](https://www.travis-ci.com/hhandika/yap.svg?branch=main)](https://www.travis-ci.com/hhandika/yap)
+[![Coverage Status](https://coveralls.io/repos/github/hhandika/yap/badge.svg?branch=main)](https://coveralls.io/github/hhandika/yap?branch=main)
 [![DOI](https://zenodo.org/badge/325113546.svg)](https://zenodo.org/badge/latestdoi/325113546)
 
 A pipeline for processing high-throughput sequencing data. The goals:
