@@ -30,8 +30,11 @@ fn parse_duration(duration: u64) -> String {
     let sec = (duration % 60) as u32;
     let min = ((duration / 60) % 60) as u32;
     let hours = ((duration / 60) / 60) as u32;
-    let time = NaiveTime::from_hms(hours, min, sec);
-    time.format("%H:%M:%S").to_string()
+    let time = NaiveTime::from_hms_opt(hours, min, sec);
+    match time {
+        Some(t) => t.format("%H:%M:%S").to_string(),
+        None => String::from("00:00:00"),
+    }
 }
 
 pub fn print_formatted_duration(duration: u64) {
