@@ -1,7 +1,7 @@
 use std::fs;
 use std::io::{self, Result, Write};
 #[cfg(not(target_os = "windows"))]
-use std::os::unix::fs;
+use std::os::unix;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
 
@@ -154,7 +154,7 @@ impl<'a> Runner<'a> {
             let path = contigs_path.canonicalize().unwrap();
             let symlink = self.symlink_dir.join(contig_sym);
             #[cfg(not(target_os = "windows"))]
-            fs::symlink(&path, &symlink).unwrap();
+            unix::fs::symlink(&path, &symlink).unwrap();
             self.print_contig_path(&contigs_path, &symlink);
         } else {
             log::warn!(
