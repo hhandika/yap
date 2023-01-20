@@ -1,6 +1,7 @@
 use std::fs;
 use std::io::{self, Result, Write};
-use std::os::unix;
+#[cfg(not(target_os = "windows"))]
+use std::os::unix::fs;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
 
@@ -149,9 +150,11 @@ impl<'a> Runner<'a> {
         let contigs_path = self.output.join("contigs.fasta");
 
         if contigs_path.is_file() {
+            #[cfg(not(target_os = "windows"))]
             let path = contigs_path.canonicalize().unwrap();
             let symlink = self.symlink_dir.join(contig_sym);
-            unix::fs::symlink(&path, &symlink).unwrap();
+            #[cfg(not(target_os = "windows"))]
+            fs::symlink(&path, &symlink).unwrap();
             self.print_contig_path(&contigs_path, &symlink);
         } else {
             log::warn!(
