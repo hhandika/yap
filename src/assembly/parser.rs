@@ -7,25 +7,22 @@ pub fn parse_sequence_dir(input: &str) -> Vec<SeqDirs> {
     let buff = BufReader::new(file);
 
     let mut sequence_dir = Vec::new();
-    buff.lines()
-        .filter_map(|ok| ok.ok())
-        .skip(1)
-        .for_each(|line| {
-            let mut sample = SeqDirs::new();
+    buff.lines().map_while(Result::ok).skip(1).for_each(|line| {
+        let mut sample = SeqDirs::new();
 
-            if line.contains(',') {
-                sample.parse_csv(&line);
-            } else if line.contains(':') {
-                sample.parse_ini(&line);
-            } else {
-                panic!(
-                    "INVALID INPUT FORMAT. \
+        if line.contains(',') {
+            sample.parse_csv(&line);
+        } else if line.contains(':') {
+            sample.parse_ini(&line);
+        } else {
+            panic!(
+                "INVALID INPUT FORMAT. \
                     LOOKING FOR ',' or ':' FOUND {}",
-                    line
-                );
-            }
-            sequence_dir.push(sample);
-        });
+                line
+            );
+        }
+        sequence_dir.push(sample);
+    });
 
     sequence_dir
 }

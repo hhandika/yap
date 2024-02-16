@@ -7,6 +7,8 @@ use std::process::{Command, Output};
 #[cfg(target_family = "unix")]
 use std::os::unix;
 
+use colored::Colorize;
+
 use crate::qc::parser::RawSeq;
 use crate::utils;
 
@@ -26,10 +28,10 @@ pub fn clean_reads(reads: &[RawSeq], params: &Option<String>, output_dir: &Optio
 
         run.process_reads();
         processed += 1;
+        log::info!("Processed {} of {} samples", processed, sample_count);
+        log::info!("");
     });
 
-    log::info!("");
-    log::info!("Processed {} of {} samples", processed, sample_count);
     log::info!("");
 }
 
@@ -73,7 +75,7 @@ impl<'a> Runner<'a> {
         reports.write_stdout(&out);
         self.try_creating_symlink();
         reports.reorganize_reports().unwrap();
-        spin.finish_with_message("\x1b[0;32mDONE!\x1b[0m");
+        spin.finish_with_message(format!("{} FASTP has finished", "✔".green()));
         reports.display_report_paths();
     }
 
@@ -84,8 +86,8 @@ impl<'a> Runner<'a> {
         let out2 = self.reads.read_2.file_name().unwrap();
 
         if self.is_rename() {
-            let out1 = self.rename_output(&out1.to_str().unwrap());
-            let out2 = self.rename_output(&out2.to_str().unwrap());
+            let out1 = self.rename_output(out1.to_str().unwrap());
+            let out2 = self.rename_output(out2.to_str().unwrap());
             self.out_r1 = output_dir.join(out1);
             self.out_r2 = output_dir.join(out2);
         } else {
@@ -100,42 +102,60 @@ impl<'a> Runner<'a> {
 
     fn rename_output(&self, output_name: &str) -> String {
         let target = self.reads.output_name.as_ref().unwrap();
-        output_name.replace(&self.reads.id, &target)
+        output_name.replace(&self.reads.id, target)
     }
 
     fn display_settings(&self) {
-        log::info!("Target dir\t: {}", &self.clean_dir.to_string_lossy());
+        log::info!("{:18}: {}", "Target dir", &self.clean_dir.to_string_lossy());
         log::info!(
-            "Input dir\t: {}",
+            "{:18}: {}",
+            "Input dir",
             &self.reads.read_1.parent().unwrap().to_string_lossy()
         );
         log::info!(
-            "Input R1\t: {}",
+            "{:18}: {}",
+            "Input R1",
             &self.reads.read_1.file_name().unwrap().to_string_lossy()
         );
         log::info!(
-            "Input R2\t: {}",
+            "{:18}: {}",
+            "Input R2",
             &self.reads.read_2.file_name().unwrap().to_string_lossy()
         );
         log::info!(
-            "Output Dir\t: {}",
+            "{:18}: {}",
+            "Output Dir",
             &self.out_r1.parent().unwrap().to_string_lossy()
         );
         log::info!(
-            "Output R1\t: {}",
+            "{:18}: {}",
+            "Output R1",
             &self.out_r1.file_name().unwrap().to_string_lossy()
         );
         log::info!(
-            "Output R2\t: {}",
+            "{:18}: {}",
+            "Output R2",
             &self.out_r2.file_name().unwrap().to_string_lossy()
         );
         if self.reads.auto_idx {
-            log::info!("Adapters\t: AUTO-DETECT");
+            log::info!("{:18}: AUTO-DETECT", "Adapters");
         } else if !self.dual_idx {
-            log::info!("Adapters\t: {}", self.reads.adapter_i5.as_ref().unwrap());
+            log::info!(
+                "{:18}: {}",
+                "Adapters",
+                self.reads.adapter_i5.as_ref().unwrap()
+            );
         } else {
-            log::info!("Adapter i5\t: {}", self.reads.adapter_i5.as_ref().unwrap());
-            log::info!("Adapters i7\t: {}", self.reads.adapter_i7.as_ref().unwrap());
+            log::info!(
+                "{:18}: {}",
+                "Adapter i5",
+                self.reads.adapter_i5.as_ref().unwrap()
+            );
+            log::info!(
+                "{:18}: {}",
+                "Adapter i7",
+                self.reads.adapter_i7.as_ref().unwrap()
+            );
         }
 
         log::info!("");

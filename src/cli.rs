@@ -331,7 +331,7 @@ impl<'a> Fastp<'a> {
             let path = PathBuf::from(self.matches.value_of("input").unwrap());
             let is_id = self.matches.is_present("id");
             let is_rename = self.matches.is_present("rename");
-            let opts = self.get_params(&self.matches);
+            let opts = self.get_params(self.matches);
             self.output_dir = self.get_output_dir(self.matches);
 
             if self.matches.is_present("dryrun") {
@@ -360,7 +360,7 @@ impl Spades {
         self.get_output_dir(matches);
         let args = self.get_params(matches);
         if matches.is_present("dryrun") {
-            assembly::auto_dry_run(path, &dirname)
+            assembly::auto_dry_run(path, dirname)
         } else {
             assembly::auto_process_input(path, dirname, &threads, &self.output_dir, &args);
         }

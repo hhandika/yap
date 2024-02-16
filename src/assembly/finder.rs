@@ -32,7 +32,7 @@ pub fn find_cleaned_fastq(dirs: &[SeqDirs]) -> Vec<SeqReads> {
 }
 
 fn get_files(dir: &str, entries: &mut Vec<SeqReads>, target: Option<String>) {
-    let mut files = SeqReads::new(&dir);
+    let mut files = SeqReads::new(dir);
     let fastq = files.glob_fastq();
     files.match_reads(&fastq);
     files.get_id(target);

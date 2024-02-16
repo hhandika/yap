@@ -30,26 +30,23 @@ pub fn parse_input(input: &Path, is_id: bool, is_rename: bool) -> Vec<RawSeq> {
 }
 
 fn parse_input_ini<R: BufRead>(buff: R, raw_seqs: &mut Vec<RawSeq>, lcount: &mut usize) {
-    buff.lines()
-        .filter_map(|ok| ok.ok())
-        .skip(1)
-        .for_each(|line| {
-            let mut seq = RawSeq::new();
-            let line = split_line(&line, false);
-            let id = String::from(&line[0]);
-            let path = PathBuf::from(&line[1]);
-            let iscsv = false;
-            let is_id = false;
-            let reads = ReadFinder::get(&path, &id, is_id, iscsv);
-            check_reads(&reads, &id);
-            seq.get_id(&id);
-            seq.get_reads(&reads);
-            seq.get_adapter_auto();
-            let is_rename = false;
-            seq.get_dir(is_id, is_rename);
-            raw_seqs.push(seq);
-            *lcount += 1;
-        });
+    buff.lines().map_while(Result::ok).skip(1).for_each(|line| {
+        let mut seq = RawSeq::new();
+        let line = split_line(&line, false);
+        let id = String::from(&line[0]);
+        let path = PathBuf::from(&line[1]);
+        let iscsv = false;
+        let is_id = false;
+        let reads = ReadFinder::get(&path, &id, is_id, iscsv);
+        check_reads(&reads, &id);
+        seq.get_id(&id);
+        seq.get_reads(&reads);
+        seq.get_adapter_auto();
+        let is_rename = false;
+        seq.get_dir(is_id, is_rename);
+        raw_seqs.push(seq);
+        *lcount += 1;
+    });
 }
 
 fn parse_input_csv<R: BufRead>(
@@ -60,28 +57,25 @@ fn parse_input_csv<R: BufRead>(
     is_id: bool,
     is_rename: bool,
 ) {
-    buff.lines()
-        .filter_map(|ok| ok.ok())
-        .skip(1)
-        .for_each(|line| {
-            let mut seq = RawSeq::new();
-            let lines = split_line(&line, true);
-            let id = String::from(&lines[0]);
-            let iscsv = true;
-            let reads = ReadFinder::get(&input, &id, is_id, iscsv);
-            check_reads(&reads, &id);
-            seq.get_id(&id);
-            seq.get_reads(&reads);
-            if is_rename {
-                get_adapter_rename(&mut seq, &lines);
-            } else {
-                get_adapters(&mut seq, &lines);
-            }
+    buff.lines().map_while(Result::ok).skip(1).for_each(|line| {
+        let mut seq = RawSeq::new();
+        let lines = split_line(&line, true);
+        let id = String::from(&lines[0]);
+        let iscsv = true;
+        let reads = ReadFinder::get(input, &id, is_id, iscsv);
+        check_reads(&reads, &id);
+        seq.get_id(&id);
+        seq.get_reads(&reads);
+        if is_rename {
+            get_adapter_rename(&mut seq, &lines);
+        } else {
+            get_adapters(&mut seq, &lines);
+        }
 
-            seq.get_dir(is_id, is_rename);
-            raw_seqs.push(seq);
-            *lcount += 1;
-        });
+        seq.get_dir(is_id, is_rename);
+        raw_seqs.push(seq);
+        *lcount += 1;
+    });
 }
 
 fn check_reads(reads: &[PathBuf], id: &str) {

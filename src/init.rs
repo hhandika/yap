@@ -34,7 +34,7 @@ impl<'a> Init<'a> {
         let file_count = seqs.len();
         let mut sample_count = 0;
         seqs.iter().for_each(|(id, path)| {
-            self.write_content(&mut line, &id, &path);
+            self.write_content(&mut line, id, path);
             sample_count += 1;
         });
 
@@ -43,7 +43,7 @@ impl<'a> Init<'a> {
 
     fn find_files(&self) -> HashMap<String, String> {
         let mut seq = HashMap::new();
-        WalkDir::new(&self.path)
+        WalkDir::new(self.path)
             .into_iter()
             .filter_map(|ok| ok.ok())
             .filter(|e| e.file_type().is_file())
@@ -59,9 +59,7 @@ impl<'a> Init<'a> {
                             .unwrap()
                             .to_string_lossy(),
                     );
-                    if !seq.contains_key(&id) {
-                        seq.insert(id, full_path);
-                    }
+                    seq.entry(id).or_insert(full_path);
                 }
             });
 

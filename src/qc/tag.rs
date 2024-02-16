@@ -4,17 +4,14 @@ pub fn insert_tag(seq: &str, ins: &str) -> String {
     let insert = ins.to_uppercase();
     let trans = translate_dna(&insert);
     check_tag(&insert);
-    seq.replace("*", &trans).to_uppercase()
+    seq.replace('*', &trans).to_uppercase()
 }
 
 fn check_tag(insert: &str) {
-    insert.chars()
-        .for_each(| dna | 
-            match dna {
-                'A' | 'G' | 'T' | 'C' => (),
-                _ => panic!("INVALID TAG DNA SEQUENCES")
-            }
-        )
+    insert.chars().for_each(|dna| match dna {
+        'A' | 'G' | 'T' | 'C' => (),
+        _ => panic!("INVALID TAG DNA SEQUENCES"),
+    })
 }
 
 fn translate_dna(insert: &str) -> String {
@@ -23,11 +20,10 @@ fn translate_dna(insert: &str) -> String {
 
     let mut translate = String::new();
 
-    dna.chars()
-        .for_each(|b| {
-            let base = libs.get(&b).unwrap();
-            translate.push(*base);
-        });
+    dna.chars().for_each(|b| {
+        let base = libs.get(&b).unwrap();
+        translate.push(*base);
+    });
 
     translate
 }
@@ -38,12 +34,10 @@ fn get_dna_libs() -> HashMap<char, char> {
 
     let mut trans = HashMap::new();
 
-    dna.chars()
-        .zip(comp.chars())
-        .for_each(|(b, c)| {
-            trans.insert(b,c);
-        });
-    
+    dna.chars().zip(comp.chars()).for_each(|(b, c)| {
+        trans.insert(b, c);
+    });
+
     trans
 }
 

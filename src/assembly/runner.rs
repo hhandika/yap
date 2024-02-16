@@ -16,23 +16,23 @@ pub fn assemble_reads(
     output_dir: &Option<PathBuf>,
     args: &Option<String>,
 ) {
-    let dir = get_output_dir(&output_dir);
+    let dir = get_output_dir(output_dir);
     utils::check_dir_exist(&dir);
     fs::create_dir_all(&dir).expect("CAN'T CREATE ASSEMBLY DIR");
     let contig_dir = dir.join("contig_symlinks");
     fs::create_dir_all(&contig_dir).unwrap();
-    log::info!("{} {}\n", reads.len(), "Total samples:".yellow());
+    log::info!("{:18} {}\n", "Total samples:".yellow(), reads.len());
     let sample_count = reads.len();
     let mut processed = 0;
     reads.iter().for_each(|r| {
         let mut run = Runner::new(&dir, &contig_dir, r, threads, args);
         run.run_spades();
         processed += 1;
+        let processed_info = format!("Processed {} of {} samples", processed, sample_count);
+        log::info!("{}", processed_info.blue());
+        log::info!("");
     });
 
-    log::info!("");
-    let processed_info = format!("Processed {} of {} samples", processed, sample_count);
-    log::info!("{}", processed_info.blue());
     log::info!("");
 }
 
@@ -72,10 +72,10 @@ impl<'a> Runner<'a> {
         utils::print_header(&self.reads.id);
         self.print_settings().unwrap();
         let spin = utils::set_spinner();
-        spin.set_message("SPAdes is processing...\t");
+        spin.set_message("SPAdes is processing...");
         let out = self.call_spades();
         self.check_spades_success(&out);
-        spin.finish_with_message("DONE!");
+        spin.finish_with_message(format!("{} SPAdes has finished", "✔".green()));
         self.create_symlink();
     }
 
@@ -120,7 +120,19 @@ impl<'a> Runner<'a> {
     }
 
     fn get_opt_args(&self, out: &mut Command) {
-        out.arg(self.args.as_ref().unwrap());
+        let args: Vec<&str> = self
+            .args
+            .as_ref()
+            .expect("Invalid args")
+            .split_whitespace()
+            .collect();
+        if args.len() > 1 {
+            args.iter().for_each(|&a| {
+                out.arg(a);
+            });
+        } else {
+            out.arg(self.args.as_ref().unwrap());
+        }
     }
 
     fn get_singleton(&self, out: &mut Command) {
@@ -134,23 +146,52 @@ impl<'a> Runner<'a> {
     }
 
     fn print_settings(&self) -> Result<()> {
-        log::info!("ID\t\t: {}", &self.reads.id);
-        log::info!("Input R1\t: {}", &self.reads.read_1.to_string_lossy());
-        log::info!("Input R2\t: {}", &self.reads.read_2.to_string_lossy());
+        log::info!("{:18}: {}", "ID", &self.reads.id);
+        log::info!("{:18}: {}", "Input dir", &self.reads.dir.to_string_lossy());
+        log::info!(
+            "{:18}: {}",
+            "Input R2",
+            &self
+                .reads
+                .read_2
+                .file_name()
+                .expect("NO FILE")
+                .to_string_lossy()
+        );
+        log::info!(
+            "{:18}: {}",
+            "Input R1",
+            &self
+                .reads
+                .read_1
+                .file_name()
+                .expect("NO FILE")
+                .to_string_lossy()
+        );
 
         if self.reads.singleton.is_some() {
             log::info!(
-                "Singleton\t: {}",
-                &self.reads.singleton.as_ref().unwrap().to_string_lossy()
+                "{:18}: {}",
+                "Singleton",
+                &self
+                    .reads
+                    .singleton
+                    .as_ref()
+                    .expect("NO FILE")
+                    .to_string_lossy()
             );
         }
 
-        log::info!("Output\t\t: {}", &self.output.to_string_lossy());
+        log::info!("{:18}: {}", "Output", &self.output.display());
 
         if self.args.is_some() {
-            log::info!("Opt params\t: {}", &self.args.as_ref().unwrap());
+            log::info!(
+                "{:18}: {}",
+                "Opt params",
+                &self.args.as_ref().expect("NO ARGS")
+            );
         }
-        println!();
+        log::info!("");
 
         Ok(())
     }
@@ -161,10 +202,10 @@ impl<'a> Runner<'a> {
 
         if contigs_path.is_file() {
             #[cfg(not(target_os = "windows"))]
-            let path = contigs_path.canonicalize().unwrap();
+            let path = contigs_path.canonicalize().expect("NO FILE");
             let symlink = self.symlink_dir.join(contig_sym);
             #[cfg(not(target_os = "windows"))]
-            unix::fs::symlink(&path, &symlink).unwrap();
+            unix::fs::symlink(path, &symlink).expect("CAN'T CREATE SYMLINK");
             self.print_contig_path(&contigs_path, &symlink);
         } else {
             log::warn!(
@@ -177,9 +218,9 @@ impl<'a> Runner<'a> {
 
     fn print_contig_path(&self, path: &Path, symlink: &Path) {
         println!();
-        log::info!("Contig Path");
-        log::info!("File\t\t: {}", path.to_string_lossy());
-        log::info!("Symlink\t\t: {}", symlink.to_string_lossy());
+        log::info!("{}", "Contig Path".yellow());
+        log::info!("{:18}: {}", "File", path.display());
+        log::info!("{:18}: {}", "Symlink", symlink.display());
         println!();
     }
 }
