@@ -10,7 +10,7 @@ use std::os::unix;
 use colored::Colorize;
 
 use crate::qc::parser::RawSeq;
-use crate::utils;
+use crate::utils::{self, PrettyHeader};
 
 pub fn clean_reads(reads: &[RawSeq], params: &Option<String>, output_dir: &Option<PathBuf>) {
     let dir = get_output_dir(output_dir);
@@ -64,7 +64,8 @@ impl<'a> Runner<'a> {
     }
 
     fn process_reads(&mut self) {
-        utils::print_header(&self.reads.id);
+        let mut header = PrettyHeader::new(&self.reads.id);
+        log::info!("{}", header.get());
         self.get_output_filename();
         self.display_settings();
         let spin = utils::set_spinner();

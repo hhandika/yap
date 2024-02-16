@@ -40,7 +40,7 @@ fn parse_duration(duration: u64) -> String {
 
 pub fn print_formatted_duration(duration: u64) {
     let time = parse_duration(duration);
-    println!("Execution time (HH:MM:SS): {}", time);
+    println!("{}: {}", "Execution time (HH:MM:SS)".yellow(), time);
 }
 
 pub fn set_spinner() -> ProgressBar {
@@ -112,15 +112,7 @@ fn get_kernel_version(sysinfo: &System) -> String {
     }
 }
 
-pub fn print_header(text: &str) {
-    let header = format!("Processing {}", text);
-    let length = 78;
-    let sym = '=';
-    let mut header = PrettyHeader::new(&header, sym, length);
-    header.print_header().unwrap();
-}
-
-struct PrettyHeader {
+pub struct PrettyHeader {
     text: String,
     sym: char,
     len: usize,
@@ -129,39 +121,33 @@ struct PrettyHeader {
 }
 
 impl PrettyHeader {
-    fn new(text: &str, sym: char, len: usize) -> Self {
+    pub fn new(text: &str) -> Self {
         Self {
             text: String::from(text),
-            sym,
-            len,
-            text_len: 0,
+            sym: '=',
+            len: 80,
+            text_len: text.len(),
             sym_len: 0,
         }
     }
 
-    fn print_header(&mut self) -> Result<()> {
+    pub fn get(&mut self) -> String {
         self.get_len();
-        let io = io::stdout();
-        let mut handle = io::BufWriter::new(io);
         if self.text_len > self.len {
-            writeln!(handle, "{}", self.text.yellow())?;
+            self.text.yellow().to_string()
         } else {
-            self.print_with_symbol(&mut handle)?;
+            self.get_with_symbol().yellow().to_string()
         }
-        Ok(())
     }
 
-    fn print_with_symbol<W: Write>(&mut self, handle: &mut W) -> Result<()> {
-        self.print_symbols(handle);
-        write!(handle, " {} ", self.text)?;
-        self.print_symbols(handle);
-
+    fn get_with_symbol(&mut self) -> String {
+        let mut sym = self.get_symbols();
+        let header = format!("Processing {}", self.text);
         if self.text_len % 2 != 0 {
-            write!(handle, "{}", self.sym)?;
+            sym.push(self.sym);
         }
 
-        writeln!(handle)?;
-        Ok(())
+        format!("{} {} {}", sym, header, sym)
     }
 
     fn get_len(&mut self) {
@@ -174,10 +160,8 @@ impl PrettyHeader {
         }
     }
 
-    fn print_symbols<W: Write>(&self, io: &mut W) {
-        (0..=self.sym_len).for_each(|_| {
-            write!(io, "{}", self.sym).unwrap();
-        });
+    fn get_symbols(&self) -> String {
+        self.sym.to_string().repeat(self.sym_len)
     }
 }
 

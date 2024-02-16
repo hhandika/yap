@@ -8,7 +8,7 @@ use std::process::{Command, Output};
 use colored::Colorize;
 
 use crate::assembly::finder::SeqReads;
-use crate::utils;
+use crate::utils::{self, PrettyHeader};
 
 pub fn assemble_reads(
     reads: &[SeqReads],
@@ -69,7 +69,8 @@ impl<'a> Runner<'a> {
     }
 
     fn run_spades(&mut self) {
-        utils::print_header(&self.reads.id);
+        let mut header = PrettyHeader::new(&self.reads.id);
+        log::info!("{}", header.get());
         self.print_settings().unwrap();
         let spin = utils::set_spinner();
         spin.set_message("SPAdes is processing...");
