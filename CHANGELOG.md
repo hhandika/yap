@@ -1,5 +1,10 @@
 # YAP Release Notes
 
+## v0.4.0
+
+- Remove summary stats from `yap stats` command. Now. available in [SEGUL](https://www.segul.app/)
+- Add file processing progress after each file is processed.
+
 ## v0.3.0
 
 - Add logger.

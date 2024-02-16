@@ -202,7 +202,7 @@ pub struct RawSeq {
     pub read_2: PathBuf,
     pub adapter_i5: Option<String>,
     pub adapter_i7: Option<String>,
-    pub outname: Option<String>,
+    pub output_name: Option<String>,
     pub auto_idx: bool,
 }
 
@@ -215,7 +215,7 @@ impl RawSeq {
             read_2: PathBuf::new(),
             adapter_i5: None,
             adapter_i7: None,
-            outname: None,
+            output_name: None,
             auto_idx: false,
         }
     }
@@ -228,7 +228,7 @@ impl RawSeq {
         if !is_id && !is_rename {
             self.dir = PathBuf::from(&self.id);
         } else if is_rename {
-            self.dir = PathBuf::from(&self.outname.as_ref().unwrap());
+            self.dir = PathBuf::from(&self.output_name.as_ref().unwrap());
         } else {
             self.create_dir_from_r1();
         }
@@ -315,7 +315,7 @@ impl RawSeq {
     }
 
     fn get_output_name(&mut self, fname: &str) {
-        self.outname = Some(fname.to_string());
+        self.output_name = Some(fname.to_string());
     }
 }
 

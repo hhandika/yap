@@ -5,29 +5,39 @@ use std::os::unix;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
 
+use colored::Colorize;
+
 use crate::assembly::finder::SeqReads;
 use crate::utils;
 
 pub fn assemble_reads(
     reads: &[SeqReads],
     threads: &Option<usize>,
-    outdir: &Option<PathBuf>,
+    output_dir: &Option<PathBuf>,
     args: &Option<String>,
 ) {
-    let dir = get_outdir(&outdir);
+    let dir = get_output_dir(&output_dir);
     utils::check_dir_exist(&dir);
     fs::create_dir_all(&dir).expect("CAN'T CREATE ASSEMBLY DIR");
     let contig_dir = dir.join("contig_symlinks");
     fs::create_dir_all(&contig_dir).unwrap();
-    println!("\x1b[0;33mTotal samples: {}\n\x1b[0m", reads.len());
+    log::info!("{} {}\n", reads.len(), "Total samples:".yellow());
+    let sample_count = reads.len();
+    let mut processed = 0;
     reads.iter().for_each(|r| {
         let mut run = Runner::new(&dir, &contig_dir, r, threads, args);
         run.run_spades();
+        processed += 1;
     });
+
+    log::info!("");
+    let processed_info = format!("Processed {} of {} samples", processed, sample_count);
+    log::info!("{}", processed_info.blue());
+    log::info!("");
 }
 
-fn get_outdir(outdir: &Option<PathBuf>) -> PathBuf {
-    match outdir {
+fn get_output_dir(output_dir: &Option<PathBuf>) -> PathBuf {
+    match output_dir {
         Some(dir) => dir.clone(),
         None => PathBuf::from("assemblies"),
     }
@@ -158,8 +168,9 @@ impl<'a> Runner<'a> {
             self.print_contig_path(&contigs_path, &symlink);
         } else {
             log::warn!(
-                "\x1b[41m[ERROR]\x1b[0m \
-                SPAdes HAS FAILED. PLEASE CHECK SPAdes OUTPUT ABOVE FOR DETAILS.\n"
+                "{} \
+                SPAdes HAS FAILED. PLEASE CHECK SPAdes OUTPUT ABOVE FOR DETAILS.\n",
+                "[ERROR]".red()
             );
         }
     }
@@ -178,11 +189,11 @@ mod test {
     use super::*;
 
     #[test]
-    fn outdir_test() {
+    fn output_dir_test() {
         let path = PathBuf::from("test/assemblies/");
         let output = Some(path.clone());
-        let outdir = get_outdir(&output);
+        let output_dir = get_output_dir(&output);
 
-        assert_eq!(PathBuf::from(&path), outdir);
+        assert_eq!(PathBuf::from(&path), output_dir);
     }
 }

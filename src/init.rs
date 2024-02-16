@@ -10,32 +10,35 @@ pub struct Init<'a> {
     path: &'a str,
     len: usize,
     sep: char,
-    iscsv: bool,
+    is_csv: bool,
     fname: String,
 }
 
 impl<'a> Init<'a> {
-    pub fn new(path: &'a str, len: usize, sep: char, iscsv: bool) -> Self {
+    pub fn new(path: &'a str, len: usize, sep: char, is_csv: bool) -> Self {
         Self {
             path,
             len,
             sep,
-            iscsv,
+            is_csv,
             fname: String::from("yap-qc_input"),
         }
     }
 
     pub fn initialize_input_file(&mut self) {
-        self.get_fnames();
+        self.get_file_names();
         let output = File::create(&self.fname).expect("FILE EXISTS.");
         let mut line = LineWriter::new(output);
         let seqs = self.find_files();
         self.write_header(&mut line);
+        let file_count = seqs.len();
+        let mut sample_count = 0;
         seqs.iter().for_each(|(id, path)| {
             self.write_content(&mut line, &id, &path);
+            sample_count += 1;
         });
 
-        self.print_saved_path();
+        self.print_saved_path(file_count, sample_count);
     }
 
     fn find_files(&self) -> HashMap<String, String> {
@@ -65,8 +68,8 @@ impl<'a> Init<'a> {
         seq
     }
 
-    fn get_fnames(&mut self) {
-        if self.iscsv {
+    fn get_file_names(&mut self) {
+        if self.is_csv {
             self.fname.push_str(".csv");
         } else {
             self.fname.push_str(".conf");
@@ -74,7 +77,7 @@ impl<'a> Init<'a> {
     }
 
     fn write_header<W: Write>(&self, line: &mut W) {
-        if self.iscsv {
+        if self.is_csv {
             writeln!(line, "id,new_name").unwrap();
         } else {
             writeln!(line, "[seqs]").unwrap();
@@ -82,17 +85,20 @@ impl<'a> Init<'a> {
     }
 
     fn write_content<W: Write>(&self, line: &mut W, id: &str, full_path: &str) {
-        if self.iscsv {
+        if self.is_csv {
             writeln!(line, "{}", id).unwrap();
         } else {
             writeln!(line, "{}:{}/", id, full_path).unwrap();
         }
     }
 
-    fn print_saved_path(&self) {
+    fn print_saved_path(&self, file_count: usize, sample_count: usize) {
         let path = env::current_dir().unwrap();
         println!(
-            "Done! The result is saved as {}/{}",
+            "Done! Found {} samples of {} files. \
+            The result is saved as {}/{}",
+            sample_count,
+            file_count,
             path.display(),
             self.fname
         );
@@ -109,15 +115,15 @@ impl<'a> Init<'a> {
     fn construct_id(&self, names: &str) -> String {
         let words: Vec<&str> = names.split(self.sep).collect();
         assert!(words.len() > self.len, "NO. OF WORDS EXCEED THE SLICES");
-        let mut seqname = String::new();
+        let mut sequence_name = String::new();
 
         words[0..(self.len - 1)].iter().for_each(|w| {
             let comp = format!("{}{}", w, self.sep);
-            seqname.push_str(&comp);
+            sequence_name.push_str(&comp);
         });
 
-        seqname.push_str(words[self.len - 1]);
-        seqname
+        sequence_name.push_str(words[self.len - 1]);
+        sequence_name
     }
 }
 
@@ -145,9 +151,9 @@ mod test {
         let sep = '_';
         let re = Init::new(path, len, sep, true);
 
-        let fnames = "sample_buno_ABCD123_read1.fastq.gz";
+        let file_name = "sample_buno_ABCD123_read1.fastq.gz";
 
-        let id = re.construct_id(fnames);
+        let id = re.construct_id(file_name);
 
         assert_eq!("sample_buno_ABCD123", id);
     }
@@ -159,8 +165,8 @@ mod test {
         let len = 4;
         let sep = '_';
         let re = Init::new(path, len, sep, true);
-        let fnames = "sample_buno_ABCD123_read1.fastq.gz";
+        let file_name = "sample_buno_ABCD123_read1.fastq.gz";
 
-        re.construct_id(fnames);
+        re.construct_id(file_name);
     }
 }

@@ -1,11 +1,12 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
+use colored::Colorize;
 use glob::glob;
 use walkdir::WalkDir;
 
 pub fn clean_spades_files(path: &Path) {
-    log::info!("\x1b[0;33mRemoved files and directories:\x1b[0m");
+    log::info!("{}", "Removed files and directories:".yellow());
     WalkDir::new(path)
         .into_iter()
         .filter_map(|ok| ok.ok())

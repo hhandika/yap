@@ -3,7 +3,6 @@ mod checker;
 mod cli;
 mod init;
 mod qc;
-mod stats;
 mod utils;
 
 #[macro_use]

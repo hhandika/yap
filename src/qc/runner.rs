@@ -1,5 +1,6 @@
 use std::fs;
 use std::io::{self, BufWriter, Result, Write};
+// use std::os::unix::process;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
 
@@ -9,10 +10,12 @@ use std::os::unix;
 use crate::qc::parser::RawSeq;
 use crate::utils;
 
-pub fn clean_reads(reads: &[RawSeq], params: &Option<String>, outdir: &Option<PathBuf>) {
-    let dir = get_outdir(outdir);
+pub fn clean_reads(reads: &[RawSeq], params: &Option<String>, output_dir: &Option<PathBuf>) {
+    let dir = get_output_dir(output_dir);
     utils::check_dir_exist(&dir);
     fs::create_dir_all(&dir).expect("CAN'T CREATE CLEAN READ DIR");
+    let sample_count = reads.len();
+    let mut processed = 0;
     reads.iter().for_each(|read| {
         let mut run = Runner::new(&dir, read, params);
 
@@ -22,13 +25,16 @@ pub fn clean_reads(reads: &[RawSeq], params: &Option<String>, outdir: &Option<Pa
         }
 
         run.process_reads();
+        processed += 1;
     });
 
     log::info!("");
+    log::info!("Processed {} of {} samples", processed, sample_count);
+    log::info!("");
 }
 
-fn get_outdir(outdir: &Option<PathBuf>) -> PathBuf {
-    match outdir {
+fn get_output_dir(output_dir: &Option<PathBuf>) -> PathBuf {
+    match output_dir {
         Some(dir) => dir.clone(),
         None => PathBuf::from("clean_reads"),
     }
@@ -57,7 +63,7 @@ impl<'a> Runner<'a> {
 
     fn process_reads(&mut self) {
         utils::print_header(&self.reads.id);
-        self.get_out_fnames();
+        self.get_output_filename();
         self.display_settings();
         let spin = utils::set_spinner();
         spin.set_message("Fastp is processing\t");
@@ -71,30 +77,30 @@ impl<'a> Runner<'a> {
         reports.display_report_paths();
     }
 
-    fn get_out_fnames(&mut self) {
-        let outdir = self.clean_dir.join("trimmed_reads");
-        fs::create_dir_all(&outdir).unwrap();
+    fn get_output_filename(&mut self) {
+        let output_dir = self.clean_dir.join("trimmed_reads");
+        fs::create_dir_all(&output_dir).unwrap();
         let out1 = self.reads.read_1.file_name().unwrap();
         let out2 = self.reads.read_2.file_name().unwrap();
 
         if self.is_rename() {
             let out1 = self.rename_output(&out1.to_str().unwrap());
             let out2 = self.rename_output(&out2.to_str().unwrap());
-            self.out_r1 = outdir.join(out1);
-            self.out_r2 = outdir.join(out2);
+            self.out_r1 = output_dir.join(out1);
+            self.out_r2 = output_dir.join(out2);
         } else {
-            self.out_r1 = outdir.join(out1);
-            self.out_r2 = outdir.join(out2);
+            self.out_r1 = output_dir.join(out1);
+            self.out_r2 = output_dir.join(out2);
         }
     }
 
     fn is_rename(&self) -> bool {
-        self.reads.outname.is_some()
+        self.reads.output_name.is_some()
     }
 
-    fn rename_output(&self, outname: &str) -> String {
-        let target = self.reads.outname.as_ref().unwrap();
-        outname.replace(&self.reads.id, &target)
+    fn rename_output(&self, output_name: &str) -> String {
+        let target = self.reads.output_name.as_ref().unwrap();
+        output_name.replace(&self.reads.id, &target)
     }
 
     fn display_settings(&self) {

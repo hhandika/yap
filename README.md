@@ -6,7 +6,7 @@
 
 A pipeline for processing high-throughput sequencing data. The goals:
 
-1. To develop single contained executable pipeline that reduce the numbers of dependecies at runtime.
+1. To develop single contained executable pipeline that reduce the numbers of dependencies at runtime.
 2. Robust error handlings.
 3. Elegant commands.
 4. Fast
@@ -21,19 +21,19 @@ Below are the planned and already implemented features:
 
 | Features                                      | Dependencies                                               | Implementation                                                        |
 | --------------------------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------------- |
-| _Essentials_                                  |
+| _Essentials_                                  |                                                            |                                                                       |
 | Batch adapter trimming and sequence filtering | [Fastp](https://github.com/OpenGene/fastp)                 | Done                                                                  |
 | Batch sequence assembly                       | [SPAdes](https://github.com/ablab/spades)                  | Done                                                                  |
 | Sequence statistics                           | None                                                       | Done                                                                  |
 | Read mapping                                  | [BWA-MEM2](https://github.com/bwa-mem2/bwa-mem2)           | Planned                                                               |
 | Sequence alignment                            | [Mafft](https://mafft.cbrc.jp/alignment/software/)         | Planned                                                               |
-| Alignment trimming                            | [TrimAl](http://trimal.cgenomics.org/introduction)         | Planned                                                               |
+| Alignment trimming                            | [TrimAl](http://trimal.cgenomics.org/introduction)         | Cancelled (planned for [segul](https://github.com/hhandika/segul))    |
 | Alignment format conversion                   | None                                                       | Cancelled (implemented in [segul](https://github.com/hhandika/segul)) |
 | SNP calling                                   | [snp-sites](https://github.com/sanger-pathogens/snp-sites) | Planned                                                               |
-| _Utilities_                                   |
+| _Utilities_                                   |                                                            |                                                                       |
 | Sequence finder                               | None                                                       | Done                                                                  |
 | Sequence file renamer                         | None                                                       | Planned                                                               |
-| _Extras_                                      |
+| _Extras_                                      |                                                            |                                                                       |
 | Logger                                        | None                                                       | Planned                                                               |
 | Symlink fixer                                 | None                                                       | Planned                                                               |
 

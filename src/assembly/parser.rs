@@ -2,11 +2,11 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::io::BufReader;
 
-pub fn parse_seqdir(input: &str) -> Vec<SeqDirs> {
+pub fn parse_sequence_dir(input: &str) -> Vec<SeqDirs> {
     let file = File::open(input).unwrap();
     let buff = BufReader::new(file);
 
-    let mut seqdir = Vec::new();
+    let mut sequence_dir = Vec::new();
     buff.lines()
         .filter_map(|ok| ok.ok())
         .skip(1)
@@ -24,10 +24,10 @@ pub fn parse_seqdir(input: &str) -> Vec<SeqDirs> {
                     line
                 );
             }
-            seqdir.push(sample);
+            sequence_dir.push(sample);
         });
 
-    seqdir
+    sequence_dir
 }
 
 pub struct SeqDirs {
@@ -84,7 +84,7 @@ mod test {
     #[test]
     fn input_ini_test() {
         let input = "test_files/assembly/spade_runner.ini";
-        let samples = parse_seqdir(&input);
+        let samples = parse_sequence_dir(&input);
 
         assert_eq!(2, samples.len());
     }

@@ -3,6 +3,7 @@ use std::io::{self, Result, Write};
 use std::path::Path;
 
 use chrono::NaiveTime;
+use colored::Colorize;
 use dialoguer::{theme::ColorfulTheme, Confirm};
 use indicatif::{ProgressBar, ProgressStyle};
 use sysinfo::{System, SystemExt};
@@ -54,34 +55,37 @@ pub fn set_spinner() -> ProgressBar {
 }
 
 pub fn get_system_info() -> Result<()> {
-    let sysinfo = sysinfo::System::new_all();
+    let sys_info = sysinfo::System::new_all();
     let io = io::stdout();
     let mut handle = io::BufWriter::new(io);
 
-    let total_ram = sysinfo.get_total_memory();
+    let total_ram = sys_info.get_total_memory();
     let gb = 1048576;
 
-    writeln!(handle, "\x1b[0;33mSystem Information\x1b[0m")?;
+    writeln!(handle, "{}", "System Information".yellow())?;
 
     writeln!(
         handle,
-        "Operating system\t: {} {}",
-        get_os_name(&sysinfo),
-        get_os_version(&sysinfo)
+        "{:18}: {} {}",
+        "Operating system",
+        get_os_name(&sys_info),
+        get_os_version(&sys_info)
     )?;
 
     writeln!(
         handle,
-        "Kernel version\t\t: {}",
-        get_kernel_version(&sysinfo)
+        "{:18}: {}",
+        "Kernel version",
+        get_kernel_version(&sys_info)
     )?;
     writeln!(
         handle,
-        "Available cores\t\t: {:?}",
+        "{:18}: {:?}",
+        "Physical cores",
         num_cpus::get_physical()
     )?;
-    writeln!(handle, "Available threads\t: {:?}", num_cpus::get())?;
-    writeln!(handle, "Total RAM\t\t: {} Gb", total_ram / gb)?;
+    writeln!(handle, "{:18}: {:?}", "Available threads", num_cpus::get())?;
+    writeln!(handle, "{:18}: {} Gb", "Total RAM", total_ram / gb)?;
     writeln!(handle)?;
 
     Ok(())
@@ -122,7 +126,6 @@ struct PrettyHeader {
     len: usize,
     text_len: usize,
     sym_len: usize,
-    color: String,
 }
 
 impl PrettyHeader {
@@ -133,7 +136,6 @@ impl PrettyHeader {
             len,
             text_len: 0,
             sym_len: 0,
-            color: String::from("\x1b[0;33m"),
         }
     }
 
@@ -141,13 +143,11 @@ impl PrettyHeader {
         self.get_len();
         let io = io::stdout();
         let mut handle = io::BufWriter::new(io);
-        write!(handle, "{}", self.color)?;
         if self.text_len > self.len {
-            writeln!(handle, "{}", self.text)?;
+            writeln!(handle, "{}", self.text.yellow())?;
         } else {
             self.print_with_symbol(&mut handle)?;
         }
-        write!(handle, "\x1b[0m")?;
         Ok(())
     }
 
