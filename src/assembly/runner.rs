@@ -151,20 +151,20 @@ impl<'a> Runner<'a> {
         log::info!("{:18}: {}", "Input dir", &self.reads.dir.to_string_lossy());
         log::info!(
             "{:18}: {}",
-            "Input R2",
+            "Input R1",
             &self
                 .reads
-                .read_2
+                .read_1
                 .file_name()
                 .expect("NO FILE")
                 .to_string_lossy()
         );
         log::info!(
             "{:18}: {}",
-            "Input R1",
+            "Input R2",
             &self
                 .reads
-                .read_1
+                .read_2
                 .file_name()
                 .expect("NO FILE")
                 .to_string_lossy()
