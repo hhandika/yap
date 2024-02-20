@@ -21,7 +21,7 @@ pub fn assemble_reads(
     fs::create_dir_all(&dir).expect("CAN'T CREATE ASSEMBLY DIR");
     let contig_dir = dir.join("contig_symlinks");
     fs::create_dir_all(&contig_dir).unwrap();
-    log::info!("{:18} {}\n", "Total samples:".yellow(), reads.len());
+    log::info!("{:18} {}\n", "Total samples:".blue(), reads.len().blue());
     let sample_count = reads.len();
     let mut processed = 0;
     reads.iter().for_each(|r| {
