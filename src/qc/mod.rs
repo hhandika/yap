@@ -15,7 +15,6 @@ use crate::qc::runner::Fastp;
 
 pub struct Qc<'a> {
     pub input: &'a Path,
-    pub is_id: bool,
     pub is_rename: bool,
     pub params: Option<&'a str>,
     pub output_dir: Option<&'a Path>,
@@ -24,14 +23,12 @@ pub struct Qc<'a> {
 impl<'a> Qc<'a> {
     pub fn new(
         input: &'a Path,
-        is_id: bool,
         is_rename: bool,
         params: Option<&'a str>,
         output_dir: Option<&'a Path>,
     ) -> Self {
         Self {
             input,
-            is_id,
             is_rename,
             params,
             output_dir,
@@ -39,7 +36,7 @@ impl<'a> Qc<'a> {
     }
 
     pub fn dry_run(&self) {
-        let reads: Vec<RawSeq> = parser::parse_input(self.input, self.is_id, self.is_rename);
+        let reads: Vec<RawSeq> = parser::parse_input(self.input, self.is_rename);
         println!();
         reads.iter().for_each(|r| {
             log::info!("{:18}: {}\x1b[0m", "ID".yellow(), r.id.yellow());
@@ -70,7 +67,7 @@ impl<'a> Qc<'a> {
     }
 
     pub fn run(&self) {
-        let reads: Vec<RawSeq> = parser::parse_input(&self.input, self.is_id, self.is_rename);
+        let reads: Vec<RawSeq> = parser::parse_input(&self.input, self.is_rename);
         self.clean_reads(&reads);
     }
 

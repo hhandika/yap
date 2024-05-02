@@ -1,4 +1,3 @@
-use std::io::Result;
 use std::process::Command;
 use std::str;
 
@@ -6,13 +5,12 @@ use colored::Colorize;
 
 use crate::utils;
 
-pub fn check_dependencies() -> Result<()> {
-    utils::get_system_info().unwrap();
+pub fn check_dependencies() {
+    utils::get_system_info().expect("Failed to get system info");
     log::info!("Dependencies:");
     check_fastp();
     check_spades();
     println!();
-    Ok(())
 }
 
 fn check_fastp() {

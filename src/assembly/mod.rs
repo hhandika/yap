@@ -4,7 +4,7 @@ mod parser;
 mod runner;
 
 use std::io::Result;
-use std::path::PathBuf;
+use std::path::Path;
 
 use colored::Colorize;
 
@@ -12,34 +12,34 @@ use crate::assembly::finder::SeqReads;
 use crate::utils;
 
 pub fn auto_process_input(
-    path: &str,
+    path: &Path,
     dirname: &str,
-    threads: &Option<usize>,
-    output_dir: &Option<PathBuf>,
-    args: &Option<String>,
+    threads: Option<usize>,
+    output_dir: Option<&Path>,
+    args: Option<&str>,
 ) {
     let samples = finder::auto_find_cleaned_fastq(path, dirname);
     runner::assemble_reads(&samples, threads, output_dir, args);
 }
 
 pub fn process_input(
-    input: &str,
-    threads: &Option<usize>,
-    output_dir: &Option<PathBuf>,
-    args: &Option<String>,
+    input: &Path,
+    threads: Option<usize>,
+    output_dir: Option<&Path>,
+    args: Option<&str>,
 ) {
     let dirs = parser::parse_sequence_dir(input);
     let samples = finder::find_cleaned_fastq(&dirs);
     runner::assemble_reads(&samples, threads, output_dir, args);
 }
 
-pub fn auto_dry_run(path: &str, dirname: &str) {
+pub fn auto_dry_run(path: &Path, dirname: &str) {
     let samples = finder::auto_find_cleaned_fastq(path, dirname);
     utils::get_system_info().unwrap();
     print_dry_run(&samples).unwrap();
 }
 
-pub fn dry_run(input: &str) {
+pub fn dry_run(input: &Path) {
     let dirs = parser::parse_sequence_dir(input);
     let samples = finder::find_cleaned_fastq(&dirs);
     utils::get_system_info().unwrap();

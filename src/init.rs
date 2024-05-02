@@ -2,12 +2,13 @@ use std::collections::HashMap;
 use std::env;
 use std::fs::File;
 use std::io::{LineWriter, Write};
+use std::path::Path;
 
 use regex::Regex;
 use walkdir::WalkDir;
 
 pub struct Init<'a> {
-    path: &'a str,
+    path: &'a Path,
     len: usize,
     sep: char,
     is_csv: bool,
@@ -15,7 +16,7 @@ pub struct Init<'a> {
 }
 
 impl<'a> Init<'a> {
-    pub fn new(path: &'a str, len: usize, sep: char, is_csv: bool) -> Self {
+    pub fn new(path: &'a Path, len: usize, sep: char, is_csv: bool) -> Self {
         Self {
             path,
             len,
@@ -131,7 +132,7 @@ mod test {
 
     #[test]
     fn regex_test() {
-        let path = "test_files/init/";
+        let path = Path::new("test_files/init/");
         let len = 3;
         let sep = '_';
         let re = Init::new(path, len, sep, true);
@@ -144,7 +145,7 @@ mod test {
 
     #[test]
     fn construct_id_test() {
-        let path = "test_files/init/";
+        let path = Path::new("test_files/init/");
         let len = 3;
         let sep = '_';
         let re = Init::new(path, len, sep, true);
@@ -159,7 +160,7 @@ mod test {
     #[test]
     #[should_panic]
     fn construct_id_panic_test() {
-        let path = "test_files/init/";
+        let path = Path::new("test_files/init/");
         let len = 4;
         let sep = '_';
         let re = Init::new(path, len, sep, true);

@@ -12,9 +12,9 @@ use crate::utils::{self, PrettyHeader};
 
 pub fn assemble_reads(
     reads: &[SeqReads],
-    threads: &Option<usize>,
-    output_dir: &Option<PathBuf>,
-    args: &Option<String>,
+    threads: Option<usize>,
+    output_dir: Option<&Path>,
+    args: Option<&str>,
 ) {
     let dir = get_output_dir(output_dir);
     utils::check_dir_exist(&dir);
@@ -40,9 +40,9 @@ pub fn assemble_reads(
     log::info!("");
 }
 
-fn get_output_dir(output_dir: &Option<PathBuf>) -> PathBuf {
+fn get_output_dir(output_dir: Option<&Path>) -> PathBuf {
     match output_dir {
-        Some(dir) => dir.clone(),
+        Some(dir) => dir.to_path_buf(),
         None => PathBuf::from("assemblies"),
     }
 }
@@ -51,8 +51,8 @@ struct Runner<'a> {
     reads: &'a SeqReads,
     output: PathBuf,
     symlink_dir: &'a Path,
-    threads: &'a Option<usize>,
-    args: &'a Option<String>,
+    threads: Option<usize>,
+    args: Option<&'a str>,
 }
 
 impl<'a> Runner<'a> {
@@ -60,8 +60,8 @@ impl<'a> Runner<'a> {
         dir: &Path,
         contig_dir: &'a Path,
         input: &'a SeqReads,
-        threads: &'a Option<usize>,
-        args: &'a Option<String>,
+        threads: Option<usize>,
+        args: Option<&'a str>,
     ) -> Self {
         Self {
             reads: input,
@@ -237,9 +237,8 @@ mod test {
     #[test]
     fn output_dir_test() {
         let path = PathBuf::from("test/assemblies/");
-        let output = Some(path.clone());
-        let output_dir = get_output_dir(&output);
+        let output_dir = get_output_dir(Some(Path::new("test/assemblies")));
 
-        assert_eq!(PathBuf::from(&path), output_dir);
+        assert_eq!(PathBuf::from(path), output_dir);
     }
 }

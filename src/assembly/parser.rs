@@ -1,8 +1,9 @@
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::BufReader;
+use std::path::Path;
 
-pub fn parse_sequence_dir(input: &str) -> Vec<SeqDirs> {
+pub fn parse_sequence_dir(input: &Path) -> Vec<SeqDirs> {
     let file = File::open(input).unwrap();
     let buff = BufReader::new(file);
 
@@ -80,7 +81,7 @@ mod test {
 
     #[test]
     fn input_ini_test() {
-        let input = "test_files/assembly/spade_runner.ini";
+        let input = Path::new("test_files/assembly/spade_runner.ini");
         let samples = parse_sequence_dir(&input);
 
         assert_eq!(2, samples.len());
