@@ -10,7 +10,7 @@ use std::os::unix;
 use colored::Colorize;
 
 use crate::qc::parser::RawSeq;
-use crate::utils::{self, PrettyHeader};
+use crate::utils::utils::{self, PrettyHeader};
 
 pub struct Fastp<'a> {
     pub clean_dir: PathBuf,

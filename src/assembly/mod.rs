@@ -9,7 +9,7 @@ use std::path::Path;
 use colored::Colorize;
 
 use crate::assembly::finder::SeqReads;
-use crate::utils;
+use crate::utils::utils;
 
 pub fn auto_process_input(
     path: &Path,

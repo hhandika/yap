@@ -8,7 +8,7 @@ use std::process::{Command, Output};
 use colored::Colorize;
 
 use crate::assembly::finder::SeqReads;
-use crate::utils::{self, PrettyHeader};
+use crate::utils::utils::{self, PrettyHeader};
 
 pub fn assemble_reads(
     reads: &[SeqReads],

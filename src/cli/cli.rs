@@ -9,10 +9,10 @@ use log4rs::encode::pattern::PatternEncoder;
 
 use crate::assembly;
 use crate::assembly::cleaner;
-use crate::checker::DependencyChecker;
 use crate::cli::args;
 use crate::init::Init;
 use crate::qc::Qc;
+use crate::utils::checker::DependencyChecker;
 use clap::Parser;
 
 use super::args::{AssemblySubcommand, AutoArgs, CleanArgs, ConfArgs, NewSubcommand, QcSubcommand};

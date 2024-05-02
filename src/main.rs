@@ -1,5 +1,4 @@
 mod assembly;
-mod checker;
 mod cli;
 mod init;
 mod qc;
@@ -18,6 +17,6 @@ fn main() {
     if duration.as_secs() < 60 {
         println!("Execution time: {:?}", duration);
     } else {
-        utils::print_formatted_duration(duration.as_secs());
+        utils::utils::print_formatted_duration(duration.as_secs());
     }
 }

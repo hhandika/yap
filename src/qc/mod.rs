@@ -7,7 +7,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::utils;
+use crate::utils::utils;
 use colored::Colorize;
 
 use crate::qc::parser::RawSeq;

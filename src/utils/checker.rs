@@ -3,7 +3,7 @@ use std::str;
 
 use colored::Colorize;
 
-use crate::utils;
+use crate::utils::utils;
 
 pub struct DependencyChecker {
     auto_install: bool,
