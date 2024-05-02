@@ -9,7 +9,7 @@ use log4rs::encode::pattern::PatternEncoder;
 
 use crate::assembly;
 use crate::assembly::cleaner;
-use crate::checker;
+use crate::checker::DependencyChecker;
 use crate::cli::args;
 use crate::init::Init;
 use crate::qc::Qc;
@@ -24,7 +24,7 @@ pub fn parse_cli() {
     let version = crate_version!();
     setup_logger().expect("Failed setting up logger");
     match args.subcommand {
-        args::MainSubcommand::Check(_) => checker::check_dependencies(),
+        args::MainSubcommand::Check(arg) => DependencyChecker::new(arg.auto_install).check(),
         args::MainSubcommand::New(new) => parse_new_cli(&new),
         args::MainSubcommand::Qc(qc) => QcCli::new(&qc, version).parse(),
         args::MainSubcommand::Assembly(assembly) => Spades::new(&assembly, version).parse(),
