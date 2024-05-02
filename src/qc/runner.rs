@@ -12,47 +12,17 @@ use colored::Colorize;
 use crate::qc::parser::RawSeq;
 use crate::utils::{self, PrettyHeader};
 
-pub fn clean_reads(reads: &[RawSeq], params: &Option<String>, output_dir: &Option<PathBuf>) {
-    let dir = get_output_dir(output_dir);
-    utils::check_dir_exist(&dir);
-    fs::create_dir_all(&dir).expect("CAN'T CREATE CLEAN READ DIR");
-    let sample_count = reads.len();
-    let mut processed = 0;
-    reads.iter().for_each(|read| {
-        let mut run = Runner::new(&dir, read, params);
-
-        if read.adapter_i7.as_ref().is_some() {
-            // Check if i7 contains sequence
-            run.dual_idx = true;
-        }
-
-        run.process_reads();
-        processed += 1;
-        log::info!("Processed {} of {} samples", processed, sample_count);
-        log::info!("");
-    });
-
-    log::info!("");
+pub struct Fastp<'a> {
+    pub clean_dir: PathBuf,
+    pub dual_idx: bool,
+    pub out_r1: PathBuf,
+    pub out_r2: PathBuf,
+    pub reads: &'a RawSeq,
+    pub params: Option<&'a str>,
 }
 
-fn get_output_dir(output_dir: &Option<PathBuf>) -> PathBuf {
-    match output_dir {
-        Some(dir) => dir.clone(),
-        None => PathBuf::from("clean_reads"),
-    }
-}
-
-struct Runner<'a> {
-    clean_dir: PathBuf,
-    dual_idx: bool,
-    out_r1: PathBuf,
-    out_r2: PathBuf,
-    reads: &'a RawSeq,
-    params: &'a Option<String>,
-}
-
-impl<'a> Runner<'a> {
-    fn new(dir: &Path, input: &'a RawSeq, params: &'a Option<String>) -> Self {
+impl<'a> Fastp<'a> {
+    pub fn new(dir: &Path, input: &'a RawSeq, params: Option<&'a str>) -> Self {
         Self {
             clean_dir: dir.join(&input.dir),
             dual_idx: false,
@@ -63,7 +33,7 @@ impl<'a> Runner<'a> {
         }
     }
 
-    fn process_reads(&mut self) {
+    pub fn run(&mut self) {
         let mut header = PrettyHeader::new(&self.reads.id);
         log::info!("{}", header.get());
         self.get_output_filename();

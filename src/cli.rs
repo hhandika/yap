@@ -12,7 +12,7 @@ use crate::assembly;
 use crate::assembly::cleaner;
 use crate::checker;
 use crate::init::Init;
-use crate::qc;
+use crate::qc::Qc;
 
 const LOG_FILE: &str = "yap.log";
 
@@ -79,7 +79,7 @@ fn get_args(version: &str) -> ArgMatches {
                         .takes_value(false),
                 )
                 .arg(
-                    Arg::with_name("dryrun")
+                    Arg::with_name("dry-run")
                         .long("dry")
                         .help("Checks if the program detect the correct files")
                         .takes_value(false),
@@ -140,7 +140,7 @@ fn get_args(version: &str) -> ArgMatches {
                                 .value_name("OUTPUT DIR"),
                         )
                         .arg(
-                            Arg::with_name("dryrun")
+                            Arg::with_name("dry-run")
                                 .long("dry")
                                 .help("Checks if the program can find the correct files")
                                 .takes_value(false),
@@ -174,7 +174,7 @@ fn get_args(version: &str) -> ArgMatches {
                                 .value_name("INPUT"),
                         )
                         .arg(
-                            Arg::with_name("dryrun")
+                            Arg::with_name("dry-run")
                                 .long("dry")
                                 .help("Checks if the program detect the correct files")
                                 .takes_value(false),
@@ -224,7 +224,7 @@ pub fn parse_cli(version: &str) {
     match args.subcommand() {
         ("new", Some(init_matches)) => new_input(init_matches),
         ("assembly", Some(assembly_matches)) => match_assembly_cli(assembly_matches, version),
-        ("qc", Some(qc_matches)) => Fastp::match_cli(qc_matches, version),
+        ("qc", Some(qc_matches)) => QcCli::match_cli(qc_matches, version),
         ("check", Some(_)) => checker::check_dependencies().unwrap(),
         _ => unreachable!(),
     };
@@ -307,16 +307,16 @@ trait Opts {
     }
 }
 
-impl Opts for Fastp<'_> {}
+impl Opts for QcCli<'_> {}
 impl Opts for Spades {}
 
-struct Fastp<'a> {
+struct QcCli<'a> {
     output_dir: Option<PathBuf>,
     version: &'a str,
     matches: &'a ArgMatches<'a>,
 }
 
-impl<'a> Fastp<'a> {
+impl<'a> QcCli<'a> {
     fn match_cli(matches: &'a ArgMatches, version: &'a str) {
         let mut set = Self {
             output_dir: None,
@@ -333,12 +333,19 @@ impl<'a> Fastp<'a> {
             let is_rename = self.matches.is_present("rename");
             let opts = self.get_params(self.matches);
             self.output_dir = self.get_output_dir(self.matches);
+            let runner = Qc::new(
+                &path,
+                is_id,
+                is_rename,
+                opts.as_deref(),
+                self.output_dir.as_deref(),
+            );
 
-            if self.matches.is_present("dryrun") {
-                qc::dry_run(&path, is_id, is_rename);
+            if self.matches.is_present("dry-run") {
+                runner.dry_run();
             } else {
                 log::info!("Starting YAP-qc v{}...\n", self.version);
-                qc::process_input(&path, is_id, is_rename, &opts, &self.output_dir);
+                runner.run();
             }
         }
     }
@@ -359,7 +366,7 @@ impl Spades {
         let threads = self.get_thread_num(matches);
         self.get_output_dir(matches);
         let args = self.get_params(matches);
-        if matches.is_present("dryrun") {
+        if matches.is_present("dry-run") {
             assembly::auto_dry_run(path, dirname)
         } else {
             assembly::auto_process_input(path, dirname, &threads, &self.output_dir, &args);
@@ -371,7 +378,7 @@ impl Spades {
         let threads = self.get_thread_num(matches);
         self.output_dir = self.get_output_dir(matches);
         let args = self.get_params(matches);
-        if matches.is_present("dryrun") {
+        if matches.is_present("dry-run") {
             assembly::dry_run(path)
         } else {
             assembly::process_input(path, &threads, &self.output_dir, &args);

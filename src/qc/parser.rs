@@ -35,9 +35,9 @@ fn parse_input_ini<R: BufRead>(buff: R, raw_seqs: &mut Vec<RawSeq>, lcount: &mut
         let line = split_line(&line, false);
         let id = String::from(&line[0]);
         let path = PathBuf::from(&line[1]);
-        let iscsv = false;
+        let is_csv = false;
         let is_id = false;
-        let reads = ReadFinder::get(&path, &id, is_id, iscsv);
+        let reads = ReadFinder::get(&path, &id, is_id, is_csv);
         check_reads(&reads, &id);
         seq.get_id(&id);
         seq.get_reads(&reads);
@@ -61,8 +61,8 @@ fn parse_input_csv<R: BufRead>(
         let mut seq = RawSeq::new();
         let lines = split_line(&line, true);
         let id = String::from(&lines[0]);
-        let iscsv = true;
-        let reads = ReadFinder::get(input, &id, is_id, iscsv);
+        let is_csv = true;
+        let reads = ReadFinder::get(input, &id, is_id, is_csv);
         check_reads(&reads, &id);
         seq.get_id(&id);
         seq.get_reads(&reads);
@@ -321,7 +321,7 @@ struct ReadFinder<'a> {
 }
 
 impl<'a> ReadFinder<'a> {
-    fn get(path: &'a Path, id: &'a str, is_id: bool, iscsv: bool) -> Vec<PathBuf> {
+    fn get(path: &'a Path, id: &'a str, is_id: bool, is_csv: bool) -> Vec<PathBuf> {
         let mut reads = Self {
             path,
             id,
@@ -329,7 +329,7 @@ impl<'a> ReadFinder<'a> {
             patterns: String::new(),
         };
 
-        if iscsv {
+        if is_csv {
             reads.construct_pattern_csv();
         } else {
             reads.construct_pattern_ini();
@@ -425,23 +425,23 @@ mod test {
     #[test]
     #[should_panic]
     fn invalid_line_test() {
-        let line = "some_speces;/mnt/d/test/";
+        let line = "some_species;/mnt/d/test/";
         split_line(line, false);
     }
 
     #[test]
     fn valid_ini_line_test() {
-        let line = "some_speces:/mnt/d/test/";
-        let iscsv = false;
-        let seq = split_line(line, iscsv);
+        let line = "some_species:/mnt/d/test/";
+        let is_csv = false;
+        let seq = split_line(line, is_csv);
         assert_eq!(2, seq.len());
     }
 
     #[test]
     fn valid_csv_line_test() {
-        let line = "some_speces,other_species";
-        let iscsv = true;
-        let seq = split_line(line, iscsv);
+        let line = "some_species,other_species";
+        let is_csv = true;
+        let seq = split_line(line, is_csv);
         assert_eq!(2, seq.len());
     }
 
