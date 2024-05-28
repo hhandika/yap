@@ -67,7 +67,7 @@ impl DependencyChecker {
         let out = Command::new("fastp").arg("--version").output();
         match out {
             Ok(out) => Some(
-                str::from_utf8(&out.stdout)
+                str::from_utf8(&out.stderr)
                     .expect("Failed getting fastp name")
                     .trim()
                     .to_string(),
