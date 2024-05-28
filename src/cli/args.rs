@@ -47,7 +47,10 @@ pub(crate) enum MainSubcommand {
 }
 
 #[derive(Args)]
-pub(crate) struct Check {}
+pub(crate) struct Check {
+    #[arg(long, help = "Auto install missing dependencies")]
+    pub(crate) auto_install: bool,
+}
 
 #[derive(Args)]
 pub(crate) struct NewSubcommand {
