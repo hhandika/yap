@@ -4,3 +4,21 @@
 2024-02-15 21:52:16 -06:00 - INFO - Dependencies:
 2024-02-15 21:52:16 -06:00 - INFO - fastp             : [31m[NOT FOUND][0m
 2024-02-15 21:52:16 -06:00 - INFO - SPAdes            : [31m[NOT FOUND][0m
+2024-05-02 15:57:36 -05:00 - INFO - Dependencies:
+2024-05-02 15:57:36 -05:00 - INFO - fastp             : [31m[NOT FOUND][0m
+2024-05-02 15:57:36 -05:00 - INFO - SPAdes            : [31m[NOT FOUND][0m
+2024-05-27 19:32:27 -05:00 - INFO - Dependencies:
+2024-05-27 19:32:27 -05:00 - INFO - fastp 0.20.1      : [32m[OK][0m
+2024-05-27 19:32:27 -05:00 - INFO - SPAdes genome assembler v3.15.1 [32m[OK][0m
+2024-05-27 19:32:58 -05:00 - INFO - Dependencies:
+2024-05-27 19:32:58 -05:00 - INFO -                   : [32m[OK][0m
+2024-05-27 19:32:58 -05:00 - INFO - SPAdes genome assembler v3.15.1: [32m[OK][0m
+2024-05-27 19:33:14 -05:00 - INFO - Dependencies:
+2024-05-27 19:33:14 -05:00 - INFO - fastp 0.20.1      : [32m[OK][0m
+2024-05-27 19:33:15 -05:00 - INFO - SPAdes genome assembler v3.15.1 [32m[OK][0m
+2024-05-27 19:35:47 -05:00 - INFO - Dependencies:
+2024-05-27 19:35:47 -05:00 - INFO - fastp 0.20.1      : [32m[OK][0m
+2024-05-27 19:35:47 -05:00 - INFO - SPAdes genome assembler v3.15.1 [32m[OK][0m
+2024-05-27 19:35:56 -05:00 - INFO - Dependencies:
+2024-05-27 19:35:56 -05:00 - INFO - fastp 0.20.1      : [32m[OK][0m
+2024-05-27 19:35:56 -05:00 - INFO - SPAdes genome assembler v3.15.1: [32m[OK][0m

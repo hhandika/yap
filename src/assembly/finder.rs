@@ -1,11 +1,11 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use glob::{self, MatchOptions};
 use walkdir::WalkDir;
 
 use crate::assembly::parser::SeqDirs;
 
-pub fn auto_find_cleaned_fastq(path: &str, dirname: &str) -> Vec<SeqReads> {
+pub fn auto_find_cleaned_fastq(path: &Path, dirname: &str) -> Vec<SeqReads> {
     let mut entries = Vec::new();
 
     WalkDir::new(path)
@@ -112,7 +112,7 @@ mod test {
 
     #[test]
     fn find_cleaned_fastq_test() {
-        let input = "test_files/assembly";
+        let input = Path::new("test_files/assembly");
         let dirname = "trimmed";
 
         let res = auto_find_cleaned_fastq(&input, &dirname);
@@ -122,7 +122,7 @@ mod test {
 
     #[test]
     fn find_cleaned_fastq_reads_test() {
-        let input = "test_files/assembly";
+        let input = Path::new("test_files/assembly");
         let dirname = "trimmed";
 
         let res = auto_find_cleaned_fastq(&input, &dirname);
