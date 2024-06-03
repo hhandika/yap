@@ -6,51 +6,110 @@ on:
       - "*"
 
 jobs:
-  publish:
-    name: Release for ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        name: [linux, macos]
-
-        include:
-          - name: linux
-            os: ubuntu-latest
-            executable: yap
-            artifact_name: target/release/yap
-            asset_name: yap-Linux-x86_64.zip
-
-          - name: macos
-            os: macos-latest
-            executable: yap
-            artifact_name: target/release/yap
-            asset_name: yap-MacOS-x86_64.zip
-
+  linux:
+    name: Linux x86_64 GNU
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - name: Checkout sources
+        uses: actions/checkout@v3
 
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Build
-        run: cargo build --release && mv ${{ matrix.artifact_name }} .
-      
-      - name: Archive Release
-        uses: thedoctor0/zip-release@master
+        uses: dtolnay/rust-toolchain@stable
+      - run: cargo build --release
+
+      - name: Compress release
+        run: tar czvf yap.tar.gz -C target/release yap
+
+      - name: Upload release
+        uses: svenstaro/upload-release-action@v2
         with:
-          type: 'zip'
-          path: ${{ matrix.executable }}
-          filename: ${{ matrix.asset_name }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: yap.tar.gz
+          asset_name: yap-Linux-x86_64.tar.gz
+          tag: ${{ github.ref }}
 
-      - name: Get Release Tags
-        run: echo "VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+  linux_musl:
+    name: Linux x86_64 Static
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
 
-      - name: Upload Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo $VERSION
-          gh release upload --clobber ${{ env.VERSION }} ${{ matrix.asset_name }}
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          target: x86_64-unknown-linux-musl
 
+      - name: Build
+        uses: dtolnay/rust-toolchain@stable
+      - run: |
+          sudo apt install musl-tools
+          cargo build --release --target x86_64-unknown-linux-musl
+
+      - name: Compress release
+        run: tar czvf yap.tar.gz -C target/x86_64-unknown-linux-musl/release yap
+
+      - name: Upload release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: yap.tar.gz
+          asset_name: yap-Linux-musl-x86_64.tar.gz
+          tag: ${{ github.ref }}
+ 
+  macos:
+    name: macOS x86_64
+    runs-on: macos-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build
+        uses: dtolnay/rust-toolchain@stable
+      - run: cargo build --release
+
+      - name: Compress release
+        run: tar czvf yap.tar.gz -C target/release yap
+
+      - name: Upload release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: yap.tar.gz
+          asset_name: yap-macOS-x86_64.tar.gz
+          tag: ${{ github.ref }}
+
+  macos_arm:
+    name: macOS arm64
+    runs-on: macos-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          target: aarch64-apple-darwin
+
+      - name: Build
+        uses: dtolnay/rust-toolchain@stable
+      - run: cargo build --release --target aarch64-apple-darwin
+
+      - name: Compress release
+        run: tar czvf yap.tar.gz -C target/aarch64-apple-darwin/release yap
+
+      - name: Upload release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: yap.tar.gz
+          asset_name: yap-macOS-arm64.tar.gz
+          tag: ${{ github.ref }}
