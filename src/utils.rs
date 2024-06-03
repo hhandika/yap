@@ -6,7 +6,7 @@ use chrono::NaiveTime;
 use colored::Colorize;
 use dialoguer::{theme::ColorfulTheme, Confirm};
 use indicatif::{ProgressBar, ProgressStyle};
-use sysinfo::{System, SystemExt};
+use sysinfo::System;
 
 pub fn check_dir_exist(path: &Path) {
     if path.is_dir() {
@@ -59,7 +59,7 @@ pub fn get_system_info() -> Result<()> {
     let io = io::stdout();
     let mut handle = io::BufWriter::new(io);
 
-    let total_ram = sys_info.get_total_memory();
+    let total_ram = sys_info.total_memory();
     let gb = 1048576;
 
     writeln!(handle, "{}", "System Information".yellow())?;
@@ -68,16 +68,11 @@ pub fn get_system_info() -> Result<()> {
         handle,
         "{:18}: {} {}",
         "Operating system",
-        get_os_name(&sys_info),
-        get_os_version(&sys_info)
+        get_os_name(),
+        get_os_version()
     )?;
 
-    writeln!(
-        handle,
-        "{:18}: {}",
-        "Kernel version",
-        get_kernel_version(&sys_info)
-    )?;
+    writeln!(handle, "{:18}: {}", "Kernel version", get_kernel_version())?;
     writeln!(
         handle,
         "{:18}: {:?}",
@@ -91,22 +86,22 @@ pub fn get_system_info() -> Result<()> {
     Ok(())
 }
 
-fn get_os_name(sysinfo: &System) -> String {
-    match sysinfo.get_name() {
+fn get_os_name() -> String {
+    match System::name() {
         Some(i) => i,
         None => String::from("UNKNOWN"),
     }
 }
 
-fn get_os_version(sysinfo: &System) -> String {
-    match sysinfo.get_os_version() {
+fn get_os_version() -> String {
+    match System::os_version() {
         Some(i) => i,
         None => String::from(""),
     }
 }
 
-fn get_kernel_version(sysinfo: &System) -> String {
-    match sysinfo.get_kernel_version() {
+fn get_kernel_version() -> String {
+    match System::kernel_version() {
         Some(i) => i,
         None => String::from("UNKNOWN"),
     }
