@@ -1,5 +1,11 @@
 # YAP Release Notes
 
+## v0.4.3
+
+## v0.4.1
+
+- Fix read matching issues for new.
+
 ## v0.4.0
 
 - Remove summary stats from `yap stats` command. Now. available in [SEGUL](https://www.segul.app/)
