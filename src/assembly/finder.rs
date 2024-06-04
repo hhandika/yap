@@ -1,9 +1,34 @@
 use std::path::{Path, PathBuf};
 
 use glob::{self, MatchOptions};
+use regex::Regex;
 use walkdir::WalkDir;
 
 use crate::assembly::parser::SeqDirs;
+
+/// Match Read 1 from file name
+pub const READ1_REGEX: &str = r"^(.+?)(_|-)(?i)(R1|1|read1|read_1|read-1)(?:.*)$";
+
+/// Match Read 2 from file name
+pub const READ2_REGEX: &str = r"^(.+?)(_|-)(?i)(R2|2|read2|read_2|read-2)(?:.*)$";
+
+/// Lazy static regex matcher
+///
+/// Matches a file name with a given pattern
+/// Returns true if the file name matches the pattern
+macro_rules! re_match {
+    ($pattern: ident, $path: ident) => {{
+        lazy_static! {
+            static ref RE: Regex = Regex::new($pattern).unwrap();
+        }
+        let file_name = $path.file_name().expect("Failed to get file name");
+        RE.is_match(
+            file_name
+                .to_str()
+                .expect("Failed to convert file name to string"),
+        )
+    }};
+}
 
 pub fn auto_find_cleaned_fastq(path: &Path, dirname: &str) -> Vec<SeqReads> {
     let mut entries = Vec::new();
@@ -62,7 +87,7 @@ impl SeqReads {
     }
 
     fn glob_fastq(&self) -> Vec<PathBuf> {
-        let pattern = format!("{}/*.f*.g*", self.dir.to_string_lossy());
+        let pattern = format!("{}/*", self.dir.to_string_lossy());
         let opts = MatchOptions {
             case_sensitive: true,
             ..Default::default()
@@ -74,15 +99,15 @@ impl SeqReads {
     }
 
     fn match_reads(&mut self, dirs: &[PathBuf]) {
-        dirs.iter()
-            .for_each(|e| match e.to_string_lossy().to_uppercase() {
-                d if d.contains("READ1") => self.read_1 = PathBuf::from(e),
-                d if d.contains("R1") => self.read_1 = PathBuf::from(e),
-                d if d.contains("READ2") => self.read_2 = PathBuf::from(e),
-                d if d.contains("R2") => self.read_2 = PathBuf::from(e),
-                d if d.contains("SINGLETON") => self.singleton = Some(PathBuf::from(e)),
-                _ => (),
-            });
+        dirs.iter().for_each(|e| {
+            if re_match!(READ1_REGEX, e) {
+                self.read_1 = PathBuf::from(e);
+            } else if re_match!(READ2_REGEX, e) {
+                self.read_2 = PathBuf::from(e);
+            } else {
+                self.singleton = Some(PathBuf::from(e));
+            }
+        });
     }
 
     fn get_id(&mut self, target: Option<String>) {
@@ -102,7 +127,7 @@ mod test {
 
     #[test]
     fn glob_test() {
-        let input = "test_files/assembly";
+        let input = "test_files/assembly/trimmed_test";
 
         let seq = SeqReads::new(&input);
 
