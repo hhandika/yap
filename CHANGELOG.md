@@ -2,9 +2,15 @@
 
 ## v0.4.3
 
+- Fix read matching issues for assembly command.
+
+## v0.4.2
+
+- Fix CI release issues.
+
 ## v0.4.1
 
-- Fix read matching issues for new.
+- Fix issues when new command does not find raw read sequences.
 
 ## v0.4.0
 
